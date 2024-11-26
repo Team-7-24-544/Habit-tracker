@@ -23,8 +23,24 @@ class HomePage extends StatelessWidget {
                   isSelected: true,
                 ),
                 NavButton(
+                  icon: 'web/icons/habits.png',
+                  label: 'Habits',
+                ),
+                NavButton(
+                  icon: 'web/icons/add.png',
+                  label: 'New habit',
+                ),
+                NavButton(
+                  icon: 'web/icons/people.png',
+                  label: 'Groups',
+                ),
+                NavButton(
+                  icon: 'web/icons/achievement.png',
+                  label: 'Achievements',
+                ),
+                NavButton(
                   icon: 'web/icons/profile.png',
-                  label: 'Profile',
+                  label: 'User',
                 ),
                 NavButton(
                   icon: 'web/icons/setting.png',
