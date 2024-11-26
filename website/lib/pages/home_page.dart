@@ -1,96 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:website/pages/navigation_page.dart';
+import '../widgets/achievements.dart';
+import '../widgets/nav_button.dart';
+import '../widgets/habit_checklist.dart';
+import '../widgets/calendar_of_emotions.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final int _counter = 0;
-
-  void _incrementCounter() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
-    // setState(() {
-    //   // This call to setState tells the Flutter framework that something has
-    //   // changed in this State, which causes it to rerun the build method below
-    //   // so that the display can reflect the updated values. If we changed
-    //   // _counter without calling setState(), then the build method would not be
-    //   // called again, and so nothing would appear to happen.
-    //   _counter++;
-    // });
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    final Map<DateTime, String> emotions = {
+      DateTime(2024, 11, 11): '😊',
+      DateTime(2024, 11, 22): '😢',
+      DateTime(2024, 11, 13): '😡',
+      DateTime(2024, 11, 14): '🥳',
+      DateTime(2024, 11, 15): '😴',
+    };
+
+    return MaterialApp(
+      title: 'Emotion Calendar',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      home: Scaffold(
+        body: Row(
+          children: [
+            // Left navigation column
+            Container(
+              width: 80,
+              color: Colors.blue.shade900,
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  SizedBox(height: 40),
+                  NavButton(
+                    icon: 'web/icons/home.png',
+                    label: 'Home',
+                    isSelected: true,
+                  ),
+                  NavButton(
+                    icon: 'web/icons/habits.png',
+                    label: 'Habits',
+                  ),
+                  NavButton(
+                    icon: 'web/icons/add.png',
+                    label: 'New habit',
+                  ),
+                  NavButton(
+                    icon: 'web/icons/people.png',
+                    label: 'Groups',
+                  ),
+                  NavButton(
+                    icon: 'web/icons/achievement.png',
+                    label: 'Achievements',
+                  ),
+                  NavButton(
+                    icon: 'web/icons/profile.png',
+                    label: 'User',
+                  ),
+                  NavButton(
+                    icon: 'web/icons/setting.png',
+                    label: 'Settings',
+                  ),
+                ],
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // Main content area
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Левая часть (2/3 экрана)
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          EmotionCalendar(emotions: emotions),
+                          const Spacer(),
+                          // Достижения внизу левой части
+                          const Achievements(),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+                    // Правая часть (1/3 экрана)
+                    const SizedBox(width: 32),
+                    const Expanded(
+                      child: HabitChecklist(),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
