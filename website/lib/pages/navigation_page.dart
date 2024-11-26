@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/nav_button.dart';
+import '../widgets/habit_checklist.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,19 +36,43 @@ class HomePage extends StatelessWidget {
           ),
           // Main content area
           Expanded(
-            child: Container(
-              color: Colors.grey[100],
-              child: const Center(
-                child: Text(
-                  'Welcome to the Home Page!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+            //body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Трекер привычек',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Основной контент будет здесь',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                    const Expanded(
+                      child: HabitChecklist(),
+                    ),
+                  ],
                 ),
               ),
-            ),
           ),
+          //),
         ],
       ),
     );
