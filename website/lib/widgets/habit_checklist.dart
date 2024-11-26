@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
+import '../services/habit_service.dart';
 
 class HabitChecklist extends StatefulWidget {
   const HabitChecklist({super.key});
@@ -9,6 +10,7 @@ class HabitChecklist extends StatefulWidget {
 }
 
 class _HabitChecklistState extends State<HabitChecklist> {
+  final HabitService _habitService = HabitService();
   final List<Habit> _habits = [
     Habit(
       id: '1',
@@ -27,15 +29,21 @@ class _HabitChecklistState extends State<HabitChecklist> {
     ),
   ];
 
-  void _toggleHabit(String habitId) {
-    setState(() {
-      final habitIndex = _habits.indexWhere((habit) => habit.id == habitId);
-      if (habitIndex != -1) {
+  Future<void> _toggleHabit(String habitId) async {
+    final habitIndex = _habits.indexWhere((habit) => habit.id == habitId);
+    if (habitIndex != -1) {
+      final newCompleted = !_habits[habitIndex].completed;
+      
+      // Вызываем сервисный метод для обработки изменения состояния
+      await _habitService.markHabitAsCompleted(habitId, newCompleted);
+      
+      // Обновляем локальное состояние после успешного выполнения сервисного метода
+      setState(() {
         _habits[habitIndex] = _habits[habitIndex].copyWith(
-          completed: !_habits[habitIndex].completed,
+          completed: newCompleted,
         );
-      }
-    });
+      });
+    }
   }
 
   @override

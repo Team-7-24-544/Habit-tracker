@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/nav_button.dart';
 import '../widgets/habit_checklist.dart';
+import '../widgets/achievements.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -58,6 +59,7 @@ class HomePage extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Левая часть (2/3 экрана)
                     Expanded(
                       flex: 2,
                       child: Column(
@@ -77,9 +79,14 @@ class HomePage extends StatelessWidget {
                               color: Colors.grey[600],
                             ),
                           ),
+                          const Spacer(),
+                          // Достижения внизу левой части
+                          const Achievements(),
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
+                    // Правая часть (1/3 экрана)
                     const SizedBox(width: 32),
                     const Expanded(
                       child: HabitChecklist(),
@@ -88,7 +95,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
           ),
-          //),
         ],
       ),
     );
