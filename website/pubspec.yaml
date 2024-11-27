@@ -61,13 +61,8 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - web/icons/home.png
-    - web/icons/profile.png
-    - web/icons/setting.png
-    - web/icons/add.png
-    - web/icons/achievement.png
-    - web/icons/people.png
-    - web/icons/habits.png
+    - web/icons/.
+    - web/icons/navigations/.
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

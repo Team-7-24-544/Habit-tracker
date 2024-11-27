@@ -1,16 +1,29 @@
-# website
+# Website
 
-Habit tracker
+Название: Habit tracker
 
-## Getting Started
+Страницы:
 
-This project is a starting point for a Flutter application.
+- home
+- other will be created soon
 
-A few resources to get you started if this is your first Flutter project:
+# Backend
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Все файлы находятся в lib/
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- main.dart
+- models - объекты без визуализации
+- pages - страницы сайта
+- services - вспомогательные скрипты/функции
+- widgets - кастомные виджеты
+
+# User Interface
+
+Все, что не настроено в backend напрямую находиться в web/. Также там (web/icons/) располагаются все картинки,
+используемые в сайте.
+
+- icons/navigations - картинки для панели навигации
+
+# Manifest
+
+- pubspecs.yaml - настройка flutter'а

@@ -1,5 +1,37 @@
 import 'package:flutter/material.dart';
 
+NavButton createNavButton(NavigationOptions type) {
+  String icon = 'web/icons/navigations/', label = '';
+  switch (type) {
+    case NavigationOptions.home:
+      label = 'Home';
+      break;
+    case NavigationOptions.habits:
+      label = 'Habits';
+      break;
+    case NavigationOptions.newHabit:
+      label = 'New habit';
+      break;
+    case NavigationOptions.groups:
+      label = 'Groups';
+      break;
+    case NavigationOptions.achievements:
+      label = 'Achievements';
+      break;
+    case NavigationOptions.profile:
+      label = 'Profile';
+      break;
+    case NavigationOptions.settings:
+      label = 'Settings';
+      break;
+    default:
+      return const NavButton(
+          icon: 'web/icons/no picture.png', label: 'Error 404');
+  }
+  icon += '${label.toLowerCase()}.png';
+  return NavButton(icon: icon, label: label);
+}
+
 class NavButton extends StatelessWidget {
   final String icon;
   final String label;
@@ -43,4 +75,14 @@ class NavButton extends StatelessWidget {
       ),
     );
   }
+}
+
+enum NavigationOptions {
+  home,
+  habits,
+  newHabit,
+  groups,
+  achievements,
+  profile,
+  settings
 }

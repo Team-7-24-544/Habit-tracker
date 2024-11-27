@@ -5,9 +5,9 @@ class EmotionCalendar extends StatelessWidget {
   final Map<DateTime, String> emotions;
 
   const EmotionCalendar({
-    Key? key,
+    super.key,
     required this.emotions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +17,11 @@ class EmotionCalendar extends StatelessWidget {
     final startWeekday = firstDayOfMonth.weekday;
 
     return SizedBox(
-      height: 500, // Fixed height for the calendar
+      height: 500,
       child: Card(
         elevation: 4,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
