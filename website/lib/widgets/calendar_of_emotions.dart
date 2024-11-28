@@ -17,7 +17,7 @@ class EmotionCalendar extends StatelessWidget {
     final startWeekday = firstDayOfMonth.weekday;
 
     return SizedBox(
-      height: 500,
+      height: 400,
       child: Card(
         elevation: 4,
         child: Padding(

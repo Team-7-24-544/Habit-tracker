@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../widgets/nav_button.dart';
 
 class NavigateBar extends Container {
-  NavigateBar({super.key});
+  final NavigationOptions activeOption;
+  final Function goTo;
+
+  NavigateBar({super.key, required this.activeOption, required this.goTo});
 
   @override
   Widget build(BuildContext context) {
@@ -13,13 +16,13 @@ class NavigateBar extends Container {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const SizedBox(height: 40),
-          createNavButton(NavigationOptions.home),
-          createNavButton(NavigationOptions.habits),
-          createNavButton(NavigationOptions.newHabit),
-          createNavButton(NavigationOptions.groups),
-          createNavButton(NavigationOptions.achievements),
-          createNavButton(NavigationOptions.profile),
-          createNavButton(NavigationOptions.settings),
+          createNavButton(NavigationOptions.home, activeOption, goTo),
+          createNavButton(NavigationOptions.habits, activeOption, goTo),
+          createNavButton(NavigationOptions.newHabit, activeOption, goTo),
+          createNavButton(NavigationOptions.groups, activeOption, goTo),
+          createNavButton(NavigationOptions.achievements, activeOption, goTo),
+          createNavButton(NavigationOptions.profile, activeOption, goTo),
+          createNavButton(NavigationOptions.settings, activeOption, goTo),
         ],
       ),
     );
