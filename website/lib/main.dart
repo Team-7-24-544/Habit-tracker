@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/registration_page.dart';
 import 'pages/home_page.dart';
-import 'pages/achievements_page.dart';
 import 'pages/login_page.dart';
 
 void main() {
@@ -23,11 +22,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/registration': (context) => const RegistrationPage(),
-        '/home': (context) => const HomePage(),
+        '/home': (context) => HomePage(),
       },
-      //home: const LoginPage(),
-      //home: const HomePage(),
-      //home: const AchievementsPage(),
     );
   }
 }

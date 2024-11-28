@@ -38,7 +38,7 @@ abstract class TemplatePage extends StatelessWidget {
   TemplatePage changePage(NavigationOptions type) {
     switch (type) {
       case NavigationOptions.home:
-        return const HomePage();
+        return HomePage();
       case NavigationOptions.habits:
         return const HabitsPage();
       case NavigationOptions.newHabit:
@@ -52,7 +52,7 @@ abstract class TemplatePage extends StatelessWidget {
       case NavigationOptions.settings:
         return const SettingsPage();
       default:
-        return const HomePage();
+        return HomePage();
     }
   }
 
