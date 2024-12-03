@@ -10,29 +10,11 @@ class NewHabitPage extends TemplatePage {
   const NewHabitPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: title,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      home: const NewHabitPageContent(),
-    );
-  }
-}
-
-class NewHabitPageContent extends StatelessWidget {
-  const NewHabitPageContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          //const NavigateBar(),
-          const HabitCreationArea(),
-        ],
+  Widget getMainArea() {
+    return const Expanded(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: HabitCreationArea(),
       ),
     );
   }
