@@ -24,14 +24,28 @@ abstract class TemplatePage extends StatelessWidget {
         useMaterial3: true,
       ),
       home: Scaffold(
-        body: Row(
-          children: [
-            // Left navigation column
-            NavigateBar(activeOption: page, goTo: changePage),
-            getMainArea(),
-          ],
+        body: SafeArea(
+          child: _buildMainArea(),
         ),
       ),
+    );
+  }
+
+  Widget _buildMainArea() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        NavigateBar(activeOption: page, goTo: changePage),
+        Expanded(
+          child: _buildScrollableContent(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent() {
+    return Expanded(
+      child: getMainArea(),
     );
   }
 
@@ -57,11 +71,9 @@ abstract class TemplatePage extends StatelessWidget {
   }
 
   Widget getMainArea() {
-    return const Expanded(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        // ! here is main area !
-      ),
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      // ! here is main area !
     );
   }
 }

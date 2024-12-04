@@ -52,9 +52,18 @@ class EmotionCalendarState extends State<EmotionCalendar> {
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     final firstDayOfMonth = DateTime(now.year, now.month, 1);
     final startWeekday = firstDayOfMonth.weekday;
+    final numberOfWeeks = ((daysInMonth + startWeekday - 1) / 7).ceil();
+
+    const double headerHeight = 50.0;
+    const double spacing = 14.0;
+    const double cellHeight = calendarCellSize;
+    const double padding = 28.0;
+
+    final double totalHeight =
+        headerHeight + spacing + cellHeight * (numberOfWeeks + 1) + padding;
 
     return SizedBox(
-      height: 400,
+      height: totalHeight,
       child: Card(
         elevation: 4,
         child: Padding(

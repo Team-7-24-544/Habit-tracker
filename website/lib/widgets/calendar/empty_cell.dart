@@ -4,14 +4,18 @@ TableCell createEmptyCell() {
   return const TableCell(child: EmptyCell());
 }
 
+const calendarCellSize = 55.0;
+
 class EmptyCell extends StatelessWidget {
-  const EmptyCell({Key? key}) : super(key: key);
+  final double height = calendarCellSize;
+
+  const EmptyCell({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 50,
-      child: Center(
+    return SizedBox(
+      height: height,
+      child: const Center(
         child: Text(
           "",
           style: TextStyle(color: Colors.grey),
