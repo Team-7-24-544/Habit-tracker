@@ -8,7 +8,9 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    name = Column(BigInteger, nullable=False)
+    name = Column(String, nullable=False)
+    login = Column(String, nullable=False)
+    password = Column(String, nullable=False)
     tg_id = Column(String(255), nullable=False)
     habits = Column(JSON, nullable=False)
     achievements = Column(JSON, nullable=False)
@@ -18,7 +20,6 @@ class User(Base):
 # Таблица привычек
 class Habit(Base):
     __tablename__ = 'habits'
-
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     description = Column(String(255), nullable=False)
@@ -46,7 +47,6 @@ class Group(Base):
 # Таблица соревнований
 class Competition(Base):
     __tablename__ = 'competitions'
-
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(BigInteger, nullable=False)
     description = Column(String(255), nullable=False)

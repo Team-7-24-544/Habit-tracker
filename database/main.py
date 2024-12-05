@@ -111,3 +111,7 @@ async def get_query(id: int, type: str, params: Optional[Dict[str, Any]] = None)
     if type == "status" and id == 544:
         return JSONResponse(content={"id": id, "body": {"message": "Hello, Б24-544!"}})
     return JSONResponse(content={"id": id, "body": {"message": "Hello!"}})
+
+@app.get("/register")
+async def get_query(name : str , login : str , password : str , tg_id : str):
+    return JSONResponse(content={"id": 0 , "answer" : "success"})
