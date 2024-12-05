@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/api_manager.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -18,8 +19,32 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<void> _handleRegistration() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Реализовать логику регистрации
-      bool isSuccess = true; // Заглушка
+      
+      // Функция регистрации пользователя
+      void registerUser(ApiManager apiManager, String name, String login, String password, String tgNick) async {
+        const String yellow = '\x1B[33m';
+        const String reset = '\x1B[0m';
+        
+        final Map<String, dynamic> data = {
+          "name": name,
+          "login": login,
+          "password": password,
+          "tg_nick": tgNick
+        };
+        
+        final ApiQuery query = ApiQuery(query: '/register/', parameters: {});
+        
+        ApiResponse res = await apiManager.post(query, data);
+        
+        if (res.status) {
+          print('$yellow Регистрация успешна: ${res.body} $reset');
+        } else {
+          print('$yellow Ошибка регистрации: ${res.error} $reset');
+        }
+      }
+
+
+      /*bool isSuccess = true; // Заглушка
 
       if (isSuccess) {
         if (!mounted) return;
@@ -41,7 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         setState(() {
           _errorMessage = 'Ошибка при регистрации';
         });
-      }
+      }*/
     }
   }
 
@@ -205,3 +230,4 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 }
+

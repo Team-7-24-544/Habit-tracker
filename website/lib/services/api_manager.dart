@@ -43,7 +43,76 @@ class ApiManager {
     }
   }
 
-//toDO: implement other methods (post, update, delete)
+  Future<ApiResponse> post(ApiQuery query, Map<String, dynamic> data, {String? token}) async {
+    final uri = Uri.http(mainUrl, query.query, query.parameters);
+    try {
+      Map<String, String> headers = {"Content-Type": "application/json"};
+      if (token != null) {
+        headers["Authorization"] = "Bearer $token";
+      }
+      final response = await client.post(
+        uri,
+        headers: headers,
+        body: json.encode(data),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      return ApiResponse(status: false, error: "POST Error: $e");
+    }
+  }
+
+  Future<ApiResponse> put(ApiQuery query, Map<String, dynamic> data, {String? token}) async {
+    final uri = Uri.http(mainUrl, query.query, query.parameters);
+    try {
+      Map<String, String> headers = {"Content-Type": "application/json"};
+      if (token != null) {
+        headers["Authorization"] = "Bearer $token";
+      }
+      final response = await client.put(
+        uri,
+        headers: headers,
+        body: json.encode(data),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      return ApiResponse(status: false, error: "PUT Error: $e");
+    }
+  }
+
+  Future<ApiResponse> delete(ApiQuery query, {String? token}) async {
+    final uri = Uri.http(mainUrl, query.query, query.parameters);
+    try {
+      Map<String, String> headers = {};
+      if (token != null) {
+        headers["Authorization"] = "Bearer $token";
+      }
+      final response = await client.delete(
+        uri,
+        headers: headers,
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      return ApiResponse(status: false, error: "DELETE Error: $e");
+    }
+  }
+
+  ApiResponse _handleResponse(http.Response response) {
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      try {
+        final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+        return ApiResponse(body: decodedBody);
+      } catch (e) {
+        return ApiResponse(
+            status: false, error: "JSON Decode Error: ${e.toString()}");
+      }
+    } else {
+      return ApiResponse(
+          status: false,
+          error:
+              "Response error: ${response.statusCode} - ${response.reasonPhrase}");
+    }
+  }
+
 }
 
 void check(ApiManager apiManager) async {
