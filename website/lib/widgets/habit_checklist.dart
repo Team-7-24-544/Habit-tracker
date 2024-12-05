@@ -64,38 +64,25 @@ class _HabitChecklistState extends State<HabitChecklist> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Card(
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Ежедневные привычки',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: _habits.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    return HabitItem(
-                      habit: _habits[index],
-                      onToggle: _toggleHabit,
-                    );
-                  },
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Text(
+          'Ежедневные привычки',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
         ),
-      ),
+        const SizedBox(height: 16),
+        HabitItem(habit: _habits[0], onToggle: _toggleHabit),
+        const SizedBox(height: 8),
+        HabitItem(habit: _habits[1], onToggle: _toggleHabit),
+        const SizedBox(height: 8),
+        HabitItem(habit: _habits[2], onToggle: _toggleHabit),
+        const SizedBox(height: 8),
+      ],
     );
   }
 }

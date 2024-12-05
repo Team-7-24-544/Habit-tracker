@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:website/pages/template_page.dart';
 
 NavButton createNavButton(
     NavigationOptions type, NavigationOptions selected, Function goTo) {
@@ -64,11 +65,8 @@ class NavButton extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              navigateWithAnimation(context, goTo(type));
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => goTo(type)),
-              // );
+              TemplatePage? newPage = goTo(type);
+              if (newPage != null) navigateWithAnimation(context, newPage);
             },
             child: Container(
               padding: const EdgeInsets.all(12),

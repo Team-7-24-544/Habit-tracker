@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:website/services/api_manager.dart';
 import '../services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  final ApiManager apiManager;
+
+  const LoginPage({required this.apiManager});
 
   @override
   _LoginPageState createState() => _LoginPageState();

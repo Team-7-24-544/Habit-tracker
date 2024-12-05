@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:website/services/api_manager.dart';
 import '../services/auth_service.dart';
 
 class RegistrationPage extends StatefulWidget {
-  const RegistrationPage({Key? key}) : super(key: key);
+  final ApiManager apiManager;
+
+  const RegistrationPage(this.apiManager, {super.key});
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
@@ -23,10 +26,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       if (isSuccess) {
         if (!mounted) return;
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Регистрация успешно завершена! Теперь вы можете войти в систему.'),
+            content: Text(
+                'Регистрация успешно завершена! Теперь вы можете войти в систему.'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
           ),
@@ -35,7 +39,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         await Future.delayed(const Duration(seconds: 2));
 
         if (!mounted) return;
-        
+
         Navigator.of(context).pop();
       } else {
         setState(() {

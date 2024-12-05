@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../widgets/achievements.dart';
-import '../widgets/emotion_selector.dart';
-import '../widgets/calendar_of_emotions.dart';
+import 'package:website/services/api_manager.dart';
+import '../widgets/home_page_widgets/emotion_selector.dart';
+import '../widgets/home_page_widgets/calendar_of_emotions.dart';
+import '../widgets/habit_checklist.dart';
 import '../widgets/nav_button.dart';
 
 class HomePage extends TemplatePage {
@@ -10,7 +11,7 @@ class HomePage extends TemplatePage {
   final NavigationOptions page = NavigationOptions.home;
   final EmotionCalendarController _controller = EmotionCalendarController();
 
-  HomePage({super.key});
+  HomePage(ApiManager apiManager, {super.key}) : super(apiManager: apiManager);
 
   @override
   Widget getMainArea() {
@@ -26,45 +27,36 @@ class HomePage extends TemplatePage {
       physics: const ClampingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox(
-              width: constraints.maxWidth,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          EmotionCalendar(
-                            key: _controller.calendarKey,
-                            emotions: emotions,
-                            controller: _controller,
-                          ),
-                          const SizedBox(height: 24),
-                          EmojiSelector(
-                            onEmotionSelected: _controller.setEmoji,
-                          ),
-                          const SizedBox(height: 24),
-                          const Achievements(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 32),
-                    // const Flexible(
-                    //   flex: 3,
-                    //   child: HabitChecklist(),
-                    // ),
-                  ],
-                ),
+        // main area //////////////// {
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  EmotionCalendar(
+                      key: _controller.calendarKey,
+                      emotions: emotions,
+                      controller: _controller),
+                  const SizedBox(height: 24),
+                  EmojiSelector(onEmotionSelected: _controller.setEmoji),
+                  const SizedBox(height: 24),
+                  // const LastAchievements(),
+                  const SizedBox(height: 100),
+                ],
               ),
-            );
-          },
+            ),
+            const SizedBox(width: 32),
+            Flexible(
+              flex: 2,
+              child: HabitChecklist(),
+            ),
+          ],
         ),
+        //  } //////////////// main area
       ),
     );
   }

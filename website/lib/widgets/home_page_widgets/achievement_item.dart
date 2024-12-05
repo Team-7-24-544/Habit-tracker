@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/achievement.dart';
+import '../../models/achievement.dart';
 
 class AchievementItem extends StatelessWidget {
   final Achievement achievement;
@@ -13,9 +13,7 @@ class AchievementItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      margin: const EdgeInsets.only(right: 16),
+    return Expanded(
       child: Card(
         color: Colors.white.withOpacity(0.9),
         child: Padding(
