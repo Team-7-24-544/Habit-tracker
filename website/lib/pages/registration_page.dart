@@ -9,7 +9,7 @@ class RegistrationPage extends StatefulWidget {
   const RegistrationPage(this.apiManager, {super.key});
 
   @override
-  _RegistrationPageState createState() => _RegistrationPageState();
+  _RegistrationPageState createState() => _RegistrationPageState(apiManager);
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
@@ -20,11 +20,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _telegramController = TextEditingController();
   String _errorMessage = '';
 
+  final ApiManager apiManager;
+
+  _RegistrationPageState(this.apiManager);
+
   Future<void> _handleRegistration() async {
+
     if (_formKey.currentState!.validate()) {
       
       // Функция регистрации пользователя
-      void registerUser(ApiManager apiManager, String name, String login, String password, String tgNick) async {
+      void registerUser(String name, String login, String password, String tgNick) async {
         const String yellow = '\x1B[33m';
         const String reset = '\x1B[0m';
         
@@ -46,6 +51,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         }
       }
 
+      registerUser(_nameController.text, _nameController.text, _nameController.text, _nameController.text);
 
       /*bool isSuccess = true; // Заглушка
 
