@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import '../models/emotions.dart';
+import '../../models/emotions.dart';
 import 'emoji_item.dart';
 
 class EmojiSelector extends StatefulWidget {
@@ -22,7 +22,6 @@ class _EmojiSelectorState extends State<EmojiSelector> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(16),

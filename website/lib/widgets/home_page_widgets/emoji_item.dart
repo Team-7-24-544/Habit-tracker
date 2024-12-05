@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/emotions.dart';
+import '../../models/emotions.dart';
 
 class EmojiItem extends StatelessWidget {
   final Emotion emotion;

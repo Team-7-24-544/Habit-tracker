@@ -6,14 +6,16 @@ import 'package:website/pages/home_page.dart';
 import 'package:website/pages/new_habit_page.dart';
 import 'package:website/pages/profile_page.dart';
 import 'package:website/pages/settings_page.dart';
+import '../services/api_manager.dart';
 import '../widgets/nav_button.dart';
 import '../widgets/navigate_bar.dart';
 
 abstract class TemplatePage extends StatelessWidget {
   final String title = 'Empty Page';
   final NavigationOptions page = NavigationOptions.home;
+  final ApiManager apiManager;
 
-  const TemplatePage({super.key});
+  const TemplatePage({super.key, required this.apiManager});
 
   @override
   Widget build(BuildContext context) {
@@ -36,9 +38,7 @@ abstract class TemplatePage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         NavigateBar(activeOption: page, goTo: changePage),
-        Expanded(
-          child: _buildScrollableContent(),
-        ),
+        _buildScrollableContent(),
       ],
     );
   }
@@ -49,24 +49,25 @@ abstract class TemplatePage extends StatelessWidget {
     );
   }
 
-  TemplatePage changePage(NavigationOptions type) {
+  TemplatePage? changePage(NavigationOptions type) {
+    if (page == type) return null;
     switch (type) {
       case NavigationOptions.home:
-        return HomePage();
+        return HomePage(apiManager);
       case NavigationOptions.habits:
-        return const HabitsPage();
+        return HabitsPage(apiManager);
       case NavigationOptions.newHabit:
-        return const NewHabitPage();
+        return NewHabitPage(apiManager);
       case NavigationOptions.groups:
-        return const GroupsPage();
+        return GroupsPage(apiManager);
       case NavigationOptions.achievements:
-        return const AchievementsPage();
+        return AchievementsPage(apiManager);
       case NavigationOptions.profile:
-        return const ProfilePage();
+        return ProfilePage(apiManager);
       case NavigationOptions.settings:
-        return const SettingsPage();
+        return SettingsPage(apiManager);
       default:
-        return HomePage();
+        return HomePage(apiManager);
     }
   }
 

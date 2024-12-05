@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../models/achievement.dart';
-import 'home_page_widgets/last_achievement_item.dart';
+import '../../models/achievement.dart';
+import 'last_achievement_item.dart';
 
-class Achievements extends StatefulWidget {
-  const Achievements({super.key});
+class LastAchievements extends StatefulWidget {
+  const LastAchievements({super.key});
 
   @override
-  State<Achievements> createState() => _AchievementsState();
+  State<LastAchievements> createState() => _AchievementsState();
 }
 
-class _AchievementsState extends State<Achievements> {
+class _AchievementsState extends State<LastAchievements> {
   List<Achievement> _achievements = [];
 
   @override
@@ -72,6 +72,7 @@ class _AchievementsState extends State<Achievements> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 300,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -95,27 +96,37 @@ class _AchievementsState extends State<Achievements> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FittedBox(
+            const FittedBox(
               child: Row(
                 children: [
                   Text(
                     'Последние достижения',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  const Text('🏆', style: TextStyle(fontSize: 24)),
+                  SizedBox(width: 8),
+                  Text('🏆', style: TextStyle(fontSize: 24)),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            createAchievementItem(0),
-            const SizedBox(height: 16),
-            createAchievementItem(1),
-            const SizedBox(height: 16),
-            createAchievementItem(2),
+            SizedBox(
+              height: 200, //toDO: calculate height dynamically
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _achievements.length,
+                itemBuilder: (context, index) {
+                  return FittedBox(
+                    child: AchievementItem(
+                      achievement: _achievements[index],
+                      getIconData: _getIconData,
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -123,9 +134,11 @@ class _AchievementsState extends State<Achievements> {
   }
 
   Widget createAchievementItem(int index) {
-    return AchievementItem(
-      achievement: _achievements[index],
-      getIconData: _getIconData,
+    return FittedBox(
+      child: AchievementItem(
+        achievement: _achievements[index],
+        getIconData: _getIconData,
+      ),
     );
   }
 }
