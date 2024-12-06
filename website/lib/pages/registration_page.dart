@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:website/services/api_manager.dart';
+import 'package:website/services/api_query.dart';
 import '../services/auth_service.dart';
 import '../services/api_manager.dart';
+import '../services/utils_functions.dart';
 
 class RegistrationPage extends StatefulWidget {
   final ApiManager apiManager;
@@ -25,58 +27,39 @@ class _RegistrationPageState extends State<RegistrationPage> {
   _RegistrationPageState(this.apiManager);
 
   Future<void> _handleRegistration() async {
-
     if (_formKey.currentState!.validate()) {
-      
-      // Функция регистрации пользователя
-      void registerUser(String name, String login, String password, String tgNick) async {
-        const String yellow = '\x1B[33m';
-        const String reset = '\x1B[0m';
-        
-        final Map<String, dynamic> data = {
-          "name": name,
-          "login": login,
-          "password": password,
-          "tg_nick": tgNick
-        };
-        
-        final ApiQuery query = ApiQuery(query: '/register/', parameters: {});
-        
-        ApiResponse res = await apiManager.post(query, data);
-        
-        if (res.status) {
-          print('$yellow Регистрация успешна: ${res.body} $reset');
-        } else {
-          print('$yellow Ошибка регистрации: ${res.error} $reset');
-        }
-      }
+      const String yellow = '\x1B[33m';
+      const String reset = '\x1B[0m';
+      final String hashedPassword = hashPassword(_passwordController.text);
 
-      registerUser(_nameController.text, _nameController.text, _nameController.text, _nameController.text);
+      final ApiQuery query = ApiQueryBuilder()
+          .path('/register')
+          .addParameter('name', _nameController.text)
+          .addParameter('login', _usernameController.text)
+          .addParameter('password', hashedPassword)
+          .addParameter('tg_nick', _telegramController.text)
+          .build();
+      ApiResponse response = await apiManager.post(query);
+      if (response.success) {
+        print('$yellow Регистрация успешна: ${response.body['answer']} $reset');
+        setState(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Регистрация успешно завершена! Теперь вы можете войти в систему.'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        });
 
-      /*bool isSuccess = true; // Заглушка
-
-      if (isSuccess) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Регистрация успешно завершена! Теперь вы можете войти в систему.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-          ),
-        );
-
-        await Future.delayed(const Duration(seconds: 2));
-
-        if (!mounted) return;
-
-        Navigator.of(context).pop();
+        //TODO: change_page and save id of user to appdata
       } else {
         setState(() {
           _errorMessage = 'Ошибка при регистрации';
         });
-      }*/
+        print('$yellow Ошибка регистрации: ${response.error} $reset');
+      }
     }
   }
 
@@ -91,6 +74,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO: rewrite code with OOP
     return Scaffold(
       appBar: AppBar(
         title: const Text('Регистрация'),
@@ -240,4 +224,3 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 }
-

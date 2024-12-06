@@ -1,128 +1,85 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:core';
 import 'package:http/http.dart' as http;
 import 'package:fetch_client/fetch_client.dart';
 
+import 'api_query.dart';
+
 class ApiResponse {
-  final bool status;
+  final bool success;
   final String error;
   final Map<String, dynamic> body;
 
   ApiResponse(
-      {this.status = true, this.error = "Ok", Map<String, dynamic>? body})
+      {this.success = true, this.error = "Ok", Map<String, dynamic>? body})
       : body = body ?? {"content": null};
 
   bool empty() {
-    return !status;
+    return !success;
   }
-}
-
-class ApiQuery {
-  final String query;
-  final Map<String, dynamic> parameters;
-
-  ApiQuery({required this.query, required this.parameters});
 }
 
 class ApiManager {
-  final mainUrl = '127.0.0.1:8000';
+  final mainUrl = 'http://127.0.0.1:8000';
   final client = FetchClient(mode: RequestMode.cors);
+  final Map<String, String> defaultHeaders = {
+    'Authorization': 'Bearer your_token',
+    'Content-Type': 'application/json'
+  };
 
-  Future<ApiResponse> get(ApiQuery query) async {
-    final uri = Uri.http(mainUrl, query.query, query.parameters);
+  Uri _buildUri(String path, Map<String, dynamic> parameters) {
+    return Uri.parse('$mainUrl$path').replace(queryParameters: parameters);
+  }
+
+  Map<String, String> _mergeHeaders(Map<String, String>? headers) {
+    return {...defaultHeaders, ...?headers};
+  }
+
+  Future<ApiResponse> _sendRequest(String method, ApiQuery query) async {
+    final uri = _buildUri(query.path, query.parameters);
+    final headers = _mergeHeaders(query.headers);
+
     try {
-      final response = await http.get(uri);
-      if (response.statusCode == 200) {
+      final response = http.Request(method, uri)..headers.addAll(headers);
+      print(response);
+      final streamedResponse = await response.send();
+      final responseData = await http.Response.fromStream(streamedResponse);
+
+      if (responseData.statusCode >= 200 && responseData.statusCode < 300) {
         return ApiResponse(
-            body: utf8.decode(response.bodyBytes) as Map<String, dynamic>);
-      }
-      return ApiResponse(
-          status: false, error: "Response error: ${response.statusCode}");
-    } catch (e) {
-      return ApiResponse(status: false, error: "Response error: $e");
-    }
-  }
-
-  Future<ApiResponse> post(ApiQuery query, Map<String, dynamic> data, {String? token}) async {
-    final uri = Uri.http(mainUrl, query.query, query.parameters);
-    try {
-      Map<String, String> headers = {"Content-Type": "application/json"};
-      if (token != null) {
-        headers["Authorization"] = "Bearer $token";
-      }
-      final response = await client.post(
-        uri,
-        headers: headers,
-        body: json.encode(data),
-      );
-      return _handleResponse(response);
-    } catch (e) {
-      return ApiResponse(status: false, error: "POST Error: $e");
-    }
-  }
-
-  Future<ApiResponse> put(ApiQuery query, Map<String, dynamic> data, {String? token}) async {
-    final uri = Uri.http(mainUrl, query.query, query.parameters);
-    try {
-      Map<String, String> headers = {"Content-Type": "application/json"};
-      if (token != null) {
-        headers["Authorization"] = "Bearer $token";
-      }
-      final response = await client.put(
-        uri,
-        headers: headers,
-        body: json.encode(data),
-      );
-      return _handleResponse(response);
-    } catch (e) {
-      return ApiResponse(status: false, error: "PUT Error: $e");
-    }
-  }
-
-  Future<ApiResponse> delete(ApiQuery query, {String? token}) async {
-    final uri = Uri.http(mainUrl, query.query, query.parameters);
-    try {
-      Map<String, String> headers = {};
-      if (token != null) {
-        headers["Authorization"] = "Bearer $token";
-      }
-      final response = await client.delete(
-        uri,
-        headers: headers,
-      );
-      return _handleResponse(response);
-    } catch (e) {
-      return ApiResponse(status: false, error: "DELETE Error: $e");
-    }
-  }
-
-  ApiResponse _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      try {
-        final decodedBody = json.decode(response.body) as Map<String, dynamic>;
-        return ApiResponse(body: decodedBody);
-      } catch (e) {
+          body: json.decode(responseData.body) as Map<String, dynamic>,
+        );
+      } else {
         return ApiResponse(
-            status: false, error: "JSON Decode Error: ${e.toString()}");
-      }
-    } else {
-      return ApiResponse(
-          status: false,
+          success: false,
           error:
-              "Response error: ${response.statusCode} - ${response.reasonPhrase}");
+              'Error: ${responseData.statusCode}, ${responseData.reasonPhrase}',
+        );
+      }
+    } catch (e) {
+      return ApiResponse(success: false, error: 'Request failed: $e');
     }
   }
 
+  Future<ApiResponse> get(ApiQuery query) => _sendRequest('GET', query);
+
+  Future<ApiResponse> post(ApiQuery query) => _sendRequest('POST', query);
+
+  Future<ApiResponse> update(ApiQuery query) => _sendRequest('PUT', query);
+
+  Future<ApiResponse> delete(ApiQuery query) => _sendRequest('DELETE', query);
 }
 
 void check(ApiManager apiManager) async {
   const String yellow = '\x1B[33m';
   const String reset = '\x1B[0m';
   try {
-    ApiResponse res = await apiManager.get(ApiQuery(
-        query: '/check_api', parameters: {"id": "544", "type": "status"}));
+    ApiQuery query =
+        ApiQueryBuilder().path('/check_api').addParameter('id', 544).build();
+    ApiResponse res = await apiManager.get(query);
     print('$yellow Api answer is ${!res.empty()} $reset');
   } catch (e) {
-    print('$yellow Api answer is Error $e $reset');
+    print('$yellow Error $e $reset');
   }
 }

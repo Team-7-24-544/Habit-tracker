@@ -1,12 +1,15 @@
 from typing import Optional, Dict, Any
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from sqlalchemy import select, and_, or_
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
-from models import Competition, User, Habit, Achievement, Group
+from database import SessionLocal, init_db
+from models import User
 
 app = FastAPI()
 
@@ -28,90 +31,76 @@ def get_db():
         db.close()
 
 
-# Роуты для пользователей
-@app.post("/users/")
-def create_user(name: int, tg_id: str, habits: dict, achievements: dict, groups: dict, competitions: int,
-                db: Session = Depends(get_db)):
-    user = User(name=name, tg_id=tg_id, habits=habits, achievements=achievements, groups=groups,
-                competitions=competitions)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+class RegisterRequest(BaseModel):
+    name: str
+    login: str
+    password: str
+    tg_nick: str
 
 
-@app.get("/users/")
-def get_users(db: Session = Depends(get_db)):
-    return db.query(User).all()
+class LoginRequest(BaseModel):
+    login: str
+    password: str
 
 
-# Роуты для привычек
-@app.post("/habits/")
-def create_habit(name: str, description: str, achievements: dict, db: Session = Depends(get_db)):
-    habit = Habit(name=name, description=description, achievements=achievements)
-    db.add(habit)
-    db.commit()
-    db.refresh(habit)
-    return habit
-
-
-@app.get("/habits/")
-def get_habits(db: Session = Depends(get_db)):
-    return db.query(Habit).all()
-
-
-# Роуты для достижений
-@app.post("/achievements/")
-def create_achievement(name: str, description: str, condition: dict, db: Session = Depends(get_db)):
-    achievement = Achievement(name=name, description=description, condition=condition)
-    db.add(achievement)
-    db.commit()
-    db.refresh(achievement)
-    return achievement
-
-
-@app.get("/achievements/")
-def get_achievements(db: Session = Depends(get_db)):
-    return db.query(Achievement).all()
-
-
-# Роуты для групп
-@app.post("/groups/")
-def create_group(name: str, participants: dict, habits: dict, competitions: dict, db: Session = Depends(get_db)):
-    group = Group(name=name, participants=participants, habits=habits, competitions=competitions)
-    db.add(group)
-    db.commit()
-    db.refresh(group)
-    return group
-
-
-@app.get("/groups/")
-def get_groups(db: Session = Depends(get_db)):
-    return db.query(Group).all()
-
-
-# Роуты для соревнований
-@app.post("/competitions/")
-def create_competition(name: int, description: str, db: Session = Depends(get_db)):
-    competition = Competition(name=name, description=description)
-    db.add(competition)
-    db.commit()
-    db.refresh(competition)
-    return competition
-
-
-@app.get("/competitions/")
-def get_competitions(db: Session = Depends(get_db)):
-    return db.query(Competition).all()
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 
 @app.get("/check_api")
-async def get_query(id: int, type: str, params: Optional[Dict[str, Any]] = None):
-    print(f"Received id: {id}, type: {type}, params: {params}")
-    if type == "status" and id == 544:
-        return JSONResponse(content={"id": id, "body": {"message": "Hello, Б24-544!"}})
-    return JSONResponse(content={"id": id, "body": {"message": "Hello!"}})
+async def get_query(id: int, params: Optional[Dict[str, Any]] = None):
+    print(f"Received id: {id}, params: {params}")
+    return JSONResponse(content={"id": id, "body": {"message": f"Hello, Б24-{id}!"}})
 
-@app.get("/register")
-async def get_query(name : str , login : str , password : str , tg_id : str):
-    return JSONResponse(content={"id": 0 , "answer" : "success"})
+
+@app.post("/register")
+async def register(name: str, login: str, password: str, tg_nick: str, db: Session = Depends(get_db)):
+    try:
+        stmt = select(User).where(User.login == login)
+        existing_user = db.execute(stmt).scalars().first()
+        if existing_user:
+            raise HTTPException(
+                status_code=400,
+                detail={"id": -1, "answer": "User with this login already exists"}
+            )
+
+        new_user = User(
+            name=name,
+            login=login,
+            password=password,
+            tg_name=tg_nick
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return JSONResponse(content={"id": new_user.id, "answer": "success"})
+    except IntegrityError as e:
+        db.rollback()
+        print(e)
+        raise HTTPException(
+            status_code=400,
+            detail={"id": -1, "answer": "User with this login already exists"}
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/login")
+async def login(password: str, login: str, db: Session = Depends(get_db)):
+    try:
+        print(f"Authorization: {login} {password}")
+
+        stmt = select(User).where(and_(User.login == login, User.password == password))
+        existing_user = db.execute(stmt).scalars().first()
+
+        if not existing_user:
+            raise HTTPException(status_code=400,
+                                detail={"id": -1, "answer": "User does not exist or password is incorrect"})
+
+        return JSONResponse(content={"id": existing_user.id, "answer": "success"})
+    finally:
+        db.close()
+        return JSONResponse(content={"id": 0, "answer": "ERROR  "})

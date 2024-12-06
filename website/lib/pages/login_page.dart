@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:website/services/api_manager.dart';
 import '../services/auth_service.dart';
 import '../services/api_manager.dart';
-
+import '../services/utils_functions.dart';
 
 class LoginPage extends StatefulWidget {
   final ApiManager apiManager;
@@ -10,23 +10,27 @@ class LoginPage extends StatefulWidget {
   const LoginPage({required this.apiManager});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _LoginPageState createState() => _LoginPageState(apiManager: apiManager);
 }
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final ApiManager apiManager;
   String _errorMessage = '';
+
+  _LoginPageState({required this.apiManager});
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      bool isValid = await AuthService.validateCredentials(
+      int userid = await AuthService.validateCredentials(
         _usernameController.text,
         _passwordController.text,
+        apiManager,
       );
 
-      if (isValid) {
+      if (userid != -1) {
         if (!mounted) return;
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
