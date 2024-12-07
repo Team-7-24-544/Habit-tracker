@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/achievements_page.dart';
+import 'package:website/pages/profile_page.dart';
 import 'package:website/services/api_manager.dart';
 import 'pages/registration_page.dart';
 import 'pages/home_page.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginPage(apiManager: apiManager),
         '/registration': (context) => RegistrationPage(apiManager),
         '/home': (context) => HomePage(apiManager),
-        '/debug': (context) => LoginPage(apiManager: apiManager),
+        '/debug': (context) => ProfilePage(apiManager),
       },
     );
   }
