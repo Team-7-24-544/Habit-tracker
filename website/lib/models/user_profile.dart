@@ -16,10 +16,10 @@ class UserProfile {
   // Временная заглушка для демонстрации
   static UserProfile getDummyProfile() {
     return UserProfile(
-      nickname: 'FlutterDev',
+      nickname: 'Vasy Pupkin',
       description: 'Программирую на Flutter, люблю создавать приложения!',
       goal: 'Улучшить привычки и достичь успеха!',
-      telegram: '@flutterdev',
+      telegram: '@vasek',
     );
   }
 }
