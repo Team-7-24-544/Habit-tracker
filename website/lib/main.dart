@@ -24,12 +24,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/debug',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => LoginPage(apiManager: apiManager),
         '/registration': (context) => RegistrationPage(apiManager),
         '/home': (context) => HomePage(apiManager),
-        '/debug': (context) => ProfilePage(apiManager),
+        //'/debug': (context) => ProfilePage(apiManager),
       },
     );
   }

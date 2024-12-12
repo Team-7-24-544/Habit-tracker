@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal, init_db
 from models import User
+from models import Habit
 
 app = FastAPI()
 
@@ -30,17 +31,6 @@ def get_db():
     finally:
         db.close()
 
-
-class RegisterRequest(BaseModel):
-    name: str
-    login: str
-    password: str
-    tg_nick: str
-
-
-class LoginRequest(BaseModel):
-    login: str
-    password: str
 
 
 @app.on_event("startup")
@@ -104,3 +94,30 @@ async def login(password: str, login: str, db: Session = Depends(get_db)):
     finally:
         db.close()
         return JSONResponse(content={"id": 0, "answer": "ERROR  "})
+
+@app.post("/habits/create")
+async def habits_create(name: str, description : str ,time : str , weekDays : str , duration : int , db: Session = Depends(get_db)):
+    try:
+        new_habbit = Habit(
+            name = name,
+            description = description,
+            time = time,
+            weekDays = weekDays,
+            duration = duration
+
+        )
+        db.add(new_habbit)
+        db.commit()
+        db.refresh(new_habbit)
+
+        return JSONResponse(content={"answer": "success"})
+    except IntegrityError as e:
+        db.rollback()
+        print(e)
+        raise HTTPException(
+            status_code=400,
+            detail={"id": -1, "answer": "Habit already exists"}
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
