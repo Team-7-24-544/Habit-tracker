@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/habit.dart';
-import '../services/habit_service.dart';
+import '../services/mark_habit_service.dart';
 import 'habit_item.dart';
 
 class HabitChecklist extends StatefulWidget {

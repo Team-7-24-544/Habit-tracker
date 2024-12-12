@@ -3,9 +3,18 @@ import '../models/habit_template.dart';
 import '../models/habit_settings.dart';
 import 'habit_template_list.dart';
 import 'habit_settings_form.dart';
+import '../services/api_manager.dart';
+import '../services/new_habbit_service.dart';
 
 class HabitCreationArea extends StatefulWidget {
-  const HabitCreationArea({super.key});
+  final ApiManager apiManager;
+  final Function() onHabitCreated; // Callback для обновления родительского виджета
+
+  const HabitCreationArea({
+    super.key,
+    required this.apiManager,
+    required this.onHabitCreated,
+  });
 
   @override
   State<HabitCreationArea> createState() => _HabitCreationAreaState();
@@ -14,6 +23,7 @@ class HabitCreationArea extends StatefulWidget {
 class _HabitCreationAreaState extends State<HabitCreationArea> {
   bool _isCreatingCustomHabit = false;
   HabitTemplate? _selectedTemplate;
+  bool _isSaving = false;
 
   void _handleTemplateSelected(HabitTemplate template) {
     setState(() {
@@ -22,28 +32,91 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
     });
   }
 
-  void _handleHabitSaved(HabitSettings settings) {
-    // TODO: Implement habit saving logic
-    print('Saving habit with settings: ${settings.name}');
+  Future<void> _handleHabitSaved(HabitSettings settings) async {
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final success = await HabitService.saveNewHabit(
+        settings,
+        widget.apiManager,
+      );
+
+      if (success) {
+        // Показываем уведомление об успехе
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Привычка успешно создана!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+
+        // Вызываем callback для обновления родительского виджета
+        widget.onHabitCreated();
+
+        // Переходим на страницу привычек
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/habits');
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ошибка при создании привычки'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Произошла ошибка: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade50,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildMainContent(),
-          ],
-        ),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 24),
+                _buildMainContent(),
+              ],
+            ),
+          ),
+          if (_isSaving)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -7,16 +7,24 @@ import '../widgets/habit_creation_area.dart';
 class NewHabitPage extends TemplatePage {
   final String title = 'New Habit Page';
   final NavigationOptions page = NavigationOptions.newHabit;
+  
+  var _habitService;
 
-  const NewHabitPage(ApiManager apiManager, {super.key})
+  void _onHabitCreated() {
+    // Здесь можно добавить логику обновления данных после создания привычки
+    // Например, обновить список привычек или состояние приложения
+    _habitService.refreshHabits();
+  }
+  
+  NewHabitPage(ApiManager apiManager, {super.key})
       : super(apiManager: apiManager);
 
   @override
   Widget getMainArea() {
-    return const Expanded(
+    return Expanded(
       child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: HabitCreationArea(),
+        padding: const EdgeInsets.all(16.0),
+        child: HabitCreationArea(apiManager: apiManager, onHabitCreated: () {  },),
       ),
     );
   }
