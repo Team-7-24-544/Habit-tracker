@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/habit_template.dart';
+import '../../models/habit_template.dart';
 
 class HabitTemplateList extends StatelessWidget {
   final List<HabitTemplate> templates = [
@@ -37,21 +37,19 @@ class HabitTemplateList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: templates.length,
-      itemBuilder: (context, index) {
-        final template = templates[index];
+    return Column(
+      children: templates.map((template) {
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
           child: ListTile(
-            leading: Icon(Icons.fitness_center),
+            leading: const Icon(Icons.fitness_center),
             title: Text(template.name),
             subtitle: Text(template.description),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () => onTemplateSelected(template),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }

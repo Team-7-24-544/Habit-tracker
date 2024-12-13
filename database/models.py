@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, BigInteger, Boolean
+from sqlalchemy import Column, String, BigInteger, Boolean, Integer
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -8,7 +8,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     login = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
@@ -19,11 +19,9 @@ class User(Base):
 class Habit(Base):
     __tablename__ = 'habit'
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     time = Column(String, nullable=False)
-    weekDays = Column(String, nullable=False)
-    duration = Column(BigInteger, nullbase=False)
-
-
+    week_days = Column(String, nullable=False)
+    duration = Column(BigInteger, nullable=False)

@@ -1,17 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:website/models/MetaKeys.dart';
+import 'package:website/pages/home_page.dart';
 import 'package:website/services/api_manager.dart';
 import 'package:website/services/api_query.dart';
-import '../services/auth_service.dart';
-import '../services/api_manager.dart';
+import '../models/MetaInfo.dart';
 import '../services/utils_functions.dart';
 
 class RegistrationPage extends StatefulWidget {
   final ApiManager apiManager;
+  final BuildContext context;
 
-  const RegistrationPage(this.apiManager, {super.key});
+  const RegistrationPage(this.apiManager, this.context, {super.key});
+
+  void changePage2() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => HomePage(apiManager),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
 
   @override
-  _RegistrationPageState createState() => _RegistrationPageState(apiManager);
+  _RegistrationPageState createState() => _RegistrationPageState(apiManager, changePage2);
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
@@ -23,8 +47,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _errorMessage = '';
 
   final ApiManager apiManager;
+  final Function changePage;
 
-  _RegistrationPageState(this.apiManager);
+  _RegistrationPageState(this.apiManager, this.changePage);
 
   Future<void> _handleRegistration() async {
     if (_formKey.currentState!.validate()) {
@@ -45,15 +70,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text(
-                  'Регистрация успешно завершена! Теперь вы можете войти в систему.'),
+              content: Text('Регистрация успешно завершена! Теперь вы можете войти в систему.'),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 3),
             ),
           );
         });
 
-        //TODO: change_page and save id of user to appdata
+        final metaInfo = MetaInfo.instance;
+        metaInfo.set(MetaKeys.userId, response.body['id']);
+        changePage();
       } else {
         setState(() {
           _errorMessage = 'Ошибка при регистрации';
@@ -108,85 +134,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Имя',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.person),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Пожалуйста, введите имя';
-                            }
-                            return null;
-                          },
-                        ),
+                        addTextFormField('Имя', _nameController, usernameValidator()),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Логин',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.account_circle),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Пожалуйста, введите логин';
-                            }
-                            return null;
-                          },
-                        ),
+                        addTextFormField('Логин', _usernameController, loginValidator()),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Пароль',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.lock),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Пожалуйста, введите пароль';
-                            }
-                            if (value.length < 6) {
-                              return 'Пароль должен содержать минимум 6 символов';
-                            }
-                            return null;
-                          },
-                        ),
+                        addTextFormField('Пароль', _passwordController, passwordValidator()),
                         const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _telegramController,
-                          decoration: const InputDecoration(
-                            labelText: 'Ник в Telegram',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.telegram),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Пожалуйста, введите ник в Telegram';
-                            }
-                            return null;
-                          },
-                        ),
+                        addTextFormField('Ник в Telegram', _telegramController, telegramValidator()),
                         if (_errorMessage.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(
@@ -222,5 +176,60 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
       ),
     );
+  }
+
+  FormFieldValidator passwordValidator() {
+    return ((value) {
+      if (value.isEmpty) {
+        return 'Пожалуйста, введите пароль';
+      }
+      if (value.length < 6) {
+        return 'Пароль должен содержать минимум 6 символов';
+      }
+      return null;
+    });
+  }
+
+  FormFieldValidator usernameValidator() {
+    return ((value) {
+      if (value == null || value.isEmpty) {
+        return 'Пожалуйста, введите имя';
+      }
+      return null;
+    });
+  }
+
+  FormFieldValidator loginValidator() {
+    return ((value) {
+      if (value == null || value.isEmpty) {
+        return 'Пожалуйста, введите логин';
+      }
+      return null;
+    });
+  }
+
+  FormFieldValidator telegramValidator() {
+    return ((value) {
+      if (value == null || value.isEmpty) {
+        return 'Пожалуйста, введите ник в Telegram';
+      }
+      return null;
+    });
+  }
+
+  TextFormField addTextFormField(String label, TextEditingController controller, FormFieldValidator validator) {
+    return TextFormField(
+        controller: _passwordController,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          prefixIcon: const Icon(Icons.lock),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
+          ),
+        ),
+        obscureText: true,
+        validator: validator);
   }
 }

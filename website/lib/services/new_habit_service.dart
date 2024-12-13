@@ -16,7 +16,7 @@ class HabitService {
         .addParameter('name', settings.name)
         .addParameter('description', settings.description)
         .addParameter('time', timeString)
-        .addParameter('weekDays', weekDaysString)
+        .addParameter('week_days', weekDaysString.toString())
         .addParameter('duration', settings.durationInDays.toString())
         //.addParameter('repetitions', settings.repetitionsPerDay.toString())
         .build();

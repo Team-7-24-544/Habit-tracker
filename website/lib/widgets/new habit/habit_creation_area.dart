@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../models/habit_template.dart';
-import '../models/habit_settings.dart';
+import '../../models/habit_template.dart';
+import '../../models/habit_settings.dart';
 import 'habit_template_list.dart';
 import 'habit_settings_form.dart';
-import '../services/api_manager.dart';
-import '../services/new_habbit_service.dart';
+import '../../services/api_manager.dart';
+import '../../services/new_habit_service.dart';
 
 class HabitCreationArea extends StatefulWidget {
   final ApiManager apiManager;
-  final Function() onHabitCreated; // Callback для обновления родительского виджета
+  final Function onHabitCreated; // Callback для обновления родительского виджета
 
   const HabitCreationArea({
     super.key,
@@ -55,12 +55,12 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
         }
 
         // Вызываем callback для обновления родительского виджета
-        widget.onHabitCreated();
+        if (mounted) widget.onHabitCreated(context);
 
-        // Переходим на страницу привычек
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/habits');
-        }
+        // // Переходим на страницу привычек
+        // if (mounted) {
+        //   Navigator.pushReplacementNamed(context, '/habits');
+        // }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -91,31 +91,18 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Stack(
+    return Container(
+      padding: const EdgeInsets.all(24.0),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24.0),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade50,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 24),
-                _buildMainContent(),
-              ],
-            ),
-          ),
-          if (_isSaving)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+          _buildHeader(),
+          const SizedBox(height: 24),
+          _buildMainContent(),
         ],
       ),
     );
@@ -144,9 +131,7 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
             size: 20,
           ),
           label: Text(
-            _isCreatingCustomHabit
-                ? 'Выбрать из шаблонов'
-                : 'Создать свою привычку',
+            _isCreatingCustomHabit ? 'Выбрать из шаблонов' : 'Создать свою привычку',
             style: const TextStyle(fontSize: 16),
           ),
           style: ElevatedButton.styleFrom(
@@ -163,21 +148,19 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
   }
 
   Widget _buildMainContent() {
-    return Expanded(
-      child: _isCreatingCustomHabit || _selectedTemplate != null
-          ? HabitSettingsForm(
-              initialSettings: _selectedTemplate != null
-                  ? HabitSettings(
-                      name: _selectedTemplate!.name,
-                      description: _selectedTemplate!.description,
-                      timeOfDay: TimeOfDay.now(),
-                    )
-                  : null,
-              onSave: _handleHabitSaved,
-            )
-          : HabitTemplateList(
-              onTemplateSelected: _handleTemplateSelected,
-            ),
-    );
+    return _isCreatingCustomHabit || _selectedTemplate != null
+        ? HabitSettingsForm(
+            initialSettings: _selectedTemplate != null
+                ? HabitSettings(
+                    name: _selectedTemplate!.name,
+                    description: _selectedTemplate!.description,
+                    timeOfDay: TimeOfDay.now(),
+                  )
+                : null,
+            onSave: _handleHabitSaved,
+          )
+        : HabitTemplateList(
+            onTemplateSelected: _handleTemplateSelected,
+          );
   }
 }

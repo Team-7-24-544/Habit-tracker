@@ -32,7 +32,6 @@ def get_db():
         db.close()
 
 
-
 @app.on_event("startup")
 def startup_event():
     init_db()
@@ -95,17 +94,19 @@ async def login(password: str, login: str, db: Session = Depends(get_db)):
         db.close()
         return JSONResponse(content={"id": 0, "answer": "ERROR  "})
 
+
 @app.post("/habits/create")
-async def habits_create(name: str, description : str ,time : str , weekDays : str , duration : int , db: Session = Depends(get_db)):
+async def habits_create(name: str, description: str, time: str, week_days: str, duration: int,
+                        db: Session = Depends(get_db)):
     try:
         new_habbit = Habit(
-            name = name,
-            description = description,
-            time = time,
-            weekDays = weekDays,
-            duration = duration
-
+            name=name,
+            description=description,
+            time=time,
+            week_days=week_days,
+            duration=duration
         )
+        print(f"Created new habit: {name} {description} {time} {week_days} {duration}")
         db.add(new_habbit)
         db.commit()
         db.refresh(new_habbit)
@@ -119,5 +120,6 @@ async def habits_create(name: str, description : str ,time : str , weekDays : st
             detail={"id": -1, "answer": "Habit already exists"}
         )
     except Exception as e:
+        print(e)
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))

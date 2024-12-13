@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/habit_settings.dart';
+import '../../models/habit_settings.dart';
 
 class HabitSettingsForm extends StatefulWidget {
   final HabitSettings? initialSettings;
-  final Function(HabitSettings) onSave;
+  final Function onSave;
 
   const HabitSettingsForm({
     super.key,
@@ -38,66 +38,87 @@ class _HabitSettingsFormState extends State<HabitSettingsForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: _boxDecoration(),
       child: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            _buildTextField(
-              controller: _nameController,
-              label: 'Название привычки',
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Пожалуйста, введите название';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            _buildTextField(
-              controller: _descriptionController,
-              label: 'Описание',
-              maxLines: 3,
-            ),
-            const SizedBox(height: 24),
-            _buildTimeSelector(),
-            const SizedBox(height: 24),
-            _buildWeekDaysSelector(),
-            const SizedBox(height: 24),
-            _buildDurationSelector(),
-            const SizedBox(height: 24),
-            _buildRepetitionsSelector(),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _saveHabit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16), // Добавим отступы с всех сторон
+          child: Column(
+            children: [
+              _buildTextField(
+                controller: _nameController,
+                label: 'Название привычки',
+                validator: (value) => value == null || value.isEmpty ? 'Пожалуйста, введите название' : null,
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(
+                controller: _descriptionController,
+                label: 'Описание',
+                maxLines: 3,
+              ),
+              const SizedBox(height: 24),
+              _buildTimeSelector(),
+              const SizedBox(height: 24),
+              _buildWeekDaysSelector(),
+              const SizedBox(height: 24),
+              _buildDurationSelector(),
+              const SizedBox(height: 24),
+              _buildRepetitionsSelector(),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _saveHabit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Сохранить привычку',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              child: const Text(
-                'Сохранить привычку',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).primaryColor),
+      ),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+    );
+  }
+
+  BoxDecoration _boxDecoration() {
+    return BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.1),
+          spreadRadius: 2,
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ],
     );
   }
 
@@ -109,23 +130,7 @@ class _HabitSettingsFormState extends State<HabitSettingsForm> {
   }) {
     return TextFormField(
       controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).primaryColor),
-        ),
-        filled: true,
-        fillColor: Colors.grey.shade50,
-      ),
+      decoration: _inputDecoration(label),
       maxLines: maxLines ?? 1,
       validator: validator,
     );
@@ -187,66 +192,61 @@ class _HabitSettingsFormState extends State<HabitSettingsForm> {
   }
 
   Widget _buildDurationSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Длительность',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              '$_durationInDays дней',
-              style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        Slider(
-          value: _durationInDays.toDouble(),
-          min: 1,
-          max: 365,
-          divisions: 364,
-          label: '$_durationInDays дней',
-          onChanged: (value) {
-            setState(() {
-              _durationInDays = value.round();
-            });
-          },
-        ),
-      ],
+    return _buildSlider(
+      title: 'Длительность',
+      value: _durationInDays.toDouble(),
+      min: 1,
+      max: 365,
+      divisions: 364,
+      label: '$_durationInDays дней',
+      onChanged: (value) => setState(() => _durationInDays = value.round()),
     );
   }
 
   Widget _buildRepetitionsSelector() {
+    return _buildSlider(
+      title: 'Повторений в день',
+      value: _repetitionsPerDay.toDouble(),
+      min: 1,
+      max: 10,
+      divisions: 9,
+      label: '$_repetitionsPerDay раз',
+      onChanged: (value) => setState(() => _repetitionsPerDay = value.round()),
+    );
+  }
+
+  Widget _buildSlider({
+    required String title,
+    required double value,
+    required double min,
+    required double max,
+    required int divisions,
+    required String label,
+    required ValueChanged<double> onChanged,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Повторений в день',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
-              '$_repetitionsPerDay раз',
+              label,
               style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         Slider(
-          value: _repetitionsPerDay.toDouble(),
-          min: 1,
-          max: 10,
-          divisions: 9,
-          label: '$_repetitionsPerDay раз',
-          onChanged: (value) {
-            setState(() {
-              _repetitionsPerDay = value.round();
-            });
-          },
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          label: label,
+          onChanged: onChanged,
         ),
       ],
     );
