@@ -1,0 +1,9 @@
+echo "Запуск main.py..."
+cd database
+uvicorn main:app --reload &
+
+echo "Запуск main.dart..."
+cd ../website
+flutter run -d chrome &
+
+wait

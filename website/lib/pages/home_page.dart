@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../widgets/achievements.dart';
+import 'package:website/services/api_manager.dart';
+import '../widgets/home_page_widgets/emotion_selector.dart';
+import '../widgets/home_page_widgets/calendar_of_emotions.dart';
 import '../widgets/habit_checklist.dart';
-import '../widgets/calendar_of_emotions.dart';
+import '../widgets/home_page_widgets/last_achivements.dart';
 import '../widgets/nav_button.dart';
 
 class HomePage extends TemplatePage {
   final String title = 'Home Page';
   final NavigationOptions page = NavigationOptions.home;
+  final EmotionCalendarController _controller = EmotionCalendarController();
 
-  const HomePage({super.key});
+  HomePage(ApiManager apiManager, {super.key}) : super(apiManager: apiManager);
 
   @override
   Widget getMainArea() {
@@ -20,28 +23,38 @@ class HomePage extends TemplatePage {
       DateTime(2024, 11, 14): '🥳',
       DateTime(2024, 11, 15): '😴',
     };
-    return Expanded(
+
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
+        // main area //////////////// {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 2,
+            Flexible(
+              flex: 5,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  EmotionCalendar(emotions: emotions),
-                  const Spacer(),
-                  const Achievements(),
-                  const SizedBox(height: 10),
+                  EmotionCalendar(key: _controller.calendarKey, emotions: emotions, controller: _controller),
+                  const SizedBox(height: 24),
+                  EmojiSelector(onEmotionSelected: _controller.setEmoji),
+                  const SizedBox(height: 24),
+                  LastAchievements(),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
             const SizedBox(width: 32),
-            const HabitChecklist(),
+            Flexible(
+              flex: 2,
+              child: HabitChecklist(),
+            ),
           ],
         ),
+        //  } //////////////// main area
       ),
     );
   }

@@ -1,32 +1,60 @@
 import 'package:flutter/material.dart';
 import '../models/achievement.dart';
+import 'home_page_widgets/last_achievement_item.dart';
 
-class Achievements extends StatelessWidget {
+class Achievements extends StatefulWidget {
   const Achievements({super.key});
 
-  static final List<Achievement> achievements = [
-    Achievement(
-      id: '1',
-      title: 'Бегун недели',
-      description: 'Вы бегаете уже 10 дней подряд! Потрясающая дисциплина! 🏃',
-      iconName: 'trophy',
-      emoji: '🌟',
-    ),
-    Achievement(
-      id: '2',
-      title: 'Водохлеб',
-      description: 'За время привыкания вы выпили уже тонну воды! Супер забота о здоровье!',
-      iconName: 'droplet',
-      emoji: '🎉',
-    ),
-    Achievement(
-      id: '3',
-      title: 'Мастер медитации',
-      description: 'Целый месяц ежедневной медитации! Ваш разум становится сильнее! 🧘',
-      iconName: 'medal',
-      emoji: '✨',
-    ),
-  ];
+  @override
+  State<Achievements> createState() => _AchievementsState();
+}
+
+class _AchievementsState extends State<Achievements> {
+  List<Achievement> _achievements = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAchievements();
+  }
+
+  void _loadAchievements() {
+    // В реальном приложении здесь будет загрузка из базы данных или API
+    _achievements = [
+      Achievement(
+        id: '1',
+        title: 'Бегун недели',
+        description:
+            'Вы бегаете уже 10 дней подряд! Потрясающая дисциплина! 🏃',
+        iconName: 'trophy',
+        emoji: '🌟',
+      ),
+      Achievement(
+        id: '2',
+        title: 'Водохлеб',
+        description:
+            'За время привыкания вы выпили уже тонну воды! Супер забота о здоровье!',
+        iconName: 'droplet',
+        emoji: '🎉',
+      ),
+      Achievement(
+        id: '3',
+        title: 'Мастер медитации',
+        description:
+            'Целый месяц ежедневной медитации! Ваш разум становится сильнее! 🧘',
+        iconName: 'medal',
+        emoji: '✨',
+      ),
+    ];
+    setState(() {});
+  }
+
+  void addNewAchievement(Achievement achievement) {
+    // Заглушка для добавления нового достижения
+    setState(() {
+      _achievements.add(achievement);
+    });
+  }
 
   IconData _getIconData(String iconName) {
     switch (iconName) {
@@ -44,7 +72,6 @@ class Achievements extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.25,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -68,90 +95,37 @@ class Achievements extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
-              children: [
-                Text(
-                  'Последние достижения',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(width: 8),
-                Text('🏆', style: TextStyle(fontSize: 24)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: achievements.length,
-                itemBuilder: (context, index) {
-                  final achievement = achievements[index];
-                  return Container(
-                    width: 280,
-                    margin: const EdgeInsets.only(right: 16),
-                    child: Card(
-                      color: Colors.white.withOpacity(0.9),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                _getIconData(achievement.iconName),
-                                size: 24,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          achievement.title,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(achievement.emoji),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    achievement.description,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+            FittedBox(
+              child: Row(
+                children: [
+                  Text(
+                    'Последние достижения',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('🏆', style: TextStyle(fontSize: 24)),
+                ],
               ),
             ),
+            const SizedBox(height: 16),
+            createAchievementItem(0),
+            const SizedBox(height: 16),
+            createAchievementItem(1),
+            const SizedBox(height: 16),
+            createAchievementItem(2),
           ],
         ),
       ),
+    );
+  }
+
+  Widget createAchievementItem(int index) {
+    return AchievementItem(
+      achievement: _achievements[index],
+      getIconData: _getIconData,
     );
   }
 }
