@@ -24,24 +24,21 @@ class _AchievementsState extends State<LastAchievements> {
       Achievement(
         id: '1',
         title: 'Бегун недели',
-        description:
-            'Вы бегаете уже 10 дней подряд! Потрясающая дисциплина! 🏃',
+        description: 'Вы бегаете уже 10 дней подряд! Потрясающая дисциплина! 🏃',
         iconName: 'trophy',
         emoji: '🌟',
       ),
       Achievement(
         id: '2',
         title: 'Водохлеб',
-        description:
-            'За время привыкания вы выпили уже тонну воды! Супер забота о здоровье!',
+        description: 'За время привыкания вы выпили уже тонну воды! Супер забота о здоровье!',
         iconName: 'droplet',
         emoji: '🎉',
       ),
       Achievement(
         id: '3',
         title: 'Мастер медитации',
-        description:
-            'Целый месяц ежедневной медитации! Ваш разум становится сильнее! 🧘',
+        description: 'Целый месяц ежедневной медитации! Ваш разум становится сильнее! 🧘',
         iconName: 'medal',
         emoji: '✨',
       ),
@@ -71,74 +68,45 @@ class _AchievementsState extends State<LastAchievements> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> children = [];
+    for (int i = 0; i < _achievements.length; i++) {
+      children.add(createAchievementItem(i));
+    }
     return Container(
-      height: 300,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.indigo.shade50,
-            Colors.purple.shade50,
-          ],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const FittedBox(
-              child: Row(
-                children: [
-                  Text(
-                    'Последние достижения',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const FittedBox(
+            child: Row(
+              children: [
+                Text(
+                  'Последние достижения',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(width: 8),
-                  Text('🏆', style: TextStyle(fontSize: 24)),
-                ],
-              ),
+                ),
+                SizedBox(width: 8),
+                Text('🏆', style: TextStyle(fontSize: 24)),
+              ],
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200, //toDO: calculate height dynamically
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _achievements.length,
-                itemBuilder: (context, index) {
-                  return FittedBox(
-                    child: AchievementItem(
-                      achievement: _achievements[index],
-                      getIconData: _getIconData,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          Column(children: children),
+        ],
       ),
     );
   }
 
   Widget createAchievementItem(int index) {
-    return FittedBox(
-      child: AchievementItem(
-        achievement: _achievements[index],
-        getIconData: _getIconData,
-      ),
+    return AchievementItem(
+      achievement: _achievements[index],
+      getIconData: _getIconData,
     );
   }
 }

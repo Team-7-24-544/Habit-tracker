@@ -4,6 +4,7 @@ import 'package:website/services/api_manager.dart';
 import '../widgets/home_page_widgets/emotion_selector.dart';
 import '../widgets/home_page_widgets/calendar_of_emotions.dart';
 import '../widgets/habit_checklist.dart';
+import '../widgets/home_page_widgets/last_achivements.dart';
 import '../widgets/nav_button.dart';
 
 class HomePage extends TemplatePage {
@@ -37,14 +38,11 @@ class HomePage extends TemplatePage {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EmotionCalendar(
-                      key: _controller.calendarKey,
-                      emotions: emotions,
-                      controller: _controller),
+                  EmotionCalendar(key: _controller.calendarKey, emotions: emotions, controller: _controller),
                   const SizedBox(height: 24),
                   EmojiSelector(onEmotionSelected: _controller.setEmoji),
                   const SizedBox(height: 24),
-                  // const LastAchievements(),
+                  LastAchievements(),
                   const SizedBox(height: 100),
                 ],
               ),
