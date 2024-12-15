@@ -3,16 +3,13 @@ import '../../models/habit_template.dart';
 import '../../models/habit_settings.dart';
 import 'habit_template_list.dart';
 import 'habit_settings_form.dart';
-import '../../services/api_manager.dart';
 import '../../services/new_habit_service.dart';
 
 class HabitCreationArea extends StatefulWidget {
-  final ApiManager apiManager;
-  final Function onHabitCreated; // Callback для обновления родительского виджета
+  final Function onHabitCreated;
 
   const HabitCreationArea({
     super.key,
-    required this.apiManager,
     required this.onHabitCreated,
   });
 
@@ -38,10 +35,7 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
     });
 
     try {
-      final success = await HabitService.saveNewHabit(
-        settings,
-        widget.apiManager,
-      );
+      final success = await HabitService.saveNewHabit(settings);
 
       if (success) {
         // Показываем уведомление об успехе

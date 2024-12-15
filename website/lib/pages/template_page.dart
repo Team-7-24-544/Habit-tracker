@@ -6,16 +6,15 @@ import 'package:website/pages/home_page.dart';
 import 'package:website/pages/new_habit_page.dart';
 import 'package:website/pages/profile_page.dart';
 import 'package:website/pages/settings_page.dart';
-import '../services/api_manager.dart';
 import '../widgets/nav_button.dart';
 import '../widgets/navigate_bar.dart';
 
 abstract class TemplatePage extends StatelessWidget {
-  final String title = 'Empty Page';
-  final NavigationOptions page = NavigationOptions.home;
-  final ApiManager apiManager;
+  String get title => 'Empty Page';
 
-  const TemplatePage({super.key, required this.apiManager});
+  NavigationOptions get page => NavigationOptions.home;
+
+  const TemplatePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,21 +52,21 @@ abstract class TemplatePage extends StatelessWidget {
     if (page == type) return null;
     switch (type) {
       case NavigationOptions.home:
-        return HomePage(apiManager);
+        return HomePage();
       case NavigationOptions.habits:
-        return HabitsPage(apiManager);
+        return HabitsPage();
       case NavigationOptions.newHabit:
-        return NewHabitPage(apiManager);
+        return NewHabitPage();
       case NavigationOptions.groups:
-        return GroupsPage(apiManager);
+        return GroupsPage();
       case NavigationOptions.achievements:
-        return AchievementsPage(apiManager);
+        return AchievementsPage();
       case NavigationOptions.profile:
-        return ProfilePage(apiManager);
+        return ProfilePage();
       case NavigationOptions.settings:
-        return SettingsPage(apiManager);
+        return SettingsPage();
       default:
-        return HomePage(apiManager);
+        return HomePage();
     }
   }
 

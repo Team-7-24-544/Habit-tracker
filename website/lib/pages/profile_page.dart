@@ -1,15 +1,16 @@
 import 'package:website/pages/template_page.dart';
-import '../services/api_manager.dart';
 import '../widgets/nav_button.dart';
 import '../models/user_profile.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends TemplatePage {
-  final String title = 'Profile Page';
-  final NavigationOptions page = NavigationOptions.profile;
+  @override
+  String get title => 'Profile Page';
 
-  const ProfilePage(ApiManager apiManager, {super.key})
-      : super(apiManager: apiManager);
+  @override
+  NavigationOptions get page => NavigationOptions.profile;
+
+  const ProfilePage({super.key});
 
   @override
   Widget getMainArea() {
@@ -72,7 +73,7 @@ class _ProfileContentState extends State<ProfileContent> {
               ],
             ),
             SizedBox(height: 24),
-            
+
             // Секция с аватаром
             Center(
               child: Stack(

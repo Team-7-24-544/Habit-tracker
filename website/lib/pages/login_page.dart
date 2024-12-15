@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:website/services/api_manager.dart';
+import 'package:website/models/MetaInfo.dart';
+import 'package:website/models/MetaKeys.dart';
 import '../services/auth_service.dart';
-import '../services/api_manager.dart';
-import '../services/utils_functions.dart';
+import '../widgets/nav_button.dart';
 
 class LoginPage extends StatefulWidget {
-  final ApiManager apiManager;
+  String get title => 'Login page';
 
-  const LoginPage({required this.apiManager});
+  NavigationOptions get page => NavigationOptions.login;
+
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState(apiManager: apiManager);
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final ApiManager apiManager;
-  String _errorMessage = '';
 
-  _LoginPageState({required this.apiManager});
+  String _errorMessage = '';
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       int userid = await AuthService.validateCredentials(
         _usernameController.text,
         _passwordController.text,
-        apiManager,
       );
 
       if (userid != -1) {
         if (!mounted) return;
+        MetaInfo.instance.set(MetaKeys.userId, userid);
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
         setState(() {
@@ -50,6 +50,13 @@ class _LoginPageState extends State<LoginPage> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  static String? validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Пожалуйста, введите пароль';
+    }
+    return null;
   }
 
   @override
@@ -99,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        TextFormField(
+                        TextField(
                           controller: _passwordController,
                           decoration: const InputDecoration(
                             labelText: 'Пароль',
@@ -111,11 +118,8 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Пожалуйста, введите пароль';
-                            }
-                            return null;
+                          onChanged: (value) {
+                            validatePassword(value);
                           },
                         ),
                         if (_errorMessage.isNotEmpty) ...[

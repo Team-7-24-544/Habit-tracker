@@ -5,18 +5,21 @@ import 'package:website/services/api_manager.dart';
 import 'package:website/services/api_query.dart';
 import '../models/MetaInfo.dart';
 import '../services/utils_functions.dart';
+import '../widgets/nav_button.dart';
 
 class RegistrationPage extends StatefulWidget {
-  final ApiManager apiManager;
+  String get title => 'Registration page';
+
+  NavigationOptions get page => NavigationOptions.registration;
   final BuildContext context;
 
-  const RegistrationPage(this.apiManager, this.context, {super.key});
+  const RegistrationPage(this.context, {super.key});
 
-  void changePage2() {
+  void changePage() {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => HomePage(apiManager),
+        pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
@@ -35,10 +38,10 @@ class RegistrationPage extends StatefulWidget {
   }
 
   @override
-  _RegistrationPageState createState() => _RegistrationPageState(apiManager, changePage2);
+  RegistrationPageState createState() => RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
+class RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _usernameController = TextEditingController();
@@ -46,15 +49,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _telegramController = TextEditingController();
   String _errorMessage = '';
 
-  final ApiManager apiManager;
-  final Function changePage;
-
-  _RegistrationPageState(this.apiManager, this.changePage);
-
   Future<void> _handleRegistration() async {
     if (_formKey.currentState!.validate()) {
-      const String yellow = '\x1B[33m';
-      const String reset = '\x1B[0m';
       final String hashedPassword = hashPassword(_passwordController.text);
 
       final ApiQuery query = ApiQueryBuilder()
@@ -64,9 +60,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
           .addParameter('password', hashedPassword)
           .addParameter('tg_nick', _telegramController.text)
           .build();
+      final apiManager = MetaInfo.getApiManager();
       ApiResponse response = await apiManager.post(query);
       if (response.success) {
-        print('$yellow Регистрация успешна: ${response.body['answer']} $reset');
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -79,12 +75,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
         final metaInfo = MetaInfo.instance;
         metaInfo.set(MetaKeys.userId, response.body['id']);
-        changePage();
+        widget.changePage();
       } else {
         setState(() {
           _errorMessage = 'Ошибка при регистрации';
         });
-        print('$yellow Ошибка регистрации: ${response.error} $reset');
       }
     }
   }
@@ -138,7 +133,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         const SizedBox(height: 16),
                         addTextFormField('Логин', _usernameController, loginValidator()),
                         const SizedBox(height: 16),
-                        addTextFormField('Пароль', _passwordController, passwordValidator()),
+                        addTextFormField('Пароль', _passwordController, passwordValidator(), obscureText: true),
                         const SizedBox(height: 16),
                         addTextFormField('Ник в Telegram', _telegramController, telegramValidator()),
                         if (_errorMessage.isNotEmpty) ...[
@@ -217,9 +212,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  TextFormField addTextFormField(String label, TextEditingController controller, FormFieldValidator validator) {
+  TextFormField addTextFormField(String label, TextEditingController controller, FormFieldValidator validator,
+      {bool obscureText = false}) {
     return TextFormField(
-        controller: _passwordController,
+        controller: controller,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
@@ -229,7 +225,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             vertical: 12,
           ),
         ),
-        obscureText: true,
+        obscureText: obscureText,
         validator: validator);
   }
 }
