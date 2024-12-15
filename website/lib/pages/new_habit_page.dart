@@ -32,16 +32,10 @@ class NewHabitPage extends TemplatePage {
     );
   }
 
-  NewHabitPage({super.key});
+  const NewHabitPage({super.key});
 
   @override
   Widget getMainArea() {
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
-      child: HabitCreationArea(
-        onHabitCreated: _onHabitCreated,
-      ),
-    );
+    return HabitCreationArea(onHabitCreated: _onHabitCreated);
   }
 }

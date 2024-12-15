@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import '../models/MetaInfo.dart';
+import '../models/MetaKeys.dart';
 import '../models/achievement.dart';
+import '../services/api_manager.dart';
+import '../services/api_query.dart';
 import 'home_page_widgets/last_achievement_item.dart';
 
 class Achievements extends StatefulWidget {
@@ -11,6 +15,7 @@ class Achievements extends StatefulWidget {
 
 class _AchievementsState extends State<Achievements> {
   List<Achievement> _achievements = [];
+  final List<Widget> achievementWidgets = [];
 
   @override
   void initState() {
@@ -18,35 +23,27 @@ class _AchievementsState extends State<Achievements> {
     _loadAchievements();
   }
 
-  void _loadAchievements() {
-    // В реальном приложении здесь будет загрузка из базы данных или API
-    _achievements = [
-      Achievement(
-        id: '1',
-        title: 'Бегун недели',
-        description:
-            'Вы бегаете уже 10 дней подряд! Потрясающая дисциплина! 🏃',
-        iconName: 'trophy',
-        emoji: '🌟',
-      ),
-      Achievement(
-        id: '2',
-        title: 'Водохлеб',
-        description:
-            'За время привыкания вы выпили уже тонну воды! Супер забота о здоровье!',
-        iconName: 'droplet',
-        emoji: '🎉',
-      ),
-      Achievement(
-        id: '3',
-        title: 'Мастер медитации',
-        description:
-            'Целый месяц ежедневной медитации! Ваш разум становится сильнее! 🧘',
-        iconName: 'medal',
-        emoji: '✨',
-      ),
-    ];
-    setState(() {});
+  Future<void> _loadAchievements() async {
+    ApiManager apiManager = MetaInfo.getApiManager();
+    ApiQuery query = ApiQueryBuilder()
+        .path('/last_achievements')
+        .addParameter('user_id', MetaInfo.instance.get(MetaKeys.userId).toString())
+        .build();
+    ApiResponse response = await apiManager.get(query);
+    if (response.success && response.body.keys.contains('achievements')) {
+      _achievements = [];
+      for (var item in response.body['achievements']) {
+        _achievements.add(Achievement(title: item['name'], description: item['description']));
+      }
+      setState(() {
+        for (var achievement in _achievements) {
+          achievementWidgets.add(AchievementItem(achievement: achievement));
+          achievementWidgets.add(const SizedBox(height: 16));
+        }
+      });
+    } else {
+      print(response.error);
+    }
   }
 
   void addNewAchievement(Achievement achievement) {
@@ -54,19 +51,6 @@ class _AchievementsState extends State<Achievements> {
     setState(() {
       _achievements.add(achievement);
     });
-  }
-
-  IconData _getIconData(String iconName) {
-    switch (iconName) {
-      case 'trophy':
-        return Icons.emoji_events;
-      case 'droplet':
-        return Icons.water_drop;
-      case 'medal':
-        return Icons.military_tech;
-      default:
-        return Icons.star;
-    }
   }
 
   @override
@@ -111,11 +95,10 @@ class _AchievementsState extends State<Achievements> {
               ),
             ),
             const SizedBox(height: 16),
-            createAchievementItem(0),
-            const SizedBox(height: 16),
-            createAchievementItem(1),
-            const SizedBox(height: 16),
-            createAchievementItem(2),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: achievementWidgets,
+            ),
           ],
         ),
       ),
@@ -125,7 +108,6 @@ class _AchievementsState extends State<Achievements> {
   Widget createAchievementItem(int index) {
     return AchievementItem(
       achievement: _achievements[index],
-      getIconData: _getIconData,
     );
   }
 }

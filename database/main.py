@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database import SessionLocal, init_db
+from achievements import get_last_10_achievements
 from emoji_calendar import get_emotions, set_emoji_for_day
 from habits import add_habit
 from logging_config import setup_logging
@@ -63,3 +64,8 @@ async def get__emotions(user_id: int, db: Session = Depends(get_db)):
 @app.post("/set_emoji")
 async def set_emoji(user_id: int, emoji: int, db: Session = Depends(get_db)):
     return await set_emoji_for_day(user_id, emoji, db)
+
+
+@app.get("/last_achievements")
+async def get_last_achievements(user_id: int, db: Session = Depends(get_db)):
+    return await get_last_10_achievements(user_id, db)

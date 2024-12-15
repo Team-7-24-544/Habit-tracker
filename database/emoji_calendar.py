@@ -21,11 +21,9 @@ async def get_emotions(user_id: int, db: Session):
             days[emotion.mood_date] = emotion.mood_value
         return JSONResponse(content={"answer": "success", "days": days})
     except IntegrityError as e:
-        db.rollback()
         logger.error(f"Error fetching emotions for user '{user_id}': {e.detail}")
         raise HTTPException(status_code=400, detail={"id": -1, "answer": "Error fetching emotions"})
     except Exception as e:
-        db.rollback()
         logger.error(f"Unexpected error fetching emotions for user '{user_id}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 

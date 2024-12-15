@@ -3,12 +3,10 @@ import '../../models/achievement.dart';
 
 class AchievementItem extends StatelessWidget {
   final Achievement achievement;
-  final IconData Function(String) getIconData;
 
   const AchievementItem({
     super.key,
     required this.achievement,
-    required this.getIconData,
   });
 
   @override
@@ -20,19 +18,6 @@ class AchievementItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                getIconData(achievement.iconName),
-                size: 24,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,8 +31,6 @@ class AchievementItem extends StatelessWidget {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(achievement.emoji),
                     ],
                   ),
                   const SizedBox(height: 4),

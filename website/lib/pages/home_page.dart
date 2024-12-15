@@ -18,41 +18,33 @@ class HomePage extends TemplatePage {
 
   @override
   Widget getMainArea() {
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        // main area //////////////// {
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  EmotionCalendar(
-                    key: _controller.calendarKey,
-                    controller: _controller,
-                  ),
-                  const SizedBox(height: 24),
-                  EmojiSelector(onEmotionSelected: _controller.setEmoji),
-                  const SizedBox(height: 24),
-                  LastAchievements(),
-                  const SizedBox(height: 100),
-                ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EmotionCalendar(
+                key: _controller.calendarKey,
+                controller: _controller,
               ),
-            ),
-            const SizedBox(width: 32),
-            Flexible(
-              flex: 2,
-              child: HabitChecklist(),
-            ),
-          ],
+              const SizedBox(height: 24),
+              EmojiSelector(onEmotionSelected: _controller.setEmoji),
+              const SizedBox(height: 24),
+              LastAchievements(),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
-        //  } //////////////// main area
-      ),
+        const SizedBox(width: 32),
+        Flexible(
+          flex: 2,
+          child: HabitChecklist(),
+        ),
+      ],
     );
   }
 }

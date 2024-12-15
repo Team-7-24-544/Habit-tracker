@@ -15,22 +15,14 @@ class AchievementsPage extends TemplatePage {
 
   @override
   Widget getMainArea() {
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            UpcomingAchievementsList(),
-            const SizedBox(height: 16),
-            Achievements(),
-            const SizedBox(height: 100),
-          ],
-        ),
-        // ),
-        //),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        UpcomingAchievementsList(),
+        const SizedBox(height: 16),
+        Achievements(),
+        const SizedBox(height: 100),
+      ],
     );
   }
 }

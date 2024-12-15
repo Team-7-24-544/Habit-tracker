@@ -15,12 +15,12 @@ CREATE TABLE IF NOT EXISTS users
 CREATE TABLE IF NOT EXISTS habit
 (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    name          TEXT   NOT NULL,
-    description   TEXT   NOT NULL,
-    time          TEXT   NOT NULL,
-    week_days     TEXT   NOT NULL,
-    duration      BIGINT NOT NULL,
-    notifications TEXT   NOT NULL
+    name          TEXT    NOT NULL,
+    description   TEXT    NOT NULL,
+    time          TEXT    NOT NULL,
+    week_days     TEXT    NOT NULL,
+    duration      INTEGER NOT NULL,
+    notifications TEXT    NOT NULL
 );
 --INSERT INTO habit (name, description, time, week_days, duration, notifications) VALUES
 --('Утренний заряд', 'Зарядка каждое утро', '07:00', '1,1,1,1,1,0,0', 15, '{"monday":["07:00"],"tuesday":["07:00"],"wednesday":["07:00"],"thursday":["07:00"],"friday":["07:00"]}'),
@@ -29,11 +29,12 @@ CREATE TABLE IF NOT EXISTS habit
 CREATE TABLE IF NOT EXISTS habit_templates
 (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT   NOT NULL,
-    description TEXT   NOT NULL,
-    time        TEXT   NOT NULL,
-    week_days   TEXT   NOT NULL,
-    duration    BIGINT NOT NULL
+    name        TEXT    NOT NULL,
+    description TEXT    NOT NULL,
+    time        TEXT    NOT NULL,
+    week_days   TEXT    NOT NULL,
+    duration    INTEGER NOT NULL
+    --notifications TEXT    NOT NULL
 );
 --INSERT INTO habit_templates (name, description, time, week_days, duration) VALUES
 --('Утренний заряд', 'Зарядка каждое утро', '07:00', 'mon,tue,wed,thu,fri', 15),
@@ -98,14 +99,12 @@ CREATE TABLE IF NOT EXISTS user_achievements
 CREATE TABLE IF NOT EXISTS groups
 (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT    NOT NULL,
-    created_at DATE    NOT NULL,
-    creator_id INTEGER NOT NULL,
-    FOREIGN KEY (creator_id) REFERENCES users (id)
+    name       TEXT NOT NULL,
+    created_at DATE NOT NULL
 );
---INSERT INTO groups (name, created_at, creator_id) VALUES
+--INSERT INTO groups (name, created_at) VALUES
 --('ЗОЖ', '2024-12-01', 1),
---('Челленджи 2024', '2024-12-03', 2);
+--('Челленджи 2024', '2024-12-03');
 
 CREATE TABLE IF NOT EXISTS group_memberships
 (
@@ -113,13 +112,14 @@ CREATE TABLE IF NOT EXISTS group_memberships
     group_id  INTEGER NOT NULL,
     user_id   INTEGER NOT NULL,
     joined_at DATE    NOT NULL,
+    is_admin  BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (group_id) REFERENCES groups (id),
     FOREIGN KEY (user_id) REFERENCES users (id),
     UNIQUE (group_id, user_id)
 );
---INSERT INTO group_memberships (group_id, user_id, joined_at) VALUES
---(1, 1, '2024-12-01'),
---(1, 2, '2024-12-02');
+--INSERT INTO group_memberships (group_id, user_id, joined_at, is_admin) VALUES
+--(1, 1, '2024-12-01', true),
+--(1, 2, '2024-12-02', false);
 
 -----------------------------------------------------------------------------------------------
 INSERT INTO users (name, login, password, tg_name, join_date)

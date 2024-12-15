@@ -44,7 +44,13 @@ abstract class TemplatePage extends StatelessWidget {
 
   Widget _buildScrollableContent() {
     return Expanded(
-      child: getMainArea(),
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: getMainArea(),
+        ),
+      ),
     );
   }
 
@@ -71,9 +77,6 @@ abstract class TemplatePage extends StatelessWidget {
   }
 
   Widget getMainArea() {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      // ! here is main area !
-    );
+    return Padding(padding: EdgeInsets.all(16.0)); // ! here is main area !
   }
 }
