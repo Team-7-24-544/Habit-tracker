@@ -1,160 +1,143 @@
 import 'package:flutter/material.dart';
-import '../../models/habit_template.dart';
-import '../../models/habit_settings.dart';
-import 'habit_template_list.dart';
-import 'habit_settings_form.dart';
-import '../../services/new_habit_service.dart';
+import 'habit_basic_info.dart';
+import 'habit_schedule_block.dart';
+import 'habit_schedule_block.dart';
 
 class HabitCreationArea extends StatefulWidget {
-  final Function onHabitCreated;
+  final Function(BuildContext) onHabitCreated;
 
   const HabitCreationArea({
-    super.key,
+    Key? key,
     required this.onHabitCreated,
-  });
+  }) : super(key: key);
 
   @override
   State<HabitCreationArea> createState() => _HabitCreationAreaState();
 }
 
 class _HabitCreationAreaState extends State<HabitCreationArea> {
-  bool _isCreatingCustomHabit = false;
-  HabitTemplate? _selectedTemplate;
-  bool _isSaving = false;
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
-  void _handleTemplateSelected(HabitTemplate template) {
+  final List<GlobalKey<HabitScheduleBlockState>> _scheduleBlockKeys = [];
+
+  final List<HabitScheduleBlock> _scheduleBlocks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _addScheduleBlock();
+  }
+
+  void _addScheduleBlock() {
     setState(() {
-      _selectedTemplate = template;
-      _isCreatingCustomHabit = false;
+      final key = GlobalKey<HabitScheduleBlockState>();
+      _scheduleBlockKeys.add(key);
+
+      _scheduleBlocks.add(HabitScheduleBlock(
+        onDelete: _removeScheduleBlock,
+        blockIndex: _scheduleBlocks.length,
+        key: key,
+      ));
     });
   }
 
-  Future<void> _handleHabitSaved(HabitSettings settings) async {
-    setState(() {
-      _isSaving = true;
-    });
+  void _removeScheduleBlock(int index) {
+    if (_scheduleBlocks.length > 1) {
+      setState(() {
+        _scheduleBlockKeys.removeAt(index);
+        _scheduleBlocks.removeAt(index);
 
-    try {
-      final success = await HabitService.saveNewHabit(settings);
-
-      if (success) {
-        // Показываем уведомление об успехе
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Привычка успешно создана!'),
-              backgroundColor: Colors.green,
-            ),
+        for (int i = 0; i < _scheduleBlocks.length; i++) {
+          _scheduleBlocks[i] = HabitScheduleBlock(
+            onDelete: _removeScheduleBlock,
+            blockIndex: i,
+            key: _scheduleBlockKeys[i],
           );
         }
+      });
+    }
+  }
 
-        // Вызываем callback для обновления родительского виджета
-        if (mounted) widget.onHabitCreated(context);
-
-        // // Переходим на страницу привычек
-        // if (mounted) {
-        //   Navigator.pushReplacementNamed(context, '/habits');
-        // }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ошибка при создании привычки'),
-              backgroundColor: Colors.red,
-            ),
-          );
+  Future<void> _saveHabit() async {
+    if (_formKey.currentState!.validate()) {
+      List<Map<String, dynamic>> schedules = [];
+      for (var key in _scheduleBlockKeys) {
+        final state = key.currentState;
+        if (state != null) {
+          schedules.add(state.getScheduleData());
         }
       }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Произошла ошибка: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
+
+      final habitData = {
+        'name': _nameController.text,
+        'description': _descriptionController.text,
+        'schedules': schedules,
+      };
+
+      // TODO: Отправить данные на сервер
+      print(habitData); // Для отладки
+
+      // Вызываем callback
+      widget.onHabitCreated(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 24),
-          _buildMainContent(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const Text(
-          'Создание новой привычки',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        ElevatedButton.icon(
-          onPressed: () {
-            setState(() {
-              _isCreatingCustomHabit = !_isCreatingCustomHabit;
-              _selectedTemplate = null;
-            });
-          },
-          icon: Icon(
-            _isCreatingCustomHabit ? Icons.list : Icons.add,
-            size: 20,
-          ),
-          label: Text(
-            _isCreatingCustomHabit ? 'Выбрать из шаблонов' : 'Создать свою привычку',
-            style: const TextStyle(fontSize: 16),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            HabitBasicInfo(
+              nameController: _nameController,
+              descriptionController: _descriptionController,
             ),
-          ),
+            const SizedBox(height: 24),
+            ..._scheduleBlocks,
+            const SizedBox(height: 16),
+            _buildAddBlockButton(),
+            const SizedBox(height: 24),
+            _buildSaveButton(),
+          ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildMainContent() {
-    return _isCreatingCustomHabit || _selectedTemplate != null
-        ? HabitSettingsForm(
-            initialSettings: _selectedTemplate != null
-                ? HabitSettings(
-                    name: _selectedTemplate!.name,
-                    description: _selectedTemplate!.description,
-                    timeOfDay: TimeOfDay.now(),
-                  )
-                : null,
-            onSave: _handleHabitSaved,
-          )
-        : HabitTemplateList(
-            onTemplateSelected: _handleTemplateSelected,
-          );
+  Widget _buildAddBlockButton() {
+    return Center(
+      child: TextButton.icon(
+        onPressed: _addScheduleBlock,
+        icon: const Icon(Icons.add),
+        label: const Text('Добавить расписание'),
+      ),
+    );
+  }
+
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _saveHabit,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: const Text('Сохранить привычку'),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 }
