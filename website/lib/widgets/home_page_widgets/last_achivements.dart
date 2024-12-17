@@ -15,7 +15,7 @@ class LastAchievements extends StatefulWidget {
 
 class _AchievementsState extends State<LastAchievements> {
   List<Achievement> _achievements = [];
-  final List<Widget> achievementWidgets = [];
+  final List<Widget> _achievementWidgets = [];
 
   @override
   void initState() {
@@ -37,20 +37,13 @@ class _AchievementsState extends State<LastAchievements> {
       }
       setState(() {
         for (var achievement in _achievements) {
-          achievementWidgets.add(AchievementItem(achievement: achievement));
-          achievementWidgets.add(const SizedBox(height: 8));
+          _achievementWidgets.add(AchievementItem(achievement: achievement));
+          _achievementWidgets.add(const SizedBox(height: 8));
         }
       });
     } else {
       print(response.error);
     }
-  }
-
-  void addNewAchievement(Achievement achievement) {
-    // Заглушка для добавления нового достижения
-    setState(() {
-      // _achievements.add(achievement);
-    });
   }
 
   @override
@@ -80,7 +73,7 @@ class _AchievementsState extends State<LastAchievements> {
             ),
           ),
           const SizedBox(height: 16),
-          Column(children: achievementWidgets),
+          Column(children: _achievementWidgets),
         ],
       ),
     );

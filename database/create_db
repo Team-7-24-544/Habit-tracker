@@ -14,17 +14,17 @@ CREATE TABLE IF NOT EXISTS users
 
 CREATE TABLE IF NOT EXISTS habit
 (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    name          TEXT    NOT NULL,
-    description   TEXT    NOT NULL,
-    time          TEXT    NOT NULL,
-    week_days     TEXT    NOT NULL,
-    duration      INTEGER NOT NULL,
-    notifications TEXT    NOT NULL
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    description TEXT NOT NULL,
+    monday      TEXT,
+    tuesday     TEXT,
+    wednesday   TEXT,
+    thursday    TEXT,
+    friday      TEXT,
+    saturday    TEXT,
+    sunday      TEXT
 );
---INSERT INTO habit (name, description, time, week_days, duration, notifications) VALUES
---('Утренний заряд', 'Зарядка каждое утро', '07:00', '1,1,1,1,1,0,0', 15, '{"monday":["07:00"],"tuesday":["07:00"],"wednesday":["07:00"],"thursday":["07:00"],"friday":["07:00"]}'),
---('Чтение', 'Чтение книги перед сном', '22:00', '1,1,1,1,1,1,1', 30, '{"mon":["22:00"],"tue":["22:00"],"wed":["22:00"],"thu":["22:00"],"fri":["22:00"],"sat":["22:00"],"sun":["22:00"]}');
 
 CREATE TABLE IF NOT EXISTS habit_templates
 (

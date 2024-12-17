@@ -50,10 +50,9 @@ async def login_endpoint(password: str, login: str, db: Session = Depends(get_db
     return await authenticate_user(login, password, db)
 
 
-@app.post("/habits/create")
-async def habits_create(name: str, description: str, time: str, week_days: str, duration: int,
-                        db: Session = Depends(get_db)):
-    return await add_habit(name, description, time, week_days, duration, db)
+@app.get("/habits/create")
+async def habits_create(user_id: int, name: str, description: str, time_table: str, db: Session = Depends(get_db)):
+    return await add_habit(user_id, name, description, time_table, db)
 
 
 @app.get("/emotions")
