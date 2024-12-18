@@ -54,7 +54,7 @@ class RegistrationPageState extends State<RegistrationPage> {
       final String hashedPassword = hashPassword(_passwordController.text);
 
       final ApiQuery query = ApiQueryBuilder()
-          .path('/register')
+          .path(QueryPaths.register)
           .addParameter('name', _nameController.text)
           .addParameter('login', _usernameController.text)
           .addParameter('password', hashedPassword)

@@ -1,21 +1,18 @@
 import 'package:website/models/MetaInfo.dart';
+import 'package:website/models/MetaKeys.dart';
 import '../models/habit_settings.dart';
 import 'api_manager.dart';
 import 'api_query.dart';
+// import 'habit_settings_form.dart';
 
 class HabitService {
   static Future<bool> saveNewHabit(HabitSettings settings) async {
-    final timeString = '${settings.timeOfDay.hour}:${settings.timeOfDay.minute}';
-    final weekDaysString = settings.weekDays.map((day) => day ? '1' : '0').join(',');
-
     ApiQuery query = ApiQueryBuilder()
-        .path('/habits/create')
+        .path(QueryPaths.createHabit)
+        .addParameter('user_id', MetaInfo.instance.get(MetaKeys.userId).toString())
         .addParameter('name', settings.name)
         .addParameter('description', settings.description)
-        .addParameter('time', timeString)
-        .addParameter('week_days', weekDaysString.toString())
-        .addParameter('duration', settings.durationInDays.toString())
-        // .addParameter('notifications', settings.repetitionsPerDay.toString())
+        .addParameter('time_table', settings.timeTable)
         .build();
 
     final apiManager = MetaInfo.getApiManager();

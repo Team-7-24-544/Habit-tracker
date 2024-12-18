@@ -10,13 +10,16 @@ class Emotion {
 
 class EmotionData {
   static const List<Emotion> emotions = [
+    Emotion(emoji: '😩', name: 'very_disappointed'),
+    Emotion(emoji: '😖', name: 'frustrated'),
+    Emotion(emoji: '😔', name: 'sad'),
+    Emotion(emoji: '😕', name: 'disappointed'),
+    Emotion(emoji: '😐', name: 'neutral'),
+    Emotion(emoji: '😌', name: 'relieved'),
+    Emotion(emoji: '🙂', name: 'slightly_happy'),
     Emotion(emoji: '😊', name: 'happy'),
-    Emotion(emoji: '😢', name: 'sad'),
-    Emotion(emoji: '😍', name: 'love'),
-    Emotion(emoji: '😡', name: 'angry'),
-    Emotion(emoji: '😴', name: 'sleepy'),
-    Emotion(emoji: '🤔', name: 'thinking'),
-    Emotion(emoji: '😎', name: 'cool'),
-    Emotion(emoji: '😂', name: 'laughing'),
+    Emotion(emoji: '😄', name: 'joyful'),
+    Emotion(emoji: '😁', name: 'proud'),
+    Emotion(emoji: '🏆', name: 'triumphant'),
   ];
 }

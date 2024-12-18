@@ -26,7 +26,7 @@ class _AchievementsState extends State<LastAchievements> {
   Future<void> _loadAchievements() async {
     ApiManager apiManager = MetaInfo.getApiManager();
     ApiQuery query = ApiQueryBuilder()
-        .path('/last_achievements')
+        .path(QueryPaths.getLastAchievements)
         .addParameter('user_id', MetaInfo.instance.get(MetaKeys.userId).toString())
         .build();
     ApiResponse response = await apiManager.get(query);

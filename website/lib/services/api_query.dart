@@ -15,8 +15,8 @@ class ApiQueryBuilder {
   final Map<String, dynamic> _parameters = {};
   final Map<String, String> _headers = {};
 
-  ApiQueryBuilder path(String path) {
-    _path = path;
+  ApiQueryBuilder path(QueryPaths path) {
+    _path = path.value;
     return this;
   }
 
@@ -47,4 +47,20 @@ class ApiQueryBuilder {
       headers: _headers,
     );
   }
+}
+
+enum QueryPaths {
+  checkApi("/check_api"),
+  login("/login"),
+  register("/register"),
+  getEmotions("/emotions/get_all"),
+  setEmotion("/emotions/set"),
+  createHabit("/habits/create"),
+  getTemplateHabits("/habits/get_templates"),
+  getSelectedTemplate("/get_selected_template"),
+  getLastAchievements("/achievements/get_last");
+
+  final String value;
+
+  const QueryPaths(this.value);
 }

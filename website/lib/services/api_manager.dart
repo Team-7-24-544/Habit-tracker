@@ -66,7 +66,7 @@ void check(ApiManager apiManager) async {
   const String yellow = '\x1B[33m';
   const String reset = '\x1B[0m';
   try {
-    ApiQuery query = ApiQueryBuilder().path('/check_api').addParameter('id', 544).build();
+    ApiQuery query = ApiQueryBuilder().path(QueryPaths.checkApi).addParameter('id', 544).build();
     ApiResponse res = await apiManager.get(query);
     print('$yellow Api answer is ${!res.empty()} $reset');
   } catch (e) {

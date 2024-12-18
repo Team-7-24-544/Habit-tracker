@@ -27,6 +27,7 @@ class NavigateBar extends Container {
             createNavButton(NavigationOptions.achievements, activeOption, goTo),
             createNavButton(NavigationOptions.profile, activeOption, goTo),
             createNavButton(NavigationOptions.settings, activeOption, goTo),
+            const SizedBox(height: 40),
           ],
         ),
       ),

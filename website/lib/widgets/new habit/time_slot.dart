@@ -5,10 +5,10 @@ class TimeSlot extends StatefulWidget {
   final int index;
 
   const TimeSlot({
-    Key? key,
+    super.key,
     required this.onDelete,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   TimeSlotState createState() => TimeSlotState();
@@ -24,8 +24,7 @@ class TimeSlot extends StatefulWidget {
     };
   }
 
-  static final GlobalKey<TimeSlotState> _timeSlotKey =
-      GlobalKey<TimeSlotState>();
+  static final GlobalKey<TimeSlotState> _timeSlotKey = GlobalKey<TimeSlotState>();
 }
 
 class TimeSlotState extends State<TimeSlot> {
@@ -82,8 +81,8 @@ class TimeSlotState extends State<TimeSlot> {
 
   Map<String, String> getTimeData() {
     return {
-      'startTime': '${_startTime.hour}:${_startTime.minute.toString().padLeft(2, '0')}',
-      'endTime': '${_endTime.hour}:${_endTime.minute.toString().padLeft(2, '0')}',
+      'startTime': "${_startTime.hour}:${_startTime.minute.toString().padLeft(2, '0')}",
+      'endTime': "${_endTime.hour}:${_endTime.minute.toString().padLeft(2, '0')}",
     };
   }
 }

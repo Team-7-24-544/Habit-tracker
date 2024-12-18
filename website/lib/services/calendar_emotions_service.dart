@@ -8,7 +8,7 @@ import '../models/emotions.dart';
 class CalendarEmotionsService {
   static Future<Map<DateTime, String>> loadEmotions(int userId) async {
     final apiManager = MetaInfo.getApiManager();
-    ApiQuery query = ApiQueryBuilder().path('/emotions').addParameter('user_id', userId.toString()).build();
+    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getEmotions).addParameter('user_id', userId.toString()).build();
     ApiResponse response = await apiManager.get(query);
     if (response.success && response.body.keys.contains('days')) {
       Map<DateTime, String> result = {};
@@ -26,7 +26,7 @@ class CalendarEmotionsService {
 
   static Future<void> setEmoji(int userId, int emoji) async {
     ApiQuery query = ApiQueryBuilder()
-        .path('/set_emoji')
+        .path(QueryPaths.setEmotion)
         .addParameter('user_id', userId.toString())
         .addParameter('emoji', emoji.toString())
         .build();

@@ -6,7 +6,7 @@ import 'package:website/services/utils_functions.dart';
 class AuthService {
   static Future<int> validateCredentials(String username, String password) async {
     ApiQuery query = ApiQueryBuilder()
-        .path('/login')
+        .path(QueryPaths.login)
         .addParameter('password', hashPassword(password))
         .addParameter('login', username)
         .build();
