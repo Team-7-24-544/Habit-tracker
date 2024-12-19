@@ -6,7 +6,7 @@ from datetime import date
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
-from models import User, MoodTracking
+from models import User
 
 logger = logging.getLogger(__name__)
 

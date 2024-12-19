@@ -118,9 +118,13 @@ class HabitTemplate(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    time = Column(String, nullable=False)
-    week_days = Column(String, nullable=False)
-    duration = Column(BigInteger, nullable=False)
+    monday = Column(String, nullable=False)
+    tuesday = Column(String, nullable=False)
+    wednesday = Column(String, nullable=False)
+    thursday = Column(String, nullable=False)
+    friday = Column(String, nullable=False)
+    saturday = Column(String, nullable=False)
+    sunday = Column(String, nullable=False)
 
     def __repr__(self):
-        return f"<HabitTemplate(name={self.name}, description={self.description}, time={self.time})>"
+        return f"<Habit(name={self.name}, description={self.description})>"

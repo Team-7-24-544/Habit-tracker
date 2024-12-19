@@ -3,8 +3,11 @@ import logging
 from datetime import date
 
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
+from models import HabitTemplate
 from models import Habit, HabitTracking
 from fastapi.responses import JSONResponse
 
@@ -62,6 +65,56 @@ def create_habit(name: str, description: str, time_table: str, db: Session):
 
     logger.info(f"New habit created successfully: {name}")
     return new_habit.id
+
+
+async def get_templates(db: Session):
+    logger.info("Received request to get templates")
+    try:
+        stmt = select(HabitTemplate)
+        templates = db.execute(stmt).scalars().all()
+        result = {"answer": "success", "body": dict()}
+        for template in templates:
+            time_table = dict()
+            time_table["monday"] = template.monday
+            time_table["tuesday"] = template.tuesday
+            time_table["wednesday"] = template.wednesday
+            time_table["thursday"] = template.thursday
+            time_table["friday"] = template.friday
+            time_table["saturday"] = template.saturday
+            time_table["sunday"] = template.sunday
+            result["body"][str(template.id)] = {"name": template.name, "description": template.description,
+                                                "time_table": time_table}
+        print(result)
+        return JSONResponse(content=result, media_type="application/json; charset=utf-8")
+    except IntegrityError as e:
+        logger.error(f"Error getting templates of habits: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logger.error(f"Unexpected error getting templates of habits: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_template_by_id(habit_id: int, db: Session):
+    logger.info(f"Received request to get template of {habit_id}")
+    try:
+        stmt = select(HabitTemplate).where(HabitTemplate.id == habit_id)
+        template = db.execute(stmt).scalars().first()
+        result = {"answer": "success",
+                  "name": template.name,
+                  "description": template.description,
+                  "monday": template.monday,
+                  "tuesday": template.tuesday,
+                  "wednesday": template.wednesday,
+                  "thursday": template.thursday,
+                  "friday": template.friday,
+                  "saturday": template.saturday,
+                  "sunday": template.sunday}
+        return JSONResponse(content=result, media_type="application/json; charset=utf-8")
+    except IntegrityError as e:
+        logger.error(f"Error getting template of habit: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error getting template of habit: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 """

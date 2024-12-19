@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal, init_db
 from achievements import get_last_10_achievements
 from emoji_calendar import get_emotions, set_emoji_for_day
-from habits import add_habit
+from habits import add_habit, get_templates, get_template_by_id
 from logging_config import setup_logging
 from users import register, authenticate_user
 
@@ -50,21 +50,31 @@ async def login_endpoint(password: str, login: str, db: Session = Depends(get_db
     return await authenticate_user(login, password, db)
 
 
-@app.get("/habits/create")
+@app.post("/habits/create")
 async def habits_create(user_id: int, name: str, description: str, time_table: str, db: Session = Depends(get_db)):
     return await add_habit(user_id, name, description, time_table, db)
 
 
-@app.get("/emotions")
+@app.get("/emotions/get_all")
 async def get__emotions(user_id: int, db: Session = Depends(get_db)):
     return await get_emotions(user_id, db)
 
 
-@app.post("/set_emoji")
+@app.post("/emotions/set")
 async def set_emoji(user_id: int, emoji: int, db: Session = Depends(get_db)):
     return await set_emoji_for_day(user_id, emoji, db)
 
 
-@app.get("/last_achievements")
+@app.get("/achievements/get_last")
 async def get_last_achievements(user_id: int, db: Session = Depends(get_db)):
     return await get_last_10_achievements(user_id, db)
+
+
+@app.get("/habits/get_templates")
+async def get_templates_(db: Session = Depends(get_db)):
+    return await get_templates(db)
+
+
+@app.get("/habits/get_selected_template")
+async def get_templates_(habit_id: int, db: Session = Depends(get_db)):
+    return await get_template_by_id(habit_id, db)
