@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from models import User
-
 logger = logging.getLogger(__name__)
 
 
@@ -67,4 +66,53 @@ async def authenticate_user(login: str, password: str, db: Session):
         return JSONResponse(content={"id": existing_user.id, "answer": "success"})
     except Exception as e:
         logger.error(f"Unexpected error during authentication for user '{login}': {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+async def update_user(user_id: int, name: str, login: str, password: str, tg_nick: str, db: Session):
+    """
+    Обновляет данные пользователя с указанным ID.
+    """
+    try:
+        logger.info(f"Updating user with ID: {user_id}")
+
+        # Получаем пользователя из базы данных
+        stmt = select(User).where(User.id == user_id)
+        user = db.execute(stmt).scalars().first()
+
+        if not user:
+            logger.error(f"User with ID {user_id} not found.")
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Обновляем только те поля, которые переданы
+        if name is not None:
+            user.name = name
+        if login is not None:
+            # Проверяем, существует ли другой пользователь с таким логином
+            existing_user_stmt = select(User).where(and_(User.login == login, User.id != user_id))
+            existing_user = db.execute(existing_user_stmt).scalars().first()
+            if existing_user:
+                logger.error(f"Login '{login}' is already taken by another user.")
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Login is already taken by another user"
+                )
+            user.login = login
+        if password is not None:
+            user.password = password
+        if tg_nick is not None:
+            user.tg_name = tg_nick
+
+        # Сохраняем изменения
+        db.commit()
+        db.refresh(user)
+
+        logger.info(f"User with ID {user_id} updated successfully.")
+        return JSONResponse(content={"id": user.id, "answer": "success"})
+
+    except HTTPException as e:
+        logger.error(f"Error updating user with ID {user_id}: {e.detail}")
+        raise e
+    except Exception as e:
+        logger.error(f"Unexpected error while updating user with ID {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
