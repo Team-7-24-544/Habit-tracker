@@ -40,9 +40,16 @@ class _ProfileContentState extends State<ProfileContent> {
   }
 
   void _saveProfile() {
-    // TODO: Здесь будет логика сохранения в API
     setState(() {
       isEditing = false;
+    });
+  }
+
+  Future<void> _uploadPhoto() async {
+    // Заглушка для выбора фото
+    await Future.delayed(const Duration(seconds: 1)); // Симуляция задержки
+    setState(() {
+      profile.avatarUrl = 'https://via.placeholder.com/200'; // Временное фото
     });
   }
 
@@ -54,16 +61,12 @@ class _ProfileContentState extends State<ProfileContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Верхняя секция с заголовком и кнопкой редактирования
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Профиль',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton(
                   onPressed: isEditing ? _saveProfile : _toggleEdit,
@@ -79,8 +82,6 @@ class _ProfileContentState extends State<ProfileContent> {
               ],
             ),
             const SizedBox(height: 24),
-
-            // Секция с аватаром
             Center(
               child: Stack(
                 children: [
@@ -97,9 +98,7 @@ class _ProfileContentState extends State<ProfileContent> {
                         radius: 18,
                         child: IconButton(
                           icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
-                          onPressed: () {
-                            // TODO: Добавить логику загрузки изображения
-                          },
+                          onPressed: _uploadPhoto,
                         ),
                       ),
                     ),
@@ -107,8 +106,6 @@ class _ProfileContentState extends State<ProfileContent> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Информация профиля
             Card(
               elevation: 4,
               child: Padding(
@@ -190,10 +187,7 @@ class _ProfileContentState extends State<ProfileContent> {
             maxLines: maxLines,
             decoration: InputDecoration(
               border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
           )
         else
