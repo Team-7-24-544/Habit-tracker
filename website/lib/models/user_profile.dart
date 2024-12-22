@@ -1,25 +1,31 @@
 class UserProfile {
   String nickname;
-  String description;
+  String aboutMe;      // Переименовано из description
   String goal;
   String telegram;
   String avatarUrl;
+  String monthlyHabits; // Новое поле
+  String monthlyQuote;  // Новое поле
 
   UserProfile({
     this.nickname = '',
-    this.description = '',
+    this.aboutMe = '',
     this.goal = '',
     this.telegram = '',
     this.avatarUrl = 'https://via.placeholder.com/150',
+    this.monthlyHabits = '',
+    this.monthlyQuote = '',
   });
 
   // Временная заглушка для демонстрации
   static UserProfile getDummyProfile() {
     return UserProfile(
       nickname: 'Vasy Pupkin',
-      description: 'Программирую на Flutter, люблю создавать приложения!',
+      aboutMe: 'Программирую на Flutter, люблю создавать приложения!',
       goal: 'Улучшить привычки и достичь успеха!',
       telegram: '@vasek',
+      monthlyHabits: 'Бег по утрам, Чтение книг, Медитация',
+      monthlyQuote: 'Путь в тысячу ли начинается с первого шага',
     );
   }
 }

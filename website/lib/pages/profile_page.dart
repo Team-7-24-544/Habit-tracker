@@ -30,7 +30,6 @@ class _ProfileContentState extends State<ProfileContent> {
   @override
   void initState() {
     super.initState();
-    // Используем временную заглушку
     profile = UserProfile.getDummyProfile();
   }
 
@@ -55,24 +54,31 @@ class _ProfileContentState extends State<ProfileContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Верхняя секция с аватаром и кнопкой редактирования
+            // Верхняя секция с заголовком и кнопкой редактирования
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Профиль',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                IconButton(
-                  icon: Icon(isEditing ? Icons.save : Icons.edit),
+                ElevatedButton(
                   onPressed: isEditing ? _saveProfile : _toggleEdit,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    backgroundColor: isEditing ? Colors.green : Colors.blue,
+                  ),
+                  child: Text(
+                    isEditing ? 'Сохранить' : 'Изменить профиль',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Секция с аватаром
             Center(
@@ -90,7 +96,7 @@ class _ProfileContentState extends State<ProfileContent> {
                         backgroundColor: Colors.blue,
                         radius: 18,
                         child: IconButton(
-                          icon: Icon(Icons.camera_alt, size: 18, color: Colors.white),
+                          icon: const Icon(Icons.camera_alt, size: 18, color: Colors.white),
                           onPressed: () {
                             // TODO: Добавить логику загрузки изображения
                           },
@@ -100,13 +106,13 @@ class _ProfileContentState extends State<ProfileContent> {
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Информация профиля
             Card(
               elevation: 4,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -115,25 +121,39 @@ class _ProfileContentState extends State<ProfileContent> {
                       profile.nickname,
                       (value) => profile.nickname = value,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildProfileField(
-                      'Описание',
-                      profile.description,
-                      (value) => profile.description = value,
+                      'О себе',
+                      profile.aboutMe,
+                      (value) => profile.aboutMe = value,
                       maxLines: 3,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildProfileField(
                       'Цель/мотивация',
                       profile.goal,
                       (value) => profile.goal = value,
                       maxLines: 2,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     _buildProfileField(
                       'Telegram',
                       profile.telegram,
                       (value) => profile.telegram = value,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildProfileField(
+                      'Привычки на месяц',
+                      profile.monthlyHabits,
+                      (value) => profile.monthlyHabits = value,
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildProfileField(
+                      'Цитата месяца',
+                      profile.monthlyQuote,
+                      (value) => profile.monthlyQuote = value,
+                      maxLines: 2,
                     ),
                   ],
                 ),
@@ -162,7 +182,7 @@ class _ProfileContentState extends State<ProfileContent> {
             color: Colors.grey[600],
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         if (isEditing)
           TextField(
             controller: TextEditingController(text: value),
@@ -179,7 +199,7 @@ class _ProfileContentState extends State<ProfileContent> {
         else
           Text(
             value,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
       ],
     );
