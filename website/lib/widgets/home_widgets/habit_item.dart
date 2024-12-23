@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/habit.dart';
+import '../../models/habit.dart';
 
 class HabitItem extends StatelessWidget {
   final Habit habit;

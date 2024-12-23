@@ -1,11 +1,6 @@
 # Website
 
-Название: Habit tracker
-
-Страницы:
-
-- home
-- other will be created soon
+Название: **Habit tracker**
 
 # Backend
 

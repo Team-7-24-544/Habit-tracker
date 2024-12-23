@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
-import 'package:website/services/api_manager.dart';
+import 'package:website/models/MetaKeys.dart';
 import 'pages/registration_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
 
 void main() {
   final metaInfo = MetaInfo.instance;
+  MetaInfo.instance.set(MetaKeys.userId, 7); // for debug
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final apiManager = ApiManager();
-
+  //final apiManager = ApiManager();
   MyApp({super.key});
 
   @override
@@ -24,12 +24,12 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/debug',
+      initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginPage(apiManager: apiManager),
-        '/registration': (context) => RegistrationPage(apiManager, context),
-        '/home': (context) => HomePage(apiManager),
-        '/debug': (context) => HomePage(apiManager),
+        '/login': (context) => LoginPage(),
+        '/registration': (context) => RegistrationPage(context),
+        '/home': (context) => HomePage(),
+        '/debug': (context) => HomePage(),
       },
     );
   }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import '../models/upcoming_achievement.dart';
+import '../../models/upcoming_achievement.dart';
 
 class UpcomingAchievementsList extends StatelessWidget {
   final List<UpcomingAchievement> upcomingAchievements = [
     UpcomingAchievement(
       id: '1',
       title: 'Аполлон',
-      description:
-          'Вы на верном пути! Продолжайте заниматься на турнике ещё 5 дней и станете лучше всех!',
+      description: 'Вы на верном пути! Продолжайте заниматься на турнике ещё 5 дней и станете лучше всех!',
       iconName: 'fitness',
       progress: 25,
       maxProgress: 30,
@@ -15,8 +14,7 @@ class UpcomingAchievementsList extends StatelessWidget {
     UpcomingAchievement(
       id: '2',
       title: 'Книжный червь',
-      description:
-          'Осталось прочитать всего 2 книги до получения звания заядлого читателя!',
+      description: 'Осталось прочитать всего 2 книги до получения звания заядлого читателя!',
       iconName: 'book',
       progress: 8,
       maxProgress: 10,
@@ -24,8 +22,7 @@ class UpcomingAchievementsList extends StatelessWidget {
     UpcomingAchievement(
       id: '3',
       title: 'Ранняя пташка',
-      description:
-          'Ещё 3 дня ранних подъёмов, и вы станете настоящим жаворонком!',
+      description: 'Ещё 3 дня ранних подъёмов, и вы станете настоящим жаворонком!',
       iconName: 'alarm',
       progress: 7,
       maxProgress: 10,

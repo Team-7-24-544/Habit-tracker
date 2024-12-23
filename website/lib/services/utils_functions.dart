@@ -1,5 +1,8 @@
-import 'package:bcrypt/bcrypt.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 String hashPassword(String password) {
-  return BCrypt.hashpw(password, BCrypt.gensalt());
+  var bytes = utf8.encode(password);
+  var digest = sha256.convert(bytes);
+  return digest.toString();
 }

@@ -1,25 +1,32 @@
 class UserProfile {
+  String avatarUrl;
   String nickname;
-  String description;
+  String about;
   String goal;
   String telegram;
-  String avatarUrl;
+  String monthlyHabits;
+  String monthlyQuote;
 
   UserProfile({
-    this.nickname = '',
-    this.description = '',
-    this.goal = '',
-    this.telegram = '',
-    this.avatarUrl = 'https://via.placeholder.com/150',
+    required this.avatarUrl,
+    required this.nickname,
+    required this.about,
+    required this.goal,
+    required this.telegram,
+    required this.monthlyHabits,
+    required this.monthlyQuote,
   });
 
-  // Временная заглушка для демонстрации
+  // Для тестирования добавляем метод создания "заглушки"
   static UserProfile getDummyProfile() {
     return UserProfile(
-      nickname: 'Vasy Pupkin',
-      description: 'Программирую на Flutter, люблю создавать приложения!',
-      goal: 'Улучшить привычки и достичь успеха!',
-      telegram: '@vasek',
+      avatarUrl: 'https://via.placeholder.com/200',
+      nickname: 'JohnDoe',
+      about: 'Flutter Developer',
+      goal: 'Create beautiful apps',
+      telegram: '@johndoe',
+      monthlyHabits: 'Read a book, Practice coding',
+      monthlyQuote: 'Keep pushing forward!',
     );
   }
 }

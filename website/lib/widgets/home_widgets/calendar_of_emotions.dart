@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:website/models/MetaInfo.dart';
+import 'package:website/models/MetaKeys.dart';
 import 'package:website/models/emotions.dart';
+import 'package:website/services/calendar_emotions_service.dart';
 
 import 'calendar/day_cell.dart';
 import 'calendar/empty_cell.dart';
 import 'calendar/header_cell.dart';
 
 class EmotionCalendarController {
-  final GlobalKey<EmotionCalendarState> calendarKey =
-      GlobalKey<EmotionCalendarState>();
+  final GlobalKey<EmotionCalendarState> calendarKey = GlobalKey<EmotionCalendarState>();
 
-  void setEmoji(Emotion emoji) {
-    calendarKey.currentState?.setTodayEmotion(emoji);
+  void setEmoji(int index) {
+    calendarKey.currentState?.setTodayEmotion(index);
   }
 }
 
 class EmotionCalendar extends StatefulWidget {
-  final Map<DateTime, String> emotions;
   final EmotionCalendarController controller;
 
-  const EmotionCalendar(
-      {super.key, required this.emotions, required this.controller});
+  const EmotionCalendar({super.key, required this.controller});
 
   @override
   EmotionCalendarState createState() => EmotionCalendarState();
@@ -33,16 +33,38 @@ class EmotionCalendarState extends State<EmotionCalendar> {
 
   @override
   void initState() {
+    final now = DateTime.now();
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    emotions = {};
+    setState(() {
+      for (var day = 1; day <= daysInMonth; day++) {
+        emotions[DateTime(firstDayOfMonth.year, firstDayOfMonth.month, day)] = ' ';
+      }
+    });
+    updateEmotions();
     super.initState();
-    emotions = widget.emotions;
-    selectedDate = DateTime.now();
   }
 
-  void setTodayEmotion(Emotion emoji) {
+  void setTodayEmotion(int index) {
     final now = DateTime.now();
+    final date = DateTime(now.year, now.month, now.day);
+    final emoji = EmotionData.emotions[index];
     setState(() {
       emotionToday = emoji.emoji;
-      emotions[now] = emoji.emoji;
+      emotions[date] = emoji.emoji;
+    });
+    final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
+    CalendarEmotionsService.setEmoji(userId, index);
+  }
+
+  Future<void> updateEmotions() async {
+    final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
+    final newEmotions = await CalendarEmotionsService.loadEmotions(userId);
+    setState(() {
+      newEmotions.forEach((key, value) {
+        emotions[key] = value;
+      });
     });
   }
 
@@ -58,9 +80,7 @@ class EmotionCalendarState extends State<EmotionCalendar> {
     const double spacing = 14.0;
     const double cellHeight = calendarCellSize;
     const double padding = 28.0;
-
-    final double totalHeight =
-        headerHeight + spacing + cellHeight * (numberOfWeeks + 1) + padding;
+    final double totalHeight = headerHeight + spacing + cellHeight * (numberOfWeeks + 1) + padding;
 
     return SizedBox(
       height: totalHeight,
@@ -107,9 +127,7 @@ class EmotionCalendarState extends State<EmotionCalendar> {
 
     return TableRow(
       decoration: BoxDecoration(color: Colors.grey.shade100),
-      children: weekdays
-          .map((day) => TableCell(child: HeaderCell(day: day)))
-          .toList(),
+      children: weekdays.map((day) => TableCell(child: HeaderCell(day: day))).toList(),
     );
   }
 
@@ -127,9 +145,8 @@ class EmotionCalendarState extends State<EmotionCalendar> {
           cells.add(createEmptyCell());
         } else {
           final date = DateTime(now.year, now.month, day);
-          final emotion =
-              equalsDays(date, now) ? emotionToday : (emotions[date] ?? ' ');
-          cells.add(createDayCell(day, emotion));
+          final cell = createDayCell(day, emotions[date]!);
+          cells.add(cell);
           day++;
         }
       }
@@ -140,7 +157,5 @@ class EmotionCalendarState extends State<EmotionCalendar> {
 }
 
 bool equalsDays(DateTime day1, DateTime day2) {
-  return day1.year == day2.year &&
-      day1.month == day2.month &&
-      day1.day == day2.day;
+  return day1.year == day2.year && day1.month == day2.month && day1.day == day2.day;
 }

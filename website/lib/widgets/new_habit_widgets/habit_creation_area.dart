@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../models/habit_template.dart';
 import '../../models/habit_settings.dart';
-import 'habit_template_list.dart';
-import 'habit_settings_form.dart';
-import '../../services/api_manager.dart';
+import '../../models/habit_template.dart';
 import '../../services/new_habit_service.dart';
+import 'habit_settings_form.dart';
+import 'habit_template_list.dart';
 
 class HabitCreationArea extends StatefulWidget {
-  final ApiManager apiManager;
-  final Function onHabitCreated; // Callback для обновления родительского виджета
+  final Function(BuildContext) onHabitCreated;
 
   const HabitCreationArea({
     super.key,
-    required this.apiManager,
     required this.onHabitCreated,
   });
 
@@ -21,9 +18,10 @@ class HabitCreationArea extends StatefulWidget {
 }
 
 class _HabitCreationAreaState extends State<HabitCreationArea> {
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
   bool _isCreatingCustomHabit = false;
   HabitTemplate? _selectedTemplate;
-  bool _isSaving = false;
 
   void _handleTemplateSelected(HabitTemplate template) {
     setState(() {
@@ -33,18 +31,17 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
   }
 
   Future<void> _handleHabitSaved(HabitSettings settings) async {
-    setState(() {
-      _isSaving = true;
-    });
+    setState(() {});
 
     try {
-      final success = await HabitService.saveNewHabit(
-        settings,
-        widget.apiManager,
-      );
+      bool success;
+      if (settings.timeTable != "{}") {
+        success = await HabitService.saveNewHabit(settings);
+      } else {
+        success = false;
+      }
 
       if (success) {
-        // Показываем уведомление об успехе
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -53,14 +50,7 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
             ),
           );
         }
-
-        // Вызываем callback для обновления родительского виджета
         if (mounted) widget.onHabitCreated(context);
-
-        // // Переходим на страницу привычек
-        // if (mounted) {
-        //   Navigator.pushReplacementNamed(context, '/habits');
-        // }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -82,12 +72,14 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
       }
     } finally {
       if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
+        setState(() {});
       }
     }
   }
+
+  final List<Widget> children = [
+    const SizedBox(height: 24),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +93,7 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-          const SizedBox(height: 24),
+          children[0],
           _buildMainContent(),
         ],
       ),
@@ -150,17 +142,26 @@ class _HabitCreationAreaState extends State<HabitCreationArea> {
   Widget _buildMainContent() {
     return _isCreatingCustomHabit || _selectedTemplate != null
         ? HabitSettingsForm(
-            initialSettings: _selectedTemplate != null
-                ? HabitSettings(
-                    name: _selectedTemplate!.name,
-                    description: _selectedTemplate!.description,
-                    timeOfDay: TimeOfDay.now(),
-                  )
-                : null,
+            initialSettings: _selectedTemplate != null ? _loadTemplate(_selectedTemplate!.id) : null,
             onSave: _handleHabitSaved,
           )
         : HabitTemplateList(
             onTemplateSelected: _handleTemplateSelected,
           );
+  }
+
+  HabitSettings _loadTemplate(String habitId) {
+    return HabitSettings(
+      name: _selectedTemplate!.name,
+      description: _selectedTemplate!.description,
+      timeTable: _selectedTemplate!.timeTable,
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
   }
 }

@@ -5,15 +5,122 @@ CREATE TABLE IF NOT EXISTS users
     login      TEXT    NOT NULL UNIQUE,
     password   TEXT    NOT NULL,
     tg_name    TEXT    NOT NULL,
-    tg_checked BOOLEAN NOT NULL DEFAULT FALSE
+    tg_checked BOOLEAN NOT NULL DEFAULT FALSE,
+    join_date  DATE    NOT NULL
 );
+--INSERT INTO users (name, login, password, tg_name, tg_checked)
+--VALUES ('Иван Иванов', 'ivanov', 'password123', '@ivanov', TRUE, '2024-09-01'),
+--       ('Мария Петрова', 'petrova', 'secure password', '@maria_petrov', FALSE, '1970-01-01');
 
 CREATE TABLE IF NOT EXISTS habit
 (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT   NOT NULL,
-    description TEXT   NOT NULL,
-    time        TEXT   NOT NULL,
-    week_days   TEXT   NOT NULL,
-    duration    BIGINT NOT NULL
+    name        TEXT NOT NULL,
+    description TEXT NOT NULL,
+    monday      TEXT,
+    tuesday     TEXT,
+    wednesday   TEXT,
+    thursday    TEXT,
+    friday      TEXT,
+    saturday    TEXT,
+    sunday      TEXT
 );
+
+CREATE TABLE IF NOT EXISTS habit_templates
+(
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    description TEXT NOT NULL,
+    monday      TEXT,
+    tuesday     TEXT,
+    wednesday   TEXT,
+    thursday    TEXT,
+    friday      TEXT,
+    saturday    TEXT,
+    sunday      TEXT
+);
+
+CREATE TABLE IF NOT EXISTS habit_tracking
+(
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id          INTEGER NOT NULL,
+    habit_id         INTEGER NOT NULL,
+    date             DATE    NOT NULL,
+    is_done          BOOLEAN NOT NULL DEFAULT FALSE,
+    missed_count     INTEGER NOT NULL DEFAULT 0,
+    monthly_schedule TEXT    NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (habit_id) REFERENCES habit (id),
+    UNIQUE (user_id, habit_id, date)
+);
+--INSERT INTO habit_tracking (user_id, habit_id, date, is_done, missed_count, monthly_schedule) VALUES
+--(1, 1, '2024-12-01', TRUE, 0, '{"2024-12-01": true, "2024-12-02": false, "2024-12-03": true}'),
+--(2, 2, '2024-12-01', FALSE, 1, '{"2024-12-01": false, "2024-12-02": true, "2024-12-03": false}');
+
+CREATE TABLE IF NOT EXISTS mood_tracking
+(
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id    INTEGER NOT NULL,
+    mood_date  TEXT    NOT NULL,
+    mood_value INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    UNIQUE (user_id, mood_date)
+);
+--INSERT INTO mood_tracking (user_id, mood_date, mood_value) VALUES
+--(1, '2024-12-01', 7),
+--(1, '2024-12-02', 5),
+--(2, '2024-12-01', 8);
+
+CREATE TABLE IF NOT EXISTS all_achievements
+(
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT NOT NULL,
+    description TEXT NOT NULL,
+    condition   TEXT NOT NULL
+);
+--INSERT INTO all_achievements (name, description, condition) VALUES
+--('Первая привычка', 'Получено за добавление первой привычки.', 'Добавить хотя бы одну привычку.'),
+--('7 дней подряд', 'Получено за выполнение привычки 7 дней подряд.', 'Выполнить привычку в течение 7 дней подряд.');
+
+CREATE TABLE IF NOT EXISTS user_achievements
+(
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id        INTEGER NOT NULL,
+    achievement_id INTEGER NOT NULL,
+    date_achieved  DATE    NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (achievement_id) REFERENCES all_achievements (id),
+    UNIQUE (user_id, achievement_id)
+);
+--INSERT INTO user_achievements (user_id, achievement_id, date_achieved) VALUES
+--(1, 1, '2024-12-01'),
+--(2, 2, '2024-12-07');
+
+CREATE TABLE IF NOT EXISTS groups
+(
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    created_at DATE NOT NULL
+);
+--INSERT INTO groups (name, created_at) VALUES
+--('ЗОЖ', '2024-12-01', 1),
+--('Челленджи 2024', '2024-12-03');
+
+CREATE TABLE IF NOT EXISTS group_memberships
+(
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id  INTEGER NOT NULL,
+    user_id   INTEGER NOT NULL,
+    joined_at DATE    NOT NULL,
+    is_admin  BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (group_id) REFERENCES groups (id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    UNIQUE (group_id, user_id)
+);
+--INSERT INTO group_memberships (group_id, user_id, joined_at, is_admin) VALUES
+--(1, 1, '2024-12-01', true),
+--(1, 2, '2024-12-02', false);
+
+-----------------------------------------------------------------------------------------------
+INSERT INTO users (name, login, password, tg_name, join_date)
+VALUES ('admin', '123', '$2a$10$uQhS9u/APVALAWArkfTqzOVFMtB8qUwTgfZKuKBDjAT9ZnttcCtzK', 'admin', '2024-12-14');

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/nav_button.dart';
+import 'nav_button.dart';
 
 class NavigateBar extends Container {
   final NavigationOptions activeOption;
@@ -27,6 +27,7 @@ class NavigateBar extends Container {
             createNavButton(NavigationOptions.achievements, activeOption, goTo),
             createNavButton(NavigationOptions.profile, activeOption, goTo),
             createNavButton(NavigationOptions.settings, activeOption, goTo),
+            const SizedBox(height: 40),
           ],
         ),
       ),

@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../services/api_manager.dart';
-import '../widgets/nav_button.dart';
-import '../widgets/new habit/habit_creation_area.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
+import '../widgets/new_habit_widgets/habit_creation_area.dart';
 
 class NewHabitPage extends TemplatePage {
-  final String title = 'New Habit Page';
-  final NavigationOptions page = NavigationOptions.newHabit;
+  @override
+  String get title => 'New Habit Page';
 
-  var _habitService;
+  @override
+  NavigationOptions get page => NavigationOptions.newHabit;
 
   void _onHabitCreated(BuildContext context) {
-    // Здесь можно добавить логику обновления данных после создания привычки
-    // Например, обновить список привычек или состояние приложения
-    //_habitService.refreshHabits();
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -35,17 +32,10 @@ class NewHabitPage extends TemplatePage {
     );
   }
 
-  NewHabitPage(ApiManager apiManager, {super.key}) : super(apiManager: apiManager);
+  const NewHabitPage({super.key});
 
   @override
   Widget getMainArea() {
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16.0),
-      child: HabitCreationArea(
-        apiManager: apiManager,
-        onHabitCreated: _onHabitCreated,
-      ),
-    );
+    return HabitCreationArea(onHabitCreated: _onHabitCreated);
   }
 }

@@ -1,11 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import '../../models/emotions.dart';
 import 'emoji_item.dart';
 
 class EmojiSelector extends StatefulWidget {
-  final Function(Emotion) onEmotionSelected;
+  final Function onEmotionSelected;
 
   const EmojiSelector({
     super.key,
@@ -62,7 +60,7 @@ class _EmojiSelectorState extends State<EmojiSelector> {
                       setState(() {
                         _selectedIndex = index;
                       });
-                      widget.onEmotionSelected(EmotionData.emotions[index]);
+                      widget.onEmotionSelected(index);
                     },
                   );
                 },

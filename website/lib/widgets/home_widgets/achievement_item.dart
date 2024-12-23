@@ -27,11 +27,6 @@ class AchievementItem extends StatelessWidget {
                   color: Theme.of(context).primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  getIconData(achievement.iconName),
-                  size: 24,
-                  color: Theme.of(context).primaryColor,
-                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -49,8 +44,6 @@ class AchievementItem extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Text(achievement.emoji),
                       ],
                     ),
                     const SizedBox(height: 4),
