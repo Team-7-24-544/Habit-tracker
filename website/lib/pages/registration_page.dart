@@ -5,7 +5,7 @@ import 'package:website/services/api_manager.dart';
 import 'package:website/services/api_query.dart';
 import '../models/MetaInfo.dart';
 import '../services/utils_functions.dart';
-import '../widgets/nav_button.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
 
 class RegistrationPage extends StatefulWidget {
   String get title => 'Registration page';
@@ -95,7 +95,6 @@ class RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    //TODO: rewrite code with OOP
     return Scaffold(
       appBar: AppBar(
         title: const Text('Регистрация'),

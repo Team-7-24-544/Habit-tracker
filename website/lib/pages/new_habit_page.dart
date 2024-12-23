@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../widgets/nav_button.dart';
-import '../widgets/new habit/habit_creation_area.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
+import '../widgets/new_habit_widgets/habit_creation_area.dart';
 
 class NewHabitPage extends TemplatePage {
   @override

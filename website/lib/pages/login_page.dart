@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
 import 'package:website/models/MetaKeys.dart';
 import '../services/auth_service.dart';
-import '../widgets/nav_button.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
 
 class LoginPage extends StatefulWidget {
   String get title => 'Login page';

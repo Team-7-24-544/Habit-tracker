@@ -6,8 +6,8 @@ import 'package:website/pages/home_page.dart';
 import 'package:website/pages/new_habit_page.dart';
 import 'package:website/pages/profile_page.dart';
 import 'package:website/pages/settings_page.dart';
-import '../widgets/nav_button.dart';
-import '../widgets/navigate_bar.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
+import '../widgets/navigation_widgets/navigate_bar.dart';
 
 abstract class TemplatePage extends StatelessWidget {
   String get title => 'Empty Page';

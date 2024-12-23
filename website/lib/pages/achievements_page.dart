@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../widgets/nav_button.dart';
-import '../widgets/upcoming_achievements_list.dart';
-import '../widgets/achievements.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
+import '../widgets/achievements_widgets/upcoming_achievements_list.dart';
+import '../widgets/achievements_widgets/achievements.dart';
 
 class AchievementsPage extends TemplatePage {
   @override

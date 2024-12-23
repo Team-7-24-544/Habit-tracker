@@ -9,7 +9,7 @@ from achievements import get_last_10_achievements
 from emoji_calendar import get_emotions, set_emoji_for_day
 from habits import add_habit, get_templates, get_template_by_id
 from logging_config import setup_logging
-from users import*
+from users import *
 
 setup_logging()
 app = FastAPI()
@@ -81,15 +81,7 @@ async def get_templates_(habit_id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/user/update")
-async def update_user_endpoint(user_id: int, name: str = None, login: str = None, 
-                                password: str = None, tg_nick: str = None, 
-                                db: Session = Depends(get_db)):
-    """
-    Обновление данных пользователя.
-    Параметры: 
-    - user_id (обязательный): ID пользователя, чьи данные нужно обновить.
-    - name, login, password, tg_nick (необязательные): Обновляемые поля.
-
-    Возвращает статус операции.
-    """
+async def update_user_endpoint(user_id: int, name: str = None, login: str = None,
+                               password: str = None, tg_nick: str = None,
+                               db: Session = Depends(get_db)):
     return await update_user(user_id, name, login, password, tg_nick, db)

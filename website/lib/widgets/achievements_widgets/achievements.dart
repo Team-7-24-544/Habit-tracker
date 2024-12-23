@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../models/MetaInfo.dart';
-import '../models/MetaKeys.dart';
-import '../models/achievement.dart';
-import '../services/api_manager.dart';
-import '../services/api_query.dart';
-import 'home_page_widgets/last_achievement_item.dart';
+import '../../models/MetaInfo.dart';
+import '../../models/MetaKeys.dart';
+import '../../models/achievement.dart';
+import '../../services/api_manager.dart';
+import '../../services/api_query.dart';
+import '../home_widgets/last_achievement_item.dart';
 
 class Achievements extends StatefulWidget {
   const Achievements({super.key});

@@ -1,5 +1,5 @@
 import 'package:website/pages/template_page.dart';
-import '../widgets/nav_button.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
 
 class SettingsPage extends TemplatePage {
   @override

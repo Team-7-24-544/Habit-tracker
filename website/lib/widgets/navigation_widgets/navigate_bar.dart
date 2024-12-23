@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/nav_button.dart';
+import 'nav_button.dart';
 
 class NavigateBar extends Container {
   final NavigationOptions activeOption;

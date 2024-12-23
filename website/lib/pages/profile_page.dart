@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'template_page.dart';
-import '../widgets/nav_button.dart';
-import '../../widgets/profile/profile_content.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
+import '../widgets/profile_widgets/profile_content.dart';
 
 class ProfilePage extends TemplatePage {
   @override

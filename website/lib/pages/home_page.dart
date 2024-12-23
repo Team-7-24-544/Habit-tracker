@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
-import '../widgets/home_page_widgets/emotion_selector.dart';
-import '../widgets/home_page_widgets/calendar_of_emotions.dart';
-import '../widgets/habit_checklist.dart';
-import '../widgets/home_page_widgets/last_achivements.dart';
-import '../widgets/nav_button.dart';
+import '../widgets/home_widgets/emotion_selector.dart';
+import '../widgets/home_widgets/calendar_of_emotions.dart';
+import '../widgets/home_widgets/habit_checklist.dart';
+import '../widgets/home_widgets/last_achivements.dart';
+import '../widgets/navigation_widgets/nav_button.dart';
 
 class HomePage extends TemplatePage {
   @override

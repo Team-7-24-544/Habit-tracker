@@ -7,6 +7,7 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 
 from models import User
+
 logger = logging.getLogger(__name__)
 
 
@@ -70,13 +71,9 @@ async def authenticate_user(login: str, password: str, db: Session):
 
 
 async def update_user(user_id: int, name: str, login: str, password: str, tg_nick: str, db: Session):
-    """
-    Обновляет данные пользователя с указанным ID.
-    """
     try:
         logger.info(f"Updating user with ID: {user_id}")
 
-        # Получаем пользователя из базы данных
         stmt = select(User).where(User.id == user_id)
         user = db.execute(stmt).scalars().first()
 
@@ -84,17 +81,15 @@ async def update_user(user_id: int, name: str, login: str, password: str, tg_nic
             logger.error(f"User with ID {user_id} not found.")
             raise HTTPException(status_code=404, detail="User not found")
 
-        # Обновляем только те поля, которые переданы
         if name is not None:
             user.name = name
         if login is not None:
-            # Проверяем, существует ли другой пользователь с таким логином
             existing_user_stmt = select(User).where(and_(User.login == login, User.id != user_id))
             existing_user = db.execute(existing_user_stmt).scalars().first()
             if existing_user:
                 logger.error(f"Login '{login}' is already taken by another user.")
                 raise HTTPException(
-                    status_code=400, 
+                    status_code=400,
                     detail="Login is already taken by another user"
                 )
             user.login = login
@@ -103,7 +98,6 @@ async def update_user(user_id: int, name: str, login: str, password: str, tg_nic
         if tg_nick is not None:
             user.tg_name = tg_nick
 
-        # Сохраняем изменения
         db.commit()
         db.refresh(user)
 
