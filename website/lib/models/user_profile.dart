@@ -1,31 +1,32 @@
 class UserProfile {
+  String avatarUrl;
   String nickname;
-  String aboutMe;      // Переименовано из description
+  String about;
   String goal;
   String telegram;
-  String avatarUrl;
-  String monthlyHabits; // Новое поле
-  String monthlyQuote;  // Новое поле
+  String monthlyHabits;
+  String monthlyQuote;
 
   UserProfile({
-    this.nickname = '',
-    this.aboutMe = '',
-    this.goal = '',
-    this.telegram = '',
-    this.avatarUrl = 'https://via.placeholder.com/150',
-    this.monthlyHabits = '',
-    this.monthlyQuote = '',
+    required this.avatarUrl,
+    required this.nickname,
+    required this.about,
+    required this.goal,
+    required this.telegram,
+    required this.monthlyHabits,
+    required this.monthlyQuote,
   });
 
-  // Временная заглушка для демонстрации
+  // Для тестирования добавляем метод создания "заглушки"
   static UserProfile getDummyProfile() {
     return UserProfile(
-      nickname: 'Vasy Pupkin',
-      aboutMe: 'Программирую на Flutter, люблю создавать приложения!',
-      goal: 'Улучшить привычки и достичь успеха!',
-      telegram: '@vasek',
-      monthlyHabits: 'Бег по утрам, Чтение книг, Медитация',
-      monthlyQuote: 'Путь в тысячу ли начинается с первого шага',
+      avatarUrl: 'https://via.placeholder.com/200',
+      nickname: 'JohnDoe',
+      about: 'Flutter Developer',
+      goal: 'Create beautiful apps',
+      telegram: '@johndoe',
+      monthlyHabits: 'Read a book, Practice coding',
+      monthlyQuote: 'Keep pushing forward!',
     );
   }
 }

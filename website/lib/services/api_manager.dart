@@ -60,6 +60,8 @@ class ApiManager {
   Future<ApiResponse> update(ApiQuery query) => _sendRequest('PUT', query);
 
   Future<ApiResponse> delete(ApiQuery query) => _sendRequest('DELETE', query);
+
+  
 }
 
 void check(ApiManager apiManager) async {
