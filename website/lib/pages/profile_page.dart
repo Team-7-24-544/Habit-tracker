@@ -47,9 +47,9 @@ class _ProfileContentState extends State<ProfileContent> {
 
   Future<void> _uploadPhoto() async {
     // Заглушка для выбора фото
-    await Future.delayed(const Duration(seconds: 1)); // Симуляция задержки
+    await Future.delayed(const Duration(seconds: 1));
     setState(() {
-      profile.avatarUrl = 'https://via.placeholder.com/200'; // Временное фото
+      profile.avatarUrl = 'https://via.placeholder.com/200'; // для демо
     });
   }
 

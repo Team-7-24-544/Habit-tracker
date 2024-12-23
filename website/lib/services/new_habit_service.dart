@@ -3,7 +3,6 @@ import 'package:website/models/MetaKeys.dart';
 import '../models/habit_settings.dart';
 import 'api_manager.dart';
 import 'api_query.dart';
-// import 'habit_settings_form.dart';
 
 class HabitService {
   static Future<bool> saveNewHabit(HabitSettings settings) async {

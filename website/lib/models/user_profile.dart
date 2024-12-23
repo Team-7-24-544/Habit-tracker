@@ -1,11 +1,11 @@
 class UserProfile {
   String nickname;
-  String aboutMe;      // Переименовано из description
+  String aboutMe;
   String goal;
   String telegram;
   String avatarUrl;
-  String monthlyHabits; // Новое поле
-  String monthlyQuote;  // Новое поле
+  String monthlyHabits;
+  String monthlyQuote;
 
   UserProfile({
     this.nickname = '',

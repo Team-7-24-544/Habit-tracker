@@ -77,6 +77,6 @@ abstract class TemplatePage extends StatelessWidget {
   }
 
   Widget getMainArea() {
-    return Padding(padding: EdgeInsets.all(16.0)); // ! here is main area !
+    return Padding(padding: EdgeInsets.all(16.0));
   }
 }
