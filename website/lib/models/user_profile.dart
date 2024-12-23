@@ -1,9 +1,16 @@
 class UserProfile {
   String avatarUrl;
   String nickname;
+<<<<<<< HEAD
   String about;
   String goal;
   String telegram;
+=======
+  String aboutMe;
+  String goal;
+  String telegram;
+  String avatarUrl;
+>>>>>>> origin/beta
   String monthlyHabits;
   String monthlyQuote;
 

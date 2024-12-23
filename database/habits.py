@@ -82,9 +82,7 @@ async def get_templates(db: Session):
             time_table["friday"] = template.friday
             time_table["saturday"] = template.saturday
             time_table["sunday"] = template.sunday
-            result["body"][str(template.id)] = {"name": template.name, "description": template.description,
-                                                "time_table": time_table}
-        print(result)
+            result["body"][str(template.id)] = {"name": template.name, "description": template.description, "time_table": time_table}
         return JSONResponse(content=result, media_type="application/json; charset=utf-8")
     except IntegrityError as e:
         logger.error(f"Error getting templates of habits: {str(e)}")
@@ -116,7 +114,3 @@ async def get_template_by_id(habit_id: int, db: Session):
         logger.error(f"Unexpected error getting template of habit: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-"""
-http://127.0.0.1:8000/habits/create?name=new_habit&description=something&time_table={monday:{11:30:13:50}}
-"""
