@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
 import 'package:website/models/MetaKeys.dart';
+import 'package:website/pages/profile_page.dart';
 import 'pages/registration_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
-        '/login': (context) => LoginPage(),
+        '/login': (context) => ProfilePage(),
         '/registration': (context) => RegistrationPage(context),
         '/home': (context) => HomePage(),
         '/debug': (context) => HomePage(),
