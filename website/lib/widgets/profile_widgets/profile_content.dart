@@ -42,36 +42,42 @@ class _ProfileContentState extends State<ProfileContent> {
     return Card(
       elevation: 4,
       margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+        child: SizedBox(
+          width: double.infinity,
+          child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[600],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            isEditing
-                ? TextField(
-                    controller: TextEditingController(text: value),
-                    onChanged: onChanged,
-                    maxLines: maxLines,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              const SizedBox(height: 8),
+              ConstrainedBox(
+                constraints: BoxConstraints(minHeight: 60),
+                child: isEditing
+                  ? TextField(
+                      controller: TextEditingController(text: value),
+                      onChanged: onChanged,
+                      maxLines: maxLines,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                    )
+                  : Text(
+                      value,
+                      style: const TextStyle(fontSize: 16),
                     ),
-                  )
-                : Text(
-                    value,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-          ],
-        ),
+              )
+            ],
+          ),
+        )
       ),
     );
   }
@@ -141,6 +147,7 @@ class _ProfileContentState extends State<ProfileContent> {
                       Expanded(
                         flex: 1,
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             CircleAvatar(
                               radius: 75,
@@ -151,7 +158,9 @@ class _ProfileContentState extends State<ProfileContent> {
                                 icon: const Icon(Icons.camera_alt),
                                 onPressed: _uploadPhoto,
                               ),
-                            const SizedBox(height: 24),
+
+                            isEditing ? const SizedBox(height: 30) : const SizedBox(height: 70),
+
                             _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
                             const SizedBox(height: 24),
                             _buildProfileSection('Telegram:', profile.telegram, (value) => profile.telegram = value),
@@ -160,31 +169,35 @@ class _ProfileContentState extends State<ProfileContent> {
                       ),
                     ],
                   )
-                : Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 75,
-                        backgroundImage: NetworkImage(profile.avatarUrl),
-                      ),
-                      if (isEditing)
-                        IconButton(
-                          icon: const Icon(Icons.camera_alt),
-                          onPressed: _uploadPhoto,
+                : SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 75,
+                          backgroundImage: NetworkImage(profile.avatarUrl),
                         ),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('Telegram:', profile.telegram, (value) => profile.telegram = value),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('О себе:', profile.about, (value) => profile.about = value, maxLines: 5),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('Цель/мотивация:', profile.goal, (value) => profile.goal = value, maxLines: 5),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('Привычки на месяц:', profile.monthlyHabits, (value) => profile.monthlyHabits = value, maxLines: 8),
-                      const SizedBox(height: 24),
-                      _buildProfileSection('Цитата месяца:', profile.monthlyQuote, (value) => profile.monthlyQuote = value, maxLines: 8),
-                      const SizedBox(height: 24),
-                    ],
+                        if (isEditing)
+                          IconButton(
+                            icon: const Icon(Icons.camera_alt),
+                            onPressed: _uploadPhoto,
+                          ),
+                        isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
+                        _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
+                        const SizedBox(height: 24),
+                        _buildProfileSection('Telegram:', profile.telegram, (value) => profile.telegram = value),
+                        const SizedBox(height: 24),
+                        _buildProfileSection('О себе:', profile.about, (value) => profile.about = value, maxLines: 5),
+                        const SizedBox(height: 24),
+                        _buildProfileSection('Цель/мотивация:', profile.goal, (value) => profile.goal = value, maxLines: 5),
+                        const SizedBox(height: 24),
+                        _buildProfileSection('Привычки на месяц:', profile.monthlyHabits, (value) => profile.monthlyHabits = value, maxLines: 8),
+                        const SizedBox(height: 24),
+                        _buildProfileSection('Цитата месяца:', profile.monthlyQuote, (value) => profile.monthlyQuote = value, maxLines: 8),
+                        const SizedBox(height: 24),
+                      ],
+                    )
                   ),
           ],
         ),
