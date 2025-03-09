@@ -58,22 +58,20 @@ class _ProfileContentState extends State<ProfileContent> {
                 ),
               ),
               const SizedBox(height: 8),
-              ConstrainedBox(  
-                constraints: BoxConstraints(minHeight: 120),
-                child: isEditing
-                  ? TextField(
-                      controller: TextEditingController(text: value),
-                      onChanged: onChanged,
-                      maxLines: maxLines,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                    )
-                  : Text(
-                      value,
-                      style: const TextStyle(fontSize: 16),
-                    ),)
+              isEditing
+                ? TextField(
+                    controller: TextEditingController(text: value),
+                    onChanged: onChanged,
+                    maxLines: maxLines,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(fontSize: 16),
+                  ),
             ],
           ),
         )
@@ -158,7 +156,7 @@ class _ProfileContentState extends State<ProfileContent> {
                                 onPressed: _uploadPhoto,
                               ),
 
-                            isEditing ? const SizedBox(height: 16) : const SizedBox(height: 56),
+                            isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
 
                             _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
                             const SizedBox(height: 24),
