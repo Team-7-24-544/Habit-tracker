@@ -6,10 +6,10 @@ class HabitScheduleBlock extends StatefulWidget {
   final int blockIndex;
 
   const HabitScheduleBlock({
-    Key? key,
+    super.key,
     required this.onDelete,
     required this.blockIndex,
-  }) : super(key: key);
+  });
 
   @override
   HabitScheduleBlockState createState() => HabitScheduleBlockState();

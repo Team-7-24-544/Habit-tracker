@@ -5,10 +5,10 @@ class TimeSlot extends StatefulWidget {
   final int index;
 
   const TimeSlot({
-    Key? key,
+    super.key,
     required this.onDelete,
     required this.index,
-  }) : super(key: key);
+  });
 
   @override
   TimeSlotState createState() => TimeSlotState();

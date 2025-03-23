@@ -12,10 +12,38 @@ class _ProfileContentState extends State<ProfileContent> {
   late UserProfile profile;
   bool isEditing = false;
 
+  // Контроллеры для полей профиля
+  late TextEditingController aboutController;
+  late TextEditingController goalController;
+  late TextEditingController nicknameController;
+  late TextEditingController telegramController;
+  late TextEditingController monthlyHabitsController;
+  late TextEditingController monthlyQuoteController;
+
   @override
   void initState() {
     super.initState();
     profile = UserProfile.getDummyProfile();
+
+    // Инициализируем контроллеры с данными из профиля
+    aboutController = TextEditingController(text: profile.about);
+    goalController = TextEditingController(text: profile.goal);
+    nicknameController = TextEditingController(text: profile.nickname);
+    telegramController = TextEditingController(text: profile.telegram);
+    monthlyHabitsController = TextEditingController(text: profile.monthlyHabits);
+    monthlyQuoteController = TextEditingController(text: profile.monthlyQuote);
+  }
+
+  @override
+  void dispose() {
+    // Освобождаем ресурсы контроллеров
+    aboutController.dispose();
+    goalController.dispose();
+    nicknameController.dispose();
+    telegramController.dispose();
+    monthlyHabitsController.dispose();
+    monthlyQuoteController.dispose();
+    super.dispose();
   }
 
   void _toggleEdit() {
@@ -26,6 +54,13 @@ class _ProfileContentState extends State<ProfileContent> {
 
   void _saveProfile() {
     setState(() {
+      // Обновляем модель профиля значениями из контроллеров
+      profile.about = aboutController.text;
+      profile.goal = goalController.text;
+      profile.nickname = nicknameController.text;
+      profile.telegram = telegramController.text;
+      profile.monthlyHabits = monthlyHabitsController.text;
+      profile.monthlyQuote = monthlyQuoteController.text;
       isEditing = false;
     });
   }
@@ -37,14 +72,15 @@ class _ProfileContentState extends State<ProfileContent> {
     });
   }
 
-  Widget _buildProfileSection(String label, String value, Function(String) onChanged,
+  // Функция для построения секций профиля с контроллером
+  Widget _buildProfileSection(String label, TextEditingController base_controller,
       {int maxLines = 1}) {
     return Card(
       elevation: 4,
       margin: EdgeInsets.zero,
-        child: SizedBox(
-          width: double.infinity,
-          child: Padding(
+      child: SizedBox(
+        width: double.infinity,
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,22 +95,21 @@ class _ProfileContentState extends State<ProfileContent> {
               ),
               const SizedBox(height: 8),
               isEditing
-                ? TextField(
-                    controller: TextEditingController(text: value),
-                    onChanged: onChanged,
-                    maxLines: maxLines,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ? TextField(
+                      controller: base_controller,
+                      maxLines: maxLines,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                    )
+                  : Text(
+                      base_controller.text,
+                      style: const TextStyle(fontSize: 16),
                     ),
-                  )
-                : Text(
-                    value,
-                    style: const TextStyle(fontSize: 16),
-                  ),
             ],
           ),
-        )
+        ),
       ),
     );
   }
@@ -90,7 +125,7 @@ class _ProfileContentState extends State<ProfileContent> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // Заголовок
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -113,7 +148,7 @@ class _ProfileContentState extends State<ProfileContent> {
             ),
             const SizedBox(height: 24),
 
-            // Main content
+            // Основное содержимое
             isWideScreen
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,18 +157,18 @@ class _ProfileContentState extends State<ProfileContent> {
                         flex: 2,
                         child: Column(
                           children: [
-                            _buildProfileSection('О себе:', profile.about, (value) => profile.about = value, maxLines: 5),
+                            _buildProfileSection('О себе:', aboutController, maxLines: 5),
                             const SizedBox(height: 24),
-                            _buildProfileSection('Цель/мотивация:', profile.goal, (value) => profile.goal = value, maxLines: 5),
+                            _buildProfileSection('Цель/мотивация:', goalController, maxLines: 5),
                             const SizedBox(height: 24),
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildProfileSection('Привычки на месяц:', profile.monthlyHabits, (value) => profile.monthlyHabits = value, maxLines: 5),
+                                  child: _buildProfileSection('Привычки на месяц:', monthlyHabitsController, maxLines: 5),
                                 ),
                                 const SizedBox(width: 24),
                                 Expanded(
-                                  child: _buildProfileSection('Цитата месяца:', profile.monthlyQuote, (value) => profile.monthlyQuote = value, maxLines: 5),
+                                  child: _buildProfileSection('Цитата месяца:', monthlyQuoteController, maxLines: 5),
                                 ),
                               ],
                             ),
@@ -155,12 +190,10 @@ class _ProfileContentState extends State<ProfileContent> {
                                 icon: const Icon(Icons.camera_alt),
                                 onPressed: _uploadPhoto,
                               ),
-
                             isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
-
-                            _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
+                            _buildProfileSection('Никнейм:', nicknameController),
                             const SizedBox(height: 24),
-                            _buildProfileSection('Telegram:', profile.telegram, (value) => profile.telegram = value),
+                            _buildProfileSection('Telegram:', telegramController),
                           ],
                         ),
                       ),
@@ -181,20 +214,20 @@ class _ProfileContentState extends State<ProfileContent> {
                             onPressed: _uploadPhoto,
                           ),
                         isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
-                        _buildProfileSection('Никнейм:', profile.nickname, (value) => profile.nickname = value),
+                        _buildProfileSection('Никнейм:', nicknameController),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Telegram:', profile.telegram, (value) => profile.telegram = value),
+                        _buildProfileSection('Telegram:', telegramController),
                         const SizedBox(height: 24),
-                        _buildProfileSection('О себе:', profile.about, (value) => profile.about = value, maxLines: 5),
+                        _buildProfileSection('О себе:', aboutController, maxLines: 5),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Цель/мотивация:', profile.goal, (value) => profile.goal = value, maxLines: 5),
+                        _buildProfileSection('Цель/мотивация:', goalController, maxLines: 5),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Привычки на месяц:', profile.monthlyHabits, (value) => profile.monthlyHabits = value, maxLines: 8),
+                        _buildProfileSection('Привычки на месяц:', monthlyHabitsController, maxLines: 8),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Цитата месяца:', profile.monthlyQuote, (value) => profile.monthlyQuote = value, maxLines: 8),
+                        _buildProfileSection('Цитата месяца:', monthlyQuoteController, maxLines: 8),
                         const SizedBox(height: 24),
                       ],
-                    )
+                    ),
                   ),
           ],
         ),
