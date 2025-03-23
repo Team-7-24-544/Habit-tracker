@@ -1,4 +1,5 @@
 class UserProfile {
+  int user_id;
   String avatarUrl;
   String nickname;
   String about;
@@ -8,6 +9,7 @@ class UserProfile {
   String monthlyQuote;
 
   UserProfile({
+    required this.user_id,
     required this.avatarUrl,
     required this.nickname,
     required this.about,
@@ -20,6 +22,7 @@ class UserProfile {
   // Для тестирования добавляем метод создания "заглушки"
   static UserProfile getDummyProfile() {
     return UserProfile(
+      user_id: 1,
       avatarUrl: 'https://via.placeholder.com/200',
       nickname: 'JohnDoe',
       about: 'Flutter Developer',

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../services/api_manager.dart';
+import '../../services/api_query.dart';
 import '../../models/user_profile.dart';
 
 class ProfileContent extends StatefulWidget {
@@ -19,6 +21,9 @@ class _ProfileContentState extends State<ProfileContent> {
   late TextEditingController telegramController;
   late TextEditingController monthlyHabitsController;
   late TextEditingController monthlyQuoteController;
+
+  // Экземпляр для работы с API
+  final ApiManager apiManager = ApiManager();
 
   @override
   void initState() {
@@ -52,17 +57,44 @@ class _ProfileContentState extends State<ProfileContent> {
     });
   }
 
-  void _saveProfile() {
-    setState(() {
-      // Обновляем модель профиля значениями из контроллеров
-      profile.about = aboutController.text;
-      profile.goal = goalController.text;
-      profile.nickname = nicknameController.text;
-      profile.telegram = telegramController.text;
-      profile.monthlyHabits = monthlyHabitsController.text;
-      profile.monthlyQuote = monthlyQuoteController.text;
-      isEditing = false;
-    });
+  // Метод сохранения профиля с вызовом API
+  Future<void> _saveProfile() async {
+    // Обновляем локальную модель перед отправкой
+    profile.about = aboutController.text;
+    profile.goal = goalController.text;
+    profile.nickname = nicknameController.text;
+    profile.telegram = telegramController.text;
+    profile.monthlyHabits = monthlyHabitsController.text;
+    profile.monthlyQuote = monthlyQuoteController.text;
+
+    // Формируем запрос к API на обновление профиля
+    // Предполагается, что у модели UserProfile есть поле id или user_id для идентификации
+    final query = ApiQueryBuilder()
+        .path(QueryPaths.updateProfile) // Убедись, что этот путь добавлен в QueryPaths
+        .addParameter("user_id", profile.user_id.toString())
+        .addParameter("avatar_url", profile.avatarUrl)
+        .addParameter("nickname", profile.nickname)
+        .addParameter("about", profile.about)
+        .addParameter("goal", profile.goal)
+        .addParameter("telegram", profile.telegram)
+        .addParameter("monthly_habits", profile.monthlyHabits)
+        .addParameter("monthly_quote", profile.monthlyQuote)
+        .build();
+
+    // Отправляем POST-запрос (или PUT, если у тебя настроен именно такой метод) к API
+    final response = await apiManager.post(query);
+
+    if (!response.empty()) {
+      // Если ответ успешный, обновляем локальное состояние
+      setState(() {
+        isEditing = false;
+      });
+    } else {
+      // Обработка ошибки, можно вывести уведомление
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Ошибка обновления профиля: ${response.error}")),
+      );
+    }
   }
 
   Future<void> _uploadPhoto() async {
@@ -73,8 +105,7 @@ class _ProfileContentState extends State<ProfileContent> {
   }
 
   // Функция для построения секций профиля с контроллером
-  Widget _buildProfileSection(String label, TextEditingController base_controller,
-      {int maxLines = 1}) {
+  Widget _buildProfileSection(String label, TextEditingController baseController, {int maxLines = 1}) {
     return Card(
       elevation: 4,
       margin: EdgeInsets.zero,
@@ -96,7 +127,7 @@ class _ProfileContentState extends State<ProfileContent> {
               const SizedBox(height: 8),
               isEditing
                   ? TextField(
-                      controller: base_controller,
+                      controller: baseController,
                       maxLines: maxLines,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
@@ -104,7 +135,7 @@ class _ProfileContentState extends State<ProfileContent> {
                       ),
                     )
                   : Text(
-                      base_controller.text,
+                      baseController.text,
                       style: const TextStyle(fontSize: 16),
                     ),
             ],
