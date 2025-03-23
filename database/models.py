@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, BigInteger, Boolean, Integer, Date
+from sqlalchemy import Column, String, BigInteger, Boolean, Integer, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -128,3 +128,20 @@ class HabitTemplate(Base):
 
     def __repr__(self):
         return f"<Habit(name={self.name}, description={self.description})>"
+
+class UserProfile(Base):
+    __tablename__ = 'user_profiles'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
+    avatar_url = Column(String, nullable=False, default='https://via.placeholder.com/200')
+    nickname = Column(String, nullable=False)
+    about = Column(String, nullable=True)
+    goal = Column(String, nullable=True)
+    telegram = Column(String, nullable=True)
+    monthly_habits = Column(String, nullable=True)
+    monthly_quote = Column(String, nullable=True)
+
+    def __repr__(self):
+        return (f"<UserProfile(user_id={self.user_id}, nickname={self.nickname}, "
+                f"about={self.about}, goal={self.goal})>")

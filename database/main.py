@@ -10,6 +10,7 @@ from emoji_calendar import get_emotions, set_emoji_for_day
 from habits import add_habit, get_templates, get_template_by_id
 from logging_config import setup_logging
 from users import *
+from user_profile import get_user_profile, update_user_profile
 
 setup_logging()
 app = FastAPI()
@@ -85,3 +86,41 @@ async def update_user_endpoint(user_id: int, name: str = None, login: str = None
                                password: str = None, tg_nick: str = None,
                                db: Session = Depends(get_db)):
     return await update_user(user_id, name, login, password, tg_nick, db)
+
+@app.get("/user/profile")
+async def get_profile(user_id: int, db: Session = Depends(get_db)):
+    """
+    Получение данных профиля для пользователя с указанным user_id.
+    """
+    return await get_user_profile(user_id, db)
+
+
+#новые------------------------------------------------------------
+@app.post("/user/profile/update")
+async def update_profile(
+    user_id: int,
+    avatar_url: str = None,
+    nickname: str = None,
+    about: str = None,
+    goal: str = None,
+    telegram: str = None,
+    monthly_habits: str = None,
+    monthly_quote: str = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Обновление данных профиля для пользователя с указанным user_id.
+    Если какие-то поля не переданы, они не изменяются.
+    """
+    return await update_user_profile(
+        user_id,
+        avatar_url,
+        nickname,
+        about,
+        goal,
+        telegram,
+        monthly_habits,
+        monthly_quote,
+        db
+    )
+#------------------------------------------------------------
