@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
 import 'package:website/models/MetaKeys.dart';
+import 'package:website/pages/profile_page.dart';
 import 'pages/registration_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
@@ -13,7 +14,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   //final apiManager = ApiManager();
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/home',
       routes: {
-        '/login': (context) => LoginPage(),
+        '/login': (context) => ProfilePage(),
         '/registration': (context) => RegistrationPage(context),
         '/home': (context) => HomePage(),
         '/debug': (context) => HomePage(),
