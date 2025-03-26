@@ -58,7 +58,10 @@ enum QueryPaths {
   createHabit("/habits/create"),
   getTemplateHabits("/habits/get_templates"),
   getSelectedTemplate("/get_selected_template"),
-  getLastAchievements("/achievements/get_last");
+  getLastAchievements("/achievements/get_last"),
+  getTodayHabits("/habits/get_today_habits"),
+  setMarkToHabit("/habits/set_mark"),
+  getHabitPeriods("/habits/get_periods");
 
   final String value;
 

@@ -27,10 +27,7 @@ class HomePage extends TemplatePage {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              EmotionCalendar(
-                key: _controller.calendarKey,
-                controller: _controller,
-              ),
+              EmotionCalendar(key: _controller.calendarKey, controller: _controller),
               const SizedBox(height: 24),
               EmojiSelector(onEmotionSelected: _controller.setEmoji),
               const SizedBox(height: 24),
@@ -40,10 +37,7 @@ class HomePage extends TemplatePage {
           ),
         ),
         const SizedBox(width: 32),
-        Flexible(
-          flex: 2,
-          child: HabitChecklist(),
-        ),
+        Flexible(flex: 2, child: HabitChecklist()),
       ],
     );
   }

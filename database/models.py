@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, BigInteger, Boolean, Integer, Date
+from sqlalchemy import Column, String, Boolean, Integer, Date
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -55,13 +55,13 @@ class HabitTracking(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False)
     habit_id = Column(Integer, nullable=False)
-    date = Column(Date, nullable=False)
-    is_done = Column(Boolean, default=False, nullable=False)
+    start = Column(String, nullable=False)
+    end = Column(String, nullable=True, default=None)
     missed_count = Column(Integer, default=0, nullable=False)
     monthly_schedule = Column(String, nullable=False)
 
     def __repr__(self):
-        return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, date={self.date})>"
+        return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, start={self.start}, end={self.end})>"
 
 
 class Achievement(Base):

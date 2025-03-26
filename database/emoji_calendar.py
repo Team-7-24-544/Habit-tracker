@@ -1,12 +1,14 @@
+from datetime import datetime
 import logging
 from datetime import date
 
 from fastapi import HTTPException
+from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 
-from models import MoodTracking
+from models import MoodTracking, HabitTracking
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +38,13 @@ async def set_emoji_for_day(user_id: int, emoji: int, db: Session):
                                                        MoodTracking.mood_date == day).first()
         if existing_entry:
             existing_entry.mood_value = emoji
+            db.commit()
+            db.refresh(existing_entry)
         else:
             new_entry = MoodTracking(user_id=user_id, mood_date=day, mood_value=emoji)
             db.add(new_entry)
-
-        db.commit()
-        db.refresh(existing_entry if existing_entry else new_entry)
+            db.commit()
+            db.refresh(new_entry)
 
         logger.info(f"Successfully set emoji '{emoji}' for user {user_id} on {day}")
         return JSONResponse(content={"answer": "success", "body": {"days": {day: emoji}}})
@@ -58,4 +61,41 @@ async def set_emoji_for_day(user_id: int, emoji: int, db: Session):
     except Exception as e:
         db.rollback()
         logger.error(f"Unexpected error setting emoji for user {user_id} on {day}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def t(p):
+    print(p, str(p))
+    return str(p)
+
+
+async def get_habit_periods(user_id: int, db: Session):
+    logger.info(f"Received request to get habit periods of user {user_id}")
+    try:
+        now = datetime.now()
+        start_of_month = datetime(now.year, now.month, 1)
+        start_of_month = start_of_month.strftime('%d-%m-%Y')
+        habit_periods = db.query(HabitTracking).filter(
+            HabitTracking.user_id == user_id,
+            or_(
+                HabitTracking.start >= str(start_of_month),
+                HabitTracking.end >= str(start_of_month)
+            )
+        ).all()
+
+        starts = []
+        ends = []
+
+        for habit in habit_periods:
+            habit_start = habit.start if habit.start else None
+            habit_end = habit.end if habit.end else None
+
+            if habit_start and habit_start >= str(start_of_month):
+                starts.append(habit.start)
+            if habit_end and habit_end >= str(start_of_month):
+                ends.append(habit.end)
+
+        return JSONResponse(content={"answer": "success", "habit_periods": {"starts": starts, "ends": ends}})
+    except Exception as e:
+        logger.error(f"Error fetching habit periods for user_id {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

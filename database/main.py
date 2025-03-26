@@ -1,13 +1,10 @@
-import logging
-
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 
 from database import SessionLocal, init_db
 from achievements import get_last_10_achievements
-from emoji_calendar import get_emotions, set_emoji_for_day
-from habits import add_habit, get_templates, get_template_by_id
+from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
+from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark
 from logging_config import setup_logging
 from users import *
 
@@ -85,3 +82,18 @@ async def update_user_endpoint(user_id: int, name: str = None, login: str = None
                                password: str = None, tg_nick: str = None,
                                db: Session = Depends(get_db)):
     return await update_user(user_id, name, login, password, tg_nick, db)
+
+
+@app.get("/habits/get_periods")
+async def get_periods(user_id: int, db: Session = Depends(get_db)):
+    return await get_habit_periods(user_id, db)
+
+
+@app.get("/habits/get_today_habits")
+async def get_today_habits(user_id: int, db: Session = Depends(get_db)):
+    return await get_habits(user_id, db)
+
+
+@app.post("/habits/set_mark")
+async def set_mark_(user_id: int, habit_id: int, db: Session = Depends(get_db)):
+    return await set_mark(user_id, habit_id, db)

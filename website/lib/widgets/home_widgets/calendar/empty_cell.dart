@@ -4,7 +4,7 @@ TableCell createEmptyCell() {
   return const TableCell(child: EmptyCell());
 }
 
-const calendarCellSize = 55.0;
+const calendarCellSize = 80.0;
 
 class EmptyCell extends StatelessWidget {
   final double height = calendarCellSize;

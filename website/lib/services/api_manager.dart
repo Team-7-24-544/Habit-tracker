@@ -18,9 +18,9 @@ class ApiResponse {
 }
 
 class ApiManager {
-  final mainUrl = 'http://127.0.0.1:8000';
+  final mainUrl = 'http://10.8.0.7:8000';
   final client = FetchClient(mode: RequestMode.cors);
-  final Map<String, String> defaultHeaders = {'Authorization': 'Bearer your_token', 'Content-Type': 'application/json'};
+  final Map<String, String> defaultHeaders = {'Authorization': 'Bearer token', 'Content-Type': 'application/json'};
 
   Uri _buildUri(String path, Map<String, dynamic> parameters) {
     return Uri.parse('$mainUrl$path').replace(queryParameters: parameters);
@@ -60,18 +60,4 @@ class ApiManager {
   Future<ApiResponse> update(ApiQuery query) => _sendRequest('PUT', query);
 
   Future<ApiResponse> delete(ApiQuery query) => _sendRequest('DELETE', query);
-
-  
-}
-
-void check(ApiManager apiManager) async {
-  const String yellow = '\x1B[33m';
-  const String reset = '\x1B[0m';
-  try {
-    ApiQuery query = ApiQueryBuilder().path(QueryPaths.checkApi).addParameter('id', 544).build();
-    ApiResponse res = await apiManager.get(query);
-    print('$yellow Api answer is ${!res.empty()} $reset');
-  } catch (e) {
-    print('$yellow Error $e $reset');
-  }
 }
