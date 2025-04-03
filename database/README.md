@@ -21,4 +21,4 @@ Backend проекта реализован с использованием **Fa
 
 Для запуска сервера необходимо ввести в консоль директории database команду:
 
-`uvicorn main:app --reload &`
+`uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=key.pem --ssl-certfile=cert.pem &`

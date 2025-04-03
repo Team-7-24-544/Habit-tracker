@@ -1,9 +1,12 @@
 echo "Запуск main.py..."
+
+# shellcheck disable=SC2164
 cd database
-uvicorn main:app --reload &
+uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=key.pem --ssl-certfile=cert.pem &
 
 echo "Запуск main.dart..."
+# shellcheck disable=SC2164
 cd ../website
-flutter run -d chrome &
+flutter run -d chrome --web-port=8001 --web-hostname=localhost &
 
 wait

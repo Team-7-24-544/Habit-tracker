@@ -4,3 +4,5 @@ run-all
 .gitignore
 database/app.log
 database/example.sqlite
+database/cert.pem
+database/key.pem

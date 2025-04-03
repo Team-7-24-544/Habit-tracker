@@ -1,9 +1,7 @@
 import 'dart:convert';
-import 'dart:core';
-import 'package:http/http.dart' as http;
-import 'package:fetch_client/fetch_client.dart';
 
 import 'api_query.dart';
+import 'package:http/http.dart' as http;
 
 class ApiResponse {
   final bool success;
@@ -18,38 +16,52 @@ class ApiResponse {
 }
 
 class ApiManager {
-  final mainUrl = 'http://10.8.0.7:8000';
-  final client = FetchClient(mode: RequestMode.cors);
+  final mainUrl = 'https://127.0.0.1:5000';
   final Map<String, String> defaultHeaders = {'Authorization': 'Bearer token', 'Content-Type': 'application/json'};
 
-  Uri _buildUri(String path, Map<String, dynamic> parameters) {
-    return Uri.parse('$mainUrl$path').replace(queryParameters: parameters);
+  Uri _buildUri(ApiQuery query) {
+    return Uri.parse('$mainUrl${query.path}');
   }
 
-  Map<String, String> _mergeHeaders(Map<String, String>? headers) {
-    return {...defaultHeaders, ...?headers};
+  Map<String, String> _mergeHeaders(ApiQuery query) {
+    return {...defaultHeaders, ...query.headers};
   }
 
   Future<ApiResponse> _sendRequest(String method, ApiQuery query) async {
-    try {
-      final uri = _buildUri(query.path, query.parameters);
-      final headers = _mergeHeaders(query.headers);
+    final uri = _buildUri(query);
+    final headers = _mergeHeaders(query);
+    http.Response response;
 
-      final response = http.Request(method, uri)..headers.addAll(headers);
-      final streamedResponse = await response.send();
-      final responseData = await http.Response.fromStream(streamedResponse);
-      if (responseData.statusCode >= 200 && responseData.statusCode < 300) {
-        return ApiResponse(
-          body: json.decode(responseData.body) as Map<String, dynamic>,
-        );
-      } else {
-        return ApiResponse(
-          success: false,
-          error: 'Error: ${responseData.statusCode}, ${responseData.reasonPhrase}',
-        );
+    try {
+      switch (method.toUpperCase()) {
+        case 'GET':
+          response = await http.get(uri.replace(queryParameters: query.parameters), headers: headers);
+          break;
+        case 'POST':
+          response = await http.post(uri, headers: headers, body: jsonEncode(query.parameters));
+          break;
+        case 'PUT':
+          response = await http.put(uri, headers: headers, body: jsonEncode(query.parameters));
+          break;
+        case 'DELETE':
+          response = await http.delete(uri.replace(queryParameters: query.parameters), headers: headers);
+          break;
+        default:
+          return ApiResponse(success: false, error: 'Unsupported HTTP method: $method');
       }
     } catch (e) {
-      return ApiResponse(success: false, error: 'Request failed: $e');
+      return ApiResponse(success: false, error: "SendRequestError: $e");
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return ApiResponse(
+        body: json.decode(response.body) as Map<String, dynamic>,
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        error: 'Error: ${response.statusCode}, ${response.reasonPhrase}',
+      );
     }
   }
 

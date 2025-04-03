@@ -56,10 +56,10 @@ flutter pub get
 flutter run
 ```
 
-Запуск database/main.py:
+Запуск database/main.py (для запуска необходим сертификат SSL):
 
 ```
 cd database
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=key.pem --ssl-certfile=cert.pem &
 ```
