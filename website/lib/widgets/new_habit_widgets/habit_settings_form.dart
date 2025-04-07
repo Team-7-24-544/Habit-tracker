@@ -48,7 +48,7 @@ class _HabitSettingsFormState extends State<HabitSettingsForm> {
           for (int day = 0; day < 7; day++) {
             if (schedule["days"][day]) {
               if (!map_.containsKey(days[day])) map_[days[day]] = {};
-              map_['"${days[day]}"']!['"${slot["startTime"]}"'] = '"${slot["endTime"]}"';
+              map_['"${days[day]}"']?['"${slot["startTime"]}"'] = '"${slot["endTime"]}"';
             }
           }
         });

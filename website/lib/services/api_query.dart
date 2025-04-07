@@ -1,3 +1,7 @@
+import 'package:website/models/MetaInfo.dart';
+
+import '../models/MetaKeys.dart';
+
 class ApiQuery {
   final String path;
   final Map<String, dynamic> parameters;
@@ -41,6 +45,10 @@ class ApiQueryBuilder {
   }
 
   ApiQuery build() {
+    var userId = (MetaInfo.instance.get(MetaKeys.userId) ?? -1);
+    var token = MetaInfo.instance.get(MetaKeys.token) ?? -1;
+    if (userId > 0) _parameters['user_id'] = userId.toString();
+    if (token != -1) _headers['Authorization'] = "Bearer $token";
     return ApiQuery(
       path: _path,
       parameters: _parameters,

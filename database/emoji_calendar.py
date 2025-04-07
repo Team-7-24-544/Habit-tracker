@@ -64,11 +64,6 @@ async def set_emoji_for_day(user_id: int, emoji: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def t(p):
-    print(p, str(p))
-    return str(p)
-
-
 async def get_habit_periods(user_id: int, db: Session):
     logger.info(f"Received request to get habit periods of user {user_id}")
     try:

@@ -8,7 +8,6 @@ class HabitService {
   static Future<bool> saveNewHabit(HabitSettings settings) async {
     ApiQuery query = ApiQueryBuilder()
         .path(QueryPaths.createHabit)
-        .addParameter('user_id', MetaInfo.instance.get(MetaKeys.userId).toString())
         .addParameter('name', settings.name)
         .addParameter('description', settings.description)
         .addParameter('time_table', settings.timeTable)

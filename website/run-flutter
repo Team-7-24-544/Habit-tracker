@@ -1,0 +1,6 @@
+echo "Запуск main.dart..."
+
+# shellcheck disable=SC2164
+flutter run -d chrome --web-port=8001 --web-hostname=localhost &
+
+wait

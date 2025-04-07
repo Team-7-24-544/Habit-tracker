@@ -29,10 +29,13 @@ class LoginPageState extends State<LoginPage> {
         _passwordController.text,
       );
 
-      if (userid != -1) {
+      if (userid > -1) {
         if (!mounted) return;
-        MetaInfo.instance.set(MetaKeys.userId, userid);
         Navigator.of(context).pushReplacementNamed('/home');
+      } else if (userid < -1) {
+        setState(() {
+          _errorMessage = 'Ошибка при авторизации';
+        });
       } else {
         setState(() {
           _errorMessage = 'Неправильный логин или пароль';

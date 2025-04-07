@@ -5,8 +5,7 @@ import '../../../models/MetaInfo.dart';
 import '../../../services/api_manager.dart';
 
 Future<Tuple2<List, List>> loadHabitPeriods(int userId) async {
-  ApiQuery query =
-      ApiQueryBuilder().path(QueryPaths.getHabitPeriods).addParameter('user_id', userId.toString()).build();
+  ApiQuery query = ApiQueryBuilder().path(QueryPaths.getHabitPeriods).build();
 
   final apiManager = MetaInfo.getApiManager();
   ApiResponse response = await apiManager.get(query);

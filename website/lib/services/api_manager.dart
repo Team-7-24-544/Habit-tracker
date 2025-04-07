@@ -17,37 +17,36 @@ class ApiResponse {
 
 class ApiManager {
   final mainUrl = 'https://127.0.0.1:5000';
-  final Map<String, String> defaultHeaders = {'Authorization': 'Bearer token', 'Content-Type': 'application/json'};
+  final Map<String, String> defaultHeaders = {'Content-Type': 'application/json'};
 
-  Uri _buildUri(ApiQuery query) {
+  Uri _buildUri(ApiQuery query, String method) {
+    if (method == 'GET' || method == 'DELETE') {
+      return Uri.parse('$mainUrl${query.path}').replace(queryParameters: query.parameters);
+    }
     return Uri.parse('$mainUrl${query.path}');
   }
 
   Map<String, String> _mergeHeaders(ApiQuery query) {
+    if (query.headers.containsKey('Authorization')) defaultHeaders['Authorization'] = 'Bearer - 1';
     return {...defaultHeaders, ...query.headers};
   }
 
   Future<ApiResponse> _sendRequest(String method, ApiQuery query) async {
-    final uri = _buildUri(query);
+    final uri = _buildUri(query, method);
     final headers = _mergeHeaders(query);
     http.Response response;
 
     try {
-      switch (method.toUpperCase()) {
-        case 'GET':
-          response = await http.get(uri.replace(queryParameters: query.parameters), headers: headers);
-          break;
-        case 'POST':
-          response = await http.post(uri, headers: headers, body: jsonEncode(query.parameters));
-          break;
-        case 'PUT':
-          response = await http.put(uri, headers: headers, body: jsonEncode(query.parameters));
-          break;
-        case 'DELETE':
-          response = await http.delete(uri.replace(queryParameters: query.parameters), headers: headers);
-          break;
-        default:
-          return ApiResponse(success: false, error: 'Unsupported HTTP method: $method');
+      if (method.toUpperCase() == 'GET') {
+        response = await http.get(uri, headers: headers);
+      } else if (method.toUpperCase() == 'POST') {
+        response = await http.post(uri, headers: headers, body: jsonEncode(query.parameters));
+      } else if (method.toUpperCase() == 'PUT') {
+        response = await http.put(uri, headers: headers, body: jsonEncode(query.parameters));
+      } else if (method.toUpperCase() == 'DELETE') {
+        response = await http.delete(uri, headers: headers);
+      } else {
+        return ApiResponse(success: false, error: 'Unsupported HTTP method: $method');
       }
     } catch (e) {
       return ApiResponse(success: false, error: "SendRequestError: $e");
@@ -56,6 +55,11 @@ class ApiManager {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return ApiResponse(
         body: json.decode(response.body) as Map<String, dynamic>,
+      );
+    } else if (response.statusCode == 403) {
+      return ApiResponse(
+        success: false,
+        error: 'Error: ${response.statusCode}, Token is invalid',
       );
     } else {
       return ApiResponse(
