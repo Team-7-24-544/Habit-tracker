@@ -1,11 +1,13 @@
 import secrets
 
-from fastapi import FastAPI, Depends, Request, Header
+from fastapi import FastAPI, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import SessionLocal, init_db
 from achievements import get_last_10_achievements
 from config import check_token
+from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
+    SetMarkRequest
 from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
 from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark
 from logging_config import setup_logging
@@ -49,8 +51,8 @@ def startup_event():
 
 
 @app.post("/register")
-async def register_user_endpoint(name: str, login: str, password: str, tg_nick: str, db: Session = Depends(get_db)):
-    return await register(name, login, password, tg_nick, db)
+async def register_user_endpoint(data: RegisterUserRequest, db: Session = Depends(get_db)):
+    return await register(data.name, data.login, data.password, data.tg_nick, db)
 
 
 @app.get("/login")
@@ -59,10 +61,10 @@ async def login_endpoint(password: str, login: str, db: Session = Depends(get_db
 
 
 @app.post("/habits/create")
-async def habits_create(user_id: int, name: str, description: str, time_table: str, token: str = Depends(get_token),
+async def habits_create(data: HabitCreateRequest, token: str = Depends(get_token),
                         db: Session = Depends(get_db)):
-    check_token(token, user_id)
-    return await add_habit(user_id, name, description, time_table, db)
+    check_token(token, data.user_id)
+    return await add_habit(data.user_id, data.name, data.description, data.time_table, db)
 
 
 @app.get("/emotions/get_all")
@@ -72,9 +74,9 @@ async def get__emotions(user_id: int, token: str = Depends(get_token), db: Sessi
 
 
 @app.post("/emotions/set")
-async def set_emoji(user_id: int, emoji: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
-    check_token(token, user_id)
-    return await set_emoji_for_day(user_id, emoji, db)
+async def set_emoji(data: SetEmojiRequest, token: str = Depends(get_token), db: Session = Depends(get_db)):
+    check_token(token, data.user_id)
+    return await set_emoji_for_day(data.user_id, data.emoji, db)
 
 
 @app.get("/achievements/get_last")
@@ -94,11 +96,10 @@ async def get_templates_(habit_id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/user/update")
-async def update_user_endpoint(user_id: int, name: str = None, login: str = None,
-                               password: str = None, tg_nick: str = None, token: str = Depends(get_token),
+async def update_user_endpoint(data: UserUpdateRequest, token: str = Depends(get_token),
                                db: Session = Depends(get_db)):
-    check_token(token, user_id)
-    return await update_user(user_id, name, login, password, tg_nick, db)
+    check_token(token, data.user_id)
+    return await update_user(data.user_id, data.name, data.login, data.password, data.tg_nick, db)
 
 
 @app.get("/habits/get_periods")
@@ -114,6 +115,6 @@ async def get_today_habits(user_id: int, token: str = Depends(get_token), db: Se
 
 
 @app.post("/habits/set_mark")
-async def set_mark_(user_id: int, habit_id: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
-    check_token(token, user_id)
-    return await set_mark(user_id, habit_id, db)
+async def set_mark_(data: SetMarkRequest, token: str = Depends(get_token), db: Session = Depends(get_db)):
+    check_token(token, data.user_id)
+    return await set_mark(data.user_id, data.habit_id, db)

@@ -13,6 +13,7 @@ class User(Base):
     password = Column(String, nullable=False)
     tg_name = Column(String, nullable=False)
     tg_checked = Column(Boolean, default=False, nullable=False)
+    chat_id = Column(Integer, default=-1, nullable=False)
     join_date = Column(Date, nullable=False)
 
     def __repr__(self):

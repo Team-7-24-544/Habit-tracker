@@ -35,7 +35,6 @@ class ApiManager {
     final uri = _buildUri(query, method);
     final headers = _mergeHeaders(query);
     http.Response response;
-
     try {
       if (method.toUpperCase() == 'GET') {
         response = await http.get(uri, headers: headers);

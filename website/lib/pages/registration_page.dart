@@ -60,6 +60,7 @@ class RegistrationPageState extends State<RegistrationPage> {
           .addParameter('password', hashedPassword)
           .addParameter('tg_nick', _telegramController.text)
           .build();
+
       final apiManager = MetaInfo.getApiManager();
       ApiResponse response = await apiManager.post(query);
       if (response.success) {
