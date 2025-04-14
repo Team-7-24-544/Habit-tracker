@@ -58,18 +58,19 @@ class ApiQueryBuilder {
 }
 
 enum QueryPaths {
-  checkApi("/check_api"),
-  login("/login"),
-  register("/register"),
-  getEmotions("/emotions/get_all"),
-  setEmotion("/emotions/set"),
+  userLogin("/user/login"),
+  userRegister("/user/register"),
+  userUpdate("/user/update"),
+  getEmotions("/emotions/get_all_emoji"),
+  setEmotion("/emotions/set_emoji"),
+  getLastAchievements("/achievements/get_last"),
   createHabit("/habits/create"),
   getTemplateHabits("/habits/get_templates"),
   getSelectedTemplate("/get_selected_template"),
-  getLastAchievements("/achievements/get_last"),
   getTodayHabits("/habits/get_today_habits"),
   setMarkToHabit("/habits/set_mark"),
-  getHabitPeriods("/habits/get_periods");
+  getHabitPeriods("/habits/get_periods"),
+  getAllHabits("/habits/get_all_habits");
 
   final String value;
 

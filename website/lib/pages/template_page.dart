@@ -26,29 +26,29 @@ abstract class TemplatePage extends StatelessWidget {
       ),
       home: Scaffold(
         body: SafeArea(
-          child: _buildMainArea(),
+          child: _buildMainArea(context),
         ),
       ),
     );
   }
 
-  Widget _buildMainArea() {
+  Widget _buildMainArea(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         NavigateBar(activeOption: page, goTo: changePage),
-        _buildScrollableContent(),
+        _buildScrollableContent(context),
       ],
     );
   }
 
-  Widget _buildScrollableContent() {
+  Widget _buildScrollableContent(BuildContext context) {
     return Expanded(
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: getMainArea(),
+          child: getMainArea(context),
         ),
       ),
     );
@@ -76,7 +76,7 @@ abstract class TemplatePage extends StatelessWidget {
     }
   }
 
-  Widget getMainArea() {
+  Widget getMainArea(BuildContext context) {
     return Padding(padding: EdgeInsets.all(16.0));
   }
 }

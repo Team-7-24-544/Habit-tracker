@@ -1,15 +1,13 @@
-import secrets
-
-from fastapi import FastAPI, Depends, Header
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from database import SessionLocal, init_db
 from achievements import get_last_10_achievements
-from config import check_token
+from config import check_token, get_token
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
     SetMarkRequest
 from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
-from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark
+from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark, get_all_habits
 from logging_config import setup_logging
 from users import *
 
@@ -37,43 +35,35 @@ def get_db():
 logger = logging.getLogger(__name__)
 
 
-def get_token(authorization: str = Header(...)):
-    if not authorization:
-        raise HTTPException(status_code=401, detail="Missing token")
-    if not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Invalid token format")
-    return authorization.split("Bearer ")[-1]
-
-
 @app.on_event("startup")
 def startup_event():
     init_db()
 
 
-@app.post("/register")
+@app.post("/user/register")
 async def register_user_endpoint(data: RegisterUserRequest, db: Session = Depends(get_db)):
     return await register(data.name, data.login, data.password, data.tg_nick, db)
 
 
-@app.get("/login")
+@app.get("/user/login")
 async def login_endpoint(password: str, login: str, db: Session = Depends(get_db)):
     return await authenticate_user(login, password, db)
 
 
-@app.post("/habits/create")
-async def habits_create(data: HabitCreateRequest, token: str = Depends(get_token),
-                        db: Session = Depends(get_db)):
+@app.post("/user/update")
+async def update_user_endpoint(data: UserUpdateRequest, token: str = Depends(get_token),
+                               db: Session = Depends(get_db)):
     check_token(token, data.user_id)
-    return await add_habit(data.user_id, data.name, data.description, data.time_table, db)
+    return await update_user(data.user_id, data.name, data.login, data.password, data.tg_nick, db)
 
 
-@app.get("/emotions/get_all")
+@app.get("/emotions/get_all_emoji")
 async def get__emotions(user_id: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
     check_token(token, user_id)
     return await get_emotions(user_id, db)
 
 
-@app.post("/emotions/set")
+@app.post("/emotions/set_emoji")
 async def set_emoji(data: SetEmojiRequest, token: str = Depends(get_token), db: Session = Depends(get_db)):
     check_token(token, data.user_id)
     return await set_emoji_for_day(data.user_id, data.emoji, db)
@@ -85,6 +75,13 @@ async def get_last_achievements(user_id: int, token: str = Depends(get_token), d
     return await get_last_10_achievements(user_id, db)
 
 
+@app.post("/habits/create")
+async def habits_create(data: HabitCreateRequest, token: str = Depends(get_token),
+                        db: Session = Depends(get_db)):
+    check_token(token, data.user_id)
+    return await add_habit(data.user_id, data.name, data.description, data.time_table, db)
+
+
 @app.get("/habits/get_templates")
 async def get_templates_(db: Session = Depends(get_db)):
     return await get_templates(db)
@@ -93,13 +90,6 @@ async def get_templates_(db: Session = Depends(get_db)):
 @app.get("/habits/get_selected_template")
 async def get_templates_(habit_id: int, db: Session = Depends(get_db)):
     return await get_template_by_id(habit_id, db)
-
-
-@app.post("/user/update")
-async def update_user_endpoint(data: UserUpdateRequest, token: str = Depends(get_token),
-                               db: Session = Depends(get_db)):
-    check_token(token, data.user_id)
-    return await update_user(data.user_id, data.name, data.login, data.password, data.tg_nick, db)
 
 
 @app.get("/habits/get_periods")
@@ -118,3 +108,9 @@ async def get_today_habits(user_id: int, token: str = Depends(get_token), db: Se
 async def set_mark_(data: SetMarkRequest, token: str = Depends(get_token), db: Session = Depends(get_db)):
     check_token(token, data.user_id)
     return await set_mark(data.user_id, data.habit_id, db)
+
+
+@app.get("/habits/get_all_habits")
+async def get_all_habits_(user_id: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
+    check_token(token, user_id)
+    return await get_all_habits(user_id, db)

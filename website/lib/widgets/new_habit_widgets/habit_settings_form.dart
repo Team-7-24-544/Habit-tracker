@@ -41,14 +41,15 @@ class _HabitSettingsFormState extends State<HabitSettingsForm> {
           schedules.add(state.getScheduleData());
         }
       }
+
       List<String> days = ['monday', 'tuesday', 'wednesday', "thursday", "friday", "saturday", "sunday"];
       Map<String, Map<String, String>> map_ = {};
       for (var schedule in schedules) {
         schedule["timeSlots"].forEach((slot) {
           for (int day = 0; day < 7; day++) {
             if (schedule["days"][day]) {
-              if (!map_.containsKey(days[day])) map_[days[day]] = {};
-              map_['"${days[day]}"']?['"${slot["startTime"]}"'] = '"${slot["endTime"]}"';
+              if (!map_.containsKey('"${days[day]}"')) map_['"${days[day]}"'] = {};
+              map_['"${days[day]}"']!['"${slot["startTime"]}"'] = '"${slot["endTime"]}"';
             }
           }
         });

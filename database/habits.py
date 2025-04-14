@@ -217,3 +217,7 @@ async def set_mark(user_id: int, habit_id: int, db: Session):
     except Exception as e:
         logger.exception(f"Error while setting mark for habit {habit_id} and user {user_id}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_all_habits(user_id: int, db: Session):
+    pass

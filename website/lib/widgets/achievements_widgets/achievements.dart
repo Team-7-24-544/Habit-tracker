@@ -80,7 +80,7 @@ class _AchievementsState extends State<Achievements> {
               child: Row(
                 children: [
                   Text(
-                    'Последние достижения',
+                    'Все достижения',
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timedelta, UTC
-from fastapi import HTTPException, Request
+from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 import jwt
 
@@ -18,7 +18,6 @@ def generate_token(user_id, user_name):
         "username": f"{user_id} {user_name}",
         "exp": datetime.now(UTC) + timedelta(hours=1)
     }, SECRET_KEY, algorithm="HS256")
-    print(user_id, token)
     return token
 
 

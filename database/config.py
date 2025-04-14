@@ -1,6 +1,6 @@
 import secrets
 import jwt
-from fastapi import HTTPException
+from fastapi import HTTPException, Header
 
 SECRET_KEY = secrets.token_urlsafe(32)
 
@@ -14,3 +14,11 @@ def check_token(token, user_id):
 
     except jwt.PyJWTError:
         raise HTTPException(status_code=403, detail="Invalid or expired token")
+
+
+def get_token(authorization: str = Header(...)):
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Missing token")
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Invalid token format")
+    return authorization.split("Bearer ")[-1]

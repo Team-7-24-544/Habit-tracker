@@ -1,8 +1,8 @@
 .venv
 .idea
 .gitignore
-database/app.log
-database/example.sqlite
-database/cert.pem
-database/key.pem
+database/data/app.log
+database/data/example.sqlite
+database/data/cert.pem
+database/data/key.pem
 tg-bot/config.py

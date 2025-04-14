@@ -44,7 +44,7 @@ async def check_reminders(context: ContextTypes.DEFAULT_TYPE):
                 year=now.year, month=now.month, day=now.day
             )
             delta = (start_time - now).total_seconds() / 60
-            print(delta)
+
             for offset in REMINDER_OFFSETS:
                 if offset - TOLERANCE <= delta <= offset + TOLERANCE:
                     text = f"Напоминание: «{habit_name}» начнётся в {start_time_str}"

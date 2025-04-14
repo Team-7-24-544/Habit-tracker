@@ -17,7 +17,7 @@ class HomePage extends TemplatePage {
   HomePage({super.key});
 
   @override
-  Widget getMainArea() {
+  Widget getMainArea(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
