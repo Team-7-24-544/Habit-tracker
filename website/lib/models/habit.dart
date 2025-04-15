@@ -7,8 +7,8 @@ class Habit {
     required this.id,
     required this.name,
     required this.description,
-    required this.start,
-    required this.end,
+    this.start = "",
+    this.end = "",
     this.completed = false,
     this.isEnabled = false,
   });

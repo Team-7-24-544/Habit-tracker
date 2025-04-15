@@ -26,7 +26,7 @@ class _HabitListState extends State<HabitList> {
   Future<void> _loadHabits() async {
     final userId = MetaInfo.instance.get(MetaKeys.userId);
     if (userId != null) {
-      final habits = await HabitsService.getUserHabits(userId);
+      final habits = await HabitsService.getAllHabits(userId);
       if (mounted) {
         setState(() {
           _habits = habits;
@@ -90,18 +90,17 @@ class _HabitListState extends State<HabitList> {
         ),
       );
     }
-
-    return ListView.builder(
-      itemCount: _habits.length,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      itemBuilder: (context, index) {
-        final habit = _habits[index];
-        return HabitCard(
-          habit: habit,
-          onTap: () => _openHabitDetails(context, habit),
-          onStatusChanged: (completed) => _toggleHabitStatus(habit.id, completed),
-        );
-      },
+    List<HabitCard> lst = [];
+    for (var habit in _habits) {
+      lst.add(HabitCard(
+        habit: habit,
+        onTap: () => _openHabitDetails(context, habit),
+        onStatusChanged: (completed) => _toggleHabitStatus(habit.id, completed),
+      ));
+    }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: lst,
     );
   }
 }

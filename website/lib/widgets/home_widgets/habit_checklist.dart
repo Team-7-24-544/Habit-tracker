@@ -28,8 +28,6 @@ class _HabitChecklistState extends State<HabitChecklist> {
   }
 
   Future<void> _loadInitialHabits() async {
-    final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
-
     ApiQuery query = ApiQueryBuilder().path(QueryPaths.getTodayHabits).build();
 
     final apiManager = MetaInfo.getApiManager();

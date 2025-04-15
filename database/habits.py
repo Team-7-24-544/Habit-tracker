@@ -220,4 +220,24 @@ async def set_mark(user_id: int, habit_id: int, db: Session):
 
 
 async def get_all_habits(user_id: int, db: Session):
-    pass
+    logger.info(f"Received request to get all habits of user {user_id}")
+    try:
+        result = db.query(Habit).join(HabitTracking, HabitTracking.habit_id == Habit.id).filter(
+            HabitTracking.user_id == user_id,
+        ).all()
+
+        res = []
+        for habit in result:
+            res.append(
+                {'id': str(habit.id),
+                 'name': habit.name,
+                 'description': habit.description}
+            )
+
+        return JSONResponse(content={'habits': res}, media_type="application/json; charset=utf-8")
+
+    except IntegrityError as e:
+        logger.error(f"Error getting all habits: {str(e)}")
+    except Exception as e:
+        logger.error(f"Unexpected error getting all habits: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

@@ -36,4 +36,22 @@ class HabitsService {
 
     await apiManager.post(query);
   }
+
+  static Future<List<Habit>> getAllHabits(int userId) async {
+    final apiManager = MetaInfo.getApiManager();
+    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getAllHabits).build();
+
+    ApiResponse response = await apiManager.get(query);
+    if (response.success && response.body.containsKey('habits')) {
+      final List<dynamic> habitsJson = response.body['habits'];
+      return habitsJson
+          .map((json) => Habit(
+                id: json['id'].toString(),
+                name: json['name'],
+                description: json['description'],
+              ))
+          .toList();
+    }
+    return [];
+  }
 }
