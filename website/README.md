@@ -22,3 +22,9 @@
 # Manifest
 
 - pubspecs.yaml - настройка flutter'а
+
+# Run
+
+```
+flutter run -d chrome --web-port=8001 --web-hostname=localhost &
+```
