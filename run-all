@@ -2,7 +2,7 @@ echo "Запуск database/main.py..."
 
 # shellcheck disable=SC2164
 cd database
-uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=key.pem --ssl-certfile=cert.pem &
+uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=data/key.pem --ssl-certfile=data/cert.pem &
 
 echo "Запуск web/main.dart..."
 # shellcheck disable=SC2164
