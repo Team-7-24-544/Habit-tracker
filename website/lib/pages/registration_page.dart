@@ -54,12 +54,13 @@ class RegistrationPageState extends State<RegistrationPage> {
       final String hashedPassword = hashPassword(_passwordController.text);
 
       final ApiQuery query = ApiQueryBuilder()
-          .path(QueryPaths.register)
+          .path(QueryPaths.userRegister)
           .addParameter('name', _nameController.text)
           .addParameter('login', _usernameController.text)
           .addParameter('password', hashedPassword)
           .addParameter('tg_nick', _telegramController.text)
           .build();
+
       final apiManager = MetaInfo.getApiManager();
       ApiResponse response = await apiManager.post(query);
       if (response.success) {

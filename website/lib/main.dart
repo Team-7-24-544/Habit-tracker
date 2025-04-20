@@ -8,29 +8,27 @@ import 'pages/login_page.dart';
 
 void main() {
   final metaInfo = MetaInfo.instance;
-  MetaInfo.instance.set(MetaKeys.userId, 7); // for debug
+  // MetaInfo.instance.set(MetaKeys.userId, 7); // for debug
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  //final apiManager = ApiManager();
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    //check(apiManager);
     return MaterialApp(
       title: 'Flutter Demo', //toDo: change name and icon
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      initialRoute: '/login',
+      initialRoute: '/debug',
       routes: {
-        '/login': (context) => ProfilePage(),
+        '/login': (context) => LoginPage(),
         '/registration': (context) => RegistrationPage(context),
         '/home': (context) => HomePage(),
-        '/debug': (context) => HomePage(),
+        '/debug': (context) => LoginPage(),
       },
     );
   }

@@ -5,6 +5,7 @@ import 'package:website/models/MetaKeys.dart';
 import 'package:website/models/emotions.dart';
 import 'package:website/services/calendar_emotions_service.dart';
 
+import '../../services/habit_checklist_main.dart';
 import 'calendar/day_cell.dart';
 import 'calendar/empty_cell.dart';
 import 'calendar/header_cell.dart';
@@ -29,6 +30,8 @@ class EmotionCalendar extends StatefulWidget {
 class EmotionCalendarState extends State<EmotionCalendar> {
   late Map<DateTime, String> emotions;
   late DateTime selectedDate;
+  Map<DateTime, bool> startDates = {};
+  Map<DateTime, bool> endDates = {};
   String emotionToday = ' ';
 
   @override
@@ -42,6 +45,7 @@ class EmotionCalendarState extends State<EmotionCalendar> {
         emotions[DateTime(firstDayOfMonth.year, firstDayOfMonth.month, day)] = ' ';
       }
     });
+
     updateEmotions();
     super.initState();
   }
@@ -61,10 +65,34 @@ class EmotionCalendarState extends State<EmotionCalendar> {
   Future<void> updateEmotions() async {
     final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
     final newEmotions = await CalendarEmotionsService.loadEmotions(userId);
-    setState(() {
-      newEmotions.forEach((key, value) {
-        emotions[key] = value;
+    final newList = await loadHabitPeriods(MetaInfo.instance.get(MetaKeys.userId));
+    if (mounted) {
+      setState(() {
+        newEmotions.forEach((key, value) {
+          emotions[key] = value;
+        });
       });
+    }
+    final updatedStartDates = Map<DateTime, bool>.from(startDates);
+    final updatedEndDates = Map<DateTime, bool>.from(endDates);
+
+    final dateFormatter = DateFormat('dd-MM-yyyy');
+
+    for (var start in newList.item1.map((e) => dateFormatter.parse(e))) {
+      if (updatedStartDates.keys.contains(start)) {
+        updatedStartDates[start] = true;
+      }
+    }
+
+    for (var end in newList.item2.map((e) => dateFormatter.parse(e))) {
+      if (updatedEndDates.keys.contains(end)) {
+        updatedEndDates[end] = true;
+      }
+    }
+
+    setState(() {
+      endDates = updatedEndDates;
+      startDates = updatedStartDates;
     });
   }
 
@@ -145,7 +173,14 @@ class EmotionCalendarState extends State<EmotionCalendar> {
           cells.add(createEmptyCell());
         } else {
           final date = DateTime(now.year, now.month, day);
-          final cell = createDayCell(day, emotions[date]!);
+
+          if (!startDates.containsKey(date)) {
+            startDates[date] = false;
+          }
+          if (!endDates.containsKey(date)) {
+            endDates[date] = false;
+          }
+          final cell = createDayCell(day, emotions[date]!, startDates[date]!, endDates[date]!, now.day == day);
           cells.add(cell);
           day++;
         }

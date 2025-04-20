@@ -53,13 +53,13 @@ https://miro.com/app/board/uXjVLKXa9bc=/?share_link_id=662774377792
 ```
 cd website
 flutter pub get
-flutter run
+flutter run -d chrome --web-port=8001 --web-hostname=localhost &
 ```
 
-Запуск database/main.py:
+Запуск database/main.py (для запуска необходим сертификат SSL):
 
 ```
 cd database
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --host 127.0.0.1 --port 5000 --ssl-keyfile=data/key.pem --ssl-certfile=data/cert.pem &
 ```

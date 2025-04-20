@@ -2,13 +2,23 @@ import logging
 
 from sqlalchemy import select, and_
 from sqlalchemy.orm import Session
-from datetime import date
+from datetime import date, datetime, timedelta, UTC
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
+import jwt
 
+from config import SECRET_KEY
 from models import User
 
 logger = logging.getLogger(__name__)
+
+
+def generate_token(user_id, user_name):
+    token = jwt.encode({
+        "username": f"{user_id} {user_name}",
+        "exp": datetime.now(UTC) + timedelta(hours=1)
+    }, SECRET_KEY, algorithm="HS256")
+    return token
 
 
 async def register(name: str, login: str, password: str, tg_nick: str, db: Session):
@@ -16,7 +26,8 @@ async def register(name: str, login: str, password: str, tg_nick: str, db: Sessi
         logger.info(f"Received registration request for user with login: {login}")
         new_user = register_user(name, login, password, tg_nick, db)
         logger.info(f"User '{login}' registered successfully.")
-        return JSONResponse(content={"id": new_user.id, "answer": "success"})
+        return JSONResponse(
+            content={"id": new_user.id, "answer": "success", "token": generate_token(new_user.id, name)})
     except HTTPException as e:
         logger.error(f"Error during registration for user '{login}': {e.detail}")
         raise e
@@ -53,18 +64,20 @@ def register_user(name: str, login: str, password: str, tg_name: str, db: Sessio
 
 async def authenticate_user(login: str, password: str, db: Session):
     try:
-        logger.info(f"Authorization attempt for user: {login}")
+        logger.info(f"Authorization attempt for user with login: {login}")
 
         stmt = select(User).where(and_(User.login == login, User.password == password))
         existing_user = db.execute(stmt).scalars().first()
 
         if not existing_user:
             logger.error(f"Authentication failed for user '{login}'. Incorrect login or password.")
-            raise HTTPException(status_code=400,
-                                detail={"id": -1, "answer": "User does not exist or password is incorrect"})
+            return JSONResponse(
+                content={"id": -1, "answer": "error"})
 
         logger.info(f"User '{login}' authenticated successfully.")
-        return JSONResponse(content={"id": existing_user.id, "answer": "success"})
+        return JSONResponse(
+            content={"id": existing_user.id, "answer": "success",
+                     "token": generate_token(existing_user.id, existing_user.name)})
     except Exception as e:
         logger.error(f"Unexpected error during authentication for user '{login}': {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")
