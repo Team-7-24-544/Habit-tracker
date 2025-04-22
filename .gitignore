@@ -1,6 +1,11 @@
 .venv
 .idea
-run-all
 .gitignore
+database/data/app.log
+database/data/example.sqlite
+database/data/cert.pem
+database/data/key.pem
+tg-bot/config.py
 database/app.log
-database/example.sqlite
+database/__pycache__/
+database/data/example.sqlite

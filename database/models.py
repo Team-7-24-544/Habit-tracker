@@ -1,4 +1,7 @@
-from sqlalchemy import Column, String, BigInteger, Boolean, Integer, Date
+import json
+
+from sqlalchemy import Column, String, Boolean, Integer, Date, Text
+from sqlalchemy import ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -13,6 +16,7 @@ class User(Base):
     password = Column(String, nullable=False)
     tg_name = Column(String, nullable=False)
     tg_checked = Column(Boolean, default=False, nullable=False)
+    chat_id = Column(Integer, default=-1, nullable=False)
     join_date = Column(Date, nullable=False)
 
     def __repr__(self):
@@ -55,13 +59,13 @@ class HabitTracking(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False)
     habit_id = Column(Integer, nullable=False)
-    date = Column(Date, nullable=False)
-    is_done = Column(Boolean, default=False, nullable=False)
+    start = Column(String, nullable=False)
+    end = Column(String, nullable=True, default=None)
     missed_count = Column(Integer, default=0, nullable=False)
     monthly_schedule = Column(String, nullable=False)
 
     def __repr__(self):
-        return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, date={self.date})>"
+        return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, start={self.start}, end={self.end})>"
 
 
 class Achievement(Base):
@@ -128,3 +132,38 @@ class HabitTemplate(Base):
 
     def __repr__(self):
         return f"<Habit(name={self.name}, description={self.description})>"
+
+
+class UserProfile(Base):
+    __tablename__ = 'user_profiles'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
+    avatar_url = Column(String, nullable=False, default='https://via.placeholder.com/200')
+    nickname = Column(String, nullable=False)
+    about = Column(String, nullable=True)
+    goal = Column(String, nullable=True)
+    telegram = Column(String, nullable=True)
+    monthly_habits = Column(String, nullable=True)
+    monthly_quote = Column(String, nullable=True)
+
+    def __repr__(self):
+        return (f"<UserProfile(user_id={self.user_id}, nickname={self.nickname}, "
+                f"about={self.about}, goal={self.goal})>")
+
+
+class UserSettings(Base):
+    __tablename__ = 'user_settings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    option1 = Column(Boolean, nullable=False, default=False)
+    option2 = Column(Boolean, nullable=False, default=False)
+    option3 = Column(Boolean, nullable=False, default=False)
+    option4 = Column(Boolean, nullable=False, default=False)
+    reminders = Column(Text, default=json.dumps([]))
+    weekends = Column(Text, default=json.dumps([]))
+
+    def __repr__(self):
+        return (f"<UserSettings(user_id={self.user_id}, option1={self.option1}, option2={self.option2}, "
+                f"option3={self.option3},option4={self.option4})>")

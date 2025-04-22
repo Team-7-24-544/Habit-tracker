@@ -1,5 +1,6 @@
 enum MetaKeys {
-  userId('user_id');
+  userId('user_id'),
+  token('token');
 
   final String value;
 

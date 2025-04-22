@@ -1,3 +1,7 @@
+import 'package:website/models/MetaInfo.dart';
+
+import '../models/MetaKeys.dart';
+
 class ApiQuery {
   final String path;
   final Map<String, dynamic> parameters;
@@ -41,6 +45,10 @@ class ApiQueryBuilder {
   }
 
   ApiQuery build() {
+    var userId = (MetaInfo.instance.get(MetaKeys.userId) ?? -1);
+    var token = MetaInfo.instance.get(MetaKeys.token) ?? -1;
+    if (userId > 0) _parameters['user_id'] = userId.toString();
+    if (token != -1) _headers['authorization'] = "Bearer $token";
     return ApiQuery(
       path: _path,
       parameters: _parameters,
@@ -50,15 +58,25 @@ class ApiQueryBuilder {
 }
 
 enum QueryPaths {
-  checkApi("/check_api"),
-  login("/login"),
-  register("/register"),
-  getEmotions("/emotions/get_all"),
-  setEmotion("/emotions/set"),
+  userLogin("/user/login"),
+  userRegister("/user/register"),
+  userUpdate("/user/update"),
+  userSettingsLoadToggles("/user/settings/load_toggles"),
+  userSettingsSetToggles("/user/settings/set_toggles"),
+  userSettingsLoad("/user/settings/load"),
+  userSettingsSetSettings("/user/settings/set_settings"),
+  getEmotions("/emotions/get_all_emoji"),
+  setEmotion("/emotions/set_emoji"),
+  getLastAchievements("/achievements/get_last"),
   createHabit("/habits/create"),
   getTemplateHabits("/habits/get_templates"),
   getSelectedTemplate("/get_selected_template"),
-  getLastAchievements("/achievements/get_last");
+  getProfile("/user/profile"),
+  updateProfile("/user/profile/update"),
+  getTodayHabits("/habits/get_today_habits"),
+  setMarkToHabit("/habits/set_mark"),
+  getHabitPeriods("/habits/get_periods"),
+  getAllHabits("/habits/get_all_habits");
 
   final String value;
 

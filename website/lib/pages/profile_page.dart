@@ -13,7 +13,7 @@ class ProfilePage extends TemplatePage {
   const ProfilePage({super.key});
 
   @override
-  Widget getMainArea() {
-    return const ProfileContent(); // Отображаем содержимое через `ProfileContent`
+  Widget getMainArea(BuildContext context) {
+    return const ProfileContent();
   }
 }

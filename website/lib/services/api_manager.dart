@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:core';
+
 import 'package:http/http.dart' as http;
-import 'package:fetch_client/fetch_client.dart';
 
 import 'api_query.dart';
 
@@ -10,7 +9,9 @@ class ApiResponse {
   final String error;
   final Map<String, dynamic> body;
 
-  ApiResponse({this.success = true, this.error = "Ok", Map<String, dynamic>? body}) : body = body ?? {"content": null};
+  ApiResponse(
+      {this.success = true, this.error = "Ok", Map<String, dynamic>? body})
+      : body = body ?? {"content": null};
 
   bool empty() {
     return !success;
@@ -18,38 +19,63 @@ class ApiResponse {
 }
 
 class ApiManager {
-  final mainUrl = 'http://127.0.0.1:8000';
-  final client = FetchClient(mode: RequestMode.cors);
-  final Map<String, String> defaultHeaders = {'Authorization': 'Bearer your_token', 'Content-Type': 'application/json'};
+  final mainUrl = 'https://127.0.0.1:5000';
+  final Map<String, String> defaultHeaders = {
+    'Content-Type': 'application/json'
+  };
 
-  Uri _buildUri(String path, Map<String, dynamic> parameters) {
-    return Uri.parse('$mainUrl$path').replace(queryParameters: parameters);
+  Uri _buildUri(ApiQuery query, String method) {
+    if (method == 'GET' || method == 'DELETE') {
+      return Uri.parse('$mainUrl${query.path}')
+          .replace(queryParameters: query.parameters);
+    }
+    return Uri.parse('$mainUrl${query.path}');
   }
 
-  Map<String, String> _mergeHeaders(Map<String, String>? headers) {
-    return {...defaultHeaders, ...?headers};
+  Map<String, String> _mergeHeaders(ApiQuery query) {
+    if (!query.headers.containsKey('authorization')) {
+      defaultHeaders['authorization'] = 'Bearer - 1';
+    }
+    return {...defaultHeaders, ...query.headers};
   }
 
   Future<ApiResponse> _sendRequest(String method, ApiQuery query) async {
+    final uri = _buildUri(query, method);
+    final headers = _mergeHeaders(query);
+    http.Response response;
     try {
-      final uri = _buildUri(query.path, query.parameters);
-      final headers = _mergeHeaders(query.headers);
-
-      final response = http.Request(method, uri)..headers.addAll(headers);
-      final streamedResponse = await response.send();
-      final responseData = await http.Response.fromStream(streamedResponse);
-      if (responseData.statusCode >= 200 && responseData.statusCode < 300) {
-        return ApiResponse(
-          body: json.decode(responseData.body) as Map<String, dynamic>,
-        );
+      if (method.toUpperCase() == 'GET') {
+        response = await http.get(uri, headers: headers);
+      } else if (method.toUpperCase() == 'POST') {
+        response = await http.post(uri,
+            headers: headers, body: jsonEncode(query.parameters));
+      } else if (method.toUpperCase() == 'PUT') {
+        response = await http.put(uri,
+            headers: headers, body: jsonEncode(query.parameters));
+      } else if (method.toUpperCase() == 'DELETE') {
+        response = await http.delete(uri, headers: headers);
       } else {
         return ApiResponse(
-          success: false,
-          error: 'Error: ${responseData.statusCode}, ${responseData.reasonPhrase}',
-        );
+            success: false, error: 'Unsupported HTTP method: $method');
       }
     } catch (e) {
-      return ApiResponse(success: false, error: 'Request failed: $e');
+      return ApiResponse(success: false, error: "SendRequestError: $e");
+    }
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return ApiResponse(
+        body: json.decode(response.body) as Map<String, dynamic>,
+      );
+    } else if (response.statusCode == 403) {
+      return ApiResponse(
+        success: false,
+        error: 'Error: ${response.statusCode}, Token is invalid',
+      );
+    } else {
+      return ApiResponse(
+        success: false,
+        error: 'Error: ${response.statusCode}, ${response.reasonPhrase}',
+      );
     }
   }
 
@@ -60,18 +86,4 @@ class ApiManager {
   Future<ApiResponse> update(ApiQuery query) => _sendRequest('PUT', query);
 
   Future<ApiResponse> delete(ApiQuery query) => _sendRequest('DELETE', query);
-
-  
-}
-
-void check(ApiManager apiManager) async {
-  const String yellow = '\x1B[33m';
-  const String reset = '\x1B[0m';
-  try {
-    ApiQuery query = ApiQueryBuilder().path(QueryPaths.checkApi).addParameter('id', 544).build();
-    ApiResponse res = await apiManager.get(query);
-    print('$yellow Api answer is ${!res.empty()} $reset');
-  } catch (e) {
-    print('$yellow Error $e $reset');
-  }
 }

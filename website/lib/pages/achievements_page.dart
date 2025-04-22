@@ -14,7 +14,7 @@ class AchievementsPage extends TemplatePage {
   const AchievementsPage({super.key});
 
   @override
-  Widget getMainArea() {
+  Widget getMainArea(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

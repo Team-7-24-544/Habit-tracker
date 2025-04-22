@@ -35,7 +35,7 @@ class NewHabitPage extends TemplatePage {
   const NewHabitPage({super.key});
 
   @override
-  Widget getMainArea() {
+  Widget getMainArea(BuildContext context) {
     return HabitCreationArea(onHabitCreated: _onHabitCreated);
   }
 }

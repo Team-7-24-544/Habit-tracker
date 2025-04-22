@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base
 
 # Создание подключения к SQLite
-DATABASE_URL = "sqlite:///./example.sqlite"
+DATABASE_URL = "sqlite:///./data/example.sqlite"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
