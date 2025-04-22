@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
 
+import '../models/MetaInfo.dart';
+import '../services/api_manager.dart';
+import '../services/api_query.dart';
 import '../widgets/navigation_widgets/nav_button.dart';
 
 class SettingsPage extends TemplatePage {
@@ -24,17 +27,36 @@ class ReminderSettingsPage extends StatefulWidget {
 }
 
 class _ReminderSettingsPageState extends State<ReminderSettingsPage> {
-  List<int> reminderTimes = [5, 15, 30];
-  bool _reminderAfterPeriod = true;
-  bool _askIfStarted = true;
-  bool _extraOption = false;
+  List<int> reminderTimes = [];
   List<Map<String, dynamic>> daysOff = [];
 
-  void _saveReminderTimes() {}
+  _ReminderSettingsPageState() {
+    loadData();
+  }
 
-  void _saveNotificationSettings() {}
+  Future<void> loadData() async {
+    final apiManager = MetaInfo.getApiManager();
+    ApiQuery query =
+        ApiQueryBuilder().path(QueryPaths.userSettingsLoad).build();
 
-  void _saveDaysOff() {}
+    ApiResponse response = await apiManager.get(query);
+    setState(() {
+      print(response.body['reminders']);
+      print(response.body['weekends']);
+      reminderTimes = List.from(response.body['reminders']);
+      daysOff = List.from(response.body['weekends']);
+    });
+  }
+
+  void _saveSettings() {
+    final apiManager = MetaInfo.getApiManager();
+    ApiQuery query = ApiQueryBuilder()
+        .path(QueryPaths.userSettingsSetSettings)
+        .addParameter('reminders', reminderTimes)
+        .addParameter('weekends', daysOff)
+        .build();
+    apiManager.post(query);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,32 +65,18 @@ class _ReminderSettingsPageState extends State<ReminderSettingsPage> {
       children: [
         ReminderTimesSettings(
             reminderTimes: reminderTimes,
-            onSave: _saveReminderTimes,
+            onSave: _saveSettings,
             onUpdate: (newList) => setState(() => reminderTimes = newList)),
         SizedBox(height: 24),
-        NotificationSettings(
-          reminderAfterPeriod: _reminderAfterPeriod,
-          askIfStarted: _askIfStarted,
-          extraOption: _extraOption,
-          onSave: _saveNotificationSettings,
-          onUpdate: updateOnOff,
-        ),
+        NotificationSettings(),
         SizedBox(height: 24),
         DaysOffSettings(
           daysOff: daysOff,
-          onSave: _saveDaysOff,
+          onSave: _saveSettings,
           onUpdate: (newList) => setState(() => daysOff = newList),
         ),
       ],
     );
-  }
-
-  void updateOnOff(newValues) {
-    setState(() {
-      _reminderAfterPeriod = newValues['afterPeriod'];
-      _askIfStarted = newValues['askStarted'];
-      _extraOption = newValues['extra'];
-    });
   }
 }
 
@@ -158,20 +166,52 @@ class _ReminderTimesSettingsState extends State<ReminderTimesSettings> {
   }
 }
 
-class NotificationSettings extends StatelessWidget {
-  final bool reminderAfterPeriod;
-  final bool askIfStarted;
-  final bool extraOption;
-  final Function(Map<String, bool>) onUpdate;
-  final VoidCallback onSave;
+class NotificationSettings extends StatefulWidget {
+  @override
+  _NotificationSettingsState createState() => _NotificationSettingsState();
+}
 
-  NotificationSettings({
-    required this.reminderAfterPeriod,
-    required this.askIfStarted,
-    required this.extraOption,
-    required this.onUpdate,
-    required this.onSave,
-  });
+class _NotificationSettingsState extends State<NotificationSettings> {
+  bool option1 = false;
+  bool option2 = false;
+  bool option3 = false;
+  bool option4 = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadOptions();
+  }
+
+  Future<void> loadOptions() async {
+    final apiManager = MetaInfo.getApiManager();
+    ApiQuery query =
+        ApiQueryBuilder().path(QueryPaths.userSettingsLoadToggles).build();
+
+    ApiResponse response = await apiManager.get(query);
+    if (response.success) {
+      setState(() {
+        final Map<String, bool> habitsJson = Map.from(response.body['toggles']);
+        option1 = habitsJson['option1'] ?? false;
+        option2 = habitsJson['option2'] ?? false;
+        option3 = habitsJson['option3'] ?? false;
+        option4 = habitsJson['option4'] ?? false;
+      });
+    }
+  }
+
+  Future<void> saveOptions() async {
+    final apiManager = MetaInfo.getApiManager();
+
+    ApiQuery query = ApiQueryBuilder()
+        .path(QueryPaths.userSettingsSetToggles)
+        .addParameter('option1', option1)
+        .addParameter('option2', option2)
+        .addParameter('option3', option3)
+        .addParameter('option4', option4)
+        .build();
+    apiManager.post(query);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,29 +228,49 @@ class NotificationSettings extends StatelessWidget {
               title: Text('Напомнить об отметке результата'),
               subtitle: Text(
                   'Уведомление сразу после окончания периода привычки, чтобы не забыть отметить выполнение'),
-              value: reminderAfterPeriod,
-              onChanged: (value) => onUpdate({}),
+              value: option1,
+              onChanged: (value) => {
+                setState(() {
+                  option1 = value!;
+                }),
+                saveOptions()
+              },
             ),
             CheckboxListTile(
               title: Text('Ежедневный план привычек'),
               subtitle: Text(
                   'Утреннее напоминание со списком запланированных привычек на текущий день'),
-              value: askIfStarted,
-              onChanged: (value) => onUpdate({}),
+              value: option2,
+              onChanged: (value) => {
+                setState(() {
+                  option2 = value!;
+                }),
+                saveOptions()
+              },
             ),
             CheckboxListTile(
               title: Text('Итоги дня'),
               subtitle:
                   Text('Краткая сводка вашей активности: ежедневно в 20:00'),
-              value: extraOption,
-              onChanged: (value) => onUpdate({}),
+              value: option3,
+              onChanged: (value) => {
+                setState(() {
+                  option3 = value!;
+                }),
+                saveOptions()
+              },
             ),
             CheckboxListTile(
               title: Text('Итоги недели'),
               subtitle: Text(
                   'Краткая сводка вашей активности: еженедельно в воскресенье'),
-              value: extraOption,
-              onChanged: (value) => onUpdate({}),
+              value: option4,
+              onChanged: (value) => {
+                setState(() {
+                  option4 = value!;
+                }),
+                saveOptions()
+              },
             ),
           ],
         ),
