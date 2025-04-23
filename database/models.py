@@ -1,5 +1,7 @@
-from sqlalchemy import Column, String, BigInteger, Boolean, Integer, Date, ForeignKey
-from sqlalchemy import Column, String, Boolean, Integer, Date
+import json
+
+from sqlalchemy import Column, String, Boolean, Integer, Date, Text
+from sqlalchemy import ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -131,6 +133,7 @@ class HabitTemplate(Base):
     def __repr__(self):
         return f"<Habit(name={self.name}, description={self.description})>"
 
+
 class UserProfile(Base):
     __tablename__ = 'user_profiles'
 
@@ -147,3 +150,20 @@ class UserProfile(Base):
     def __repr__(self):
         return (f"<UserProfile(user_id={self.user_id}, nickname={self.nickname}, "
                 f"about={self.about}, goal={self.goal})>")
+
+
+class UserSettings(Base):
+    __tablename__ = 'user_settings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    option1 = Column(Boolean, nullable=False, default=False)
+    option2 = Column(Boolean, nullable=False, default=False)
+    option3 = Column(Boolean, nullable=False, default=False)
+    option4 = Column(Boolean, nullable=False, default=False)
+    reminders = Column(Text, default=json.dumps([]))
+    weekends = Column(Text, default=json.dumps([]))
+
+    def __repr__(self):
+        return (f"<UserSettings(user_id={self.user_id}, option1={self.option1}, option2={self.option2}, "
+                f"option3={self.option3},option4={self.option4})>")

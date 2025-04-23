@@ -48,7 +48,7 @@ class ApiQueryBuilder {
     var userId = (MetaInfo.instance.get(MetaKeys.userId) ?? -1);
     var token = MetaInfo.instance.get(MetaKeys.token) ?? -1;
     if (userId > 0) _parameters['user_id'] = userId.toString();
-    if (token != -1) _headers['Authorization'] = "Bearer $token";
+    if (token != -1) _headers['authorization'] = "Bearer $token";
     return ApiQuery(
       path: _path,
       parameters: _parameters,
@@ -61,6 +61,10 @@ enum QueryPaths {
   userLogin("/user/login"),
   userRegister("/user/register"),
   userUpdate("/user/update"),
+  userSettingsLoadToggles("/user/settings/load_toggles"),
+  userSettingsSetToggles("/user/settings/set_toggles"),
+  userSettingsLoad("/user/settings/load"),
+  userSettingsSetSettings("/user/settings/set_settings"),
   getEmotions("/emotions/get_all_emoji"),
   setEmotion("/emotions/set_emoji"),
   getLastAchievements("/achievements/get_last"),
