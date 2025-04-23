@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/habit.dart';
+import '../services/habits_service.dart';
+import '../models/MetaInfo.dart';
+import '../models/MetaKeys.dart';
 
-class HabitDetailsPage extends StatelessWidget {
+class HabitDetailsPage extends StatefulWidget {
   final Habit habit;
 
   const HabitDetailsPage({
@@ -11,10 +14,37 @@ class HabitDetailsPage extends StatelessWidget {
   });
 
   @override
+  State<HabitDetailsPage> createState() => _HabitDetailsPageState();
+}
+
+class _HabitDetailsPageState extends State<HabitDetailsPage> {
+  Map<String, List<DateTime>> _periods = {'starts': [], 'ends': []};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPeriods();
+  }
+
+  Future<void> _loadPeriods() async {
+    final userId = MetaInfo.instance.get(MetaKeys.userId);
+    if (userId != null) {
+      final periods = await HabitsService.getHabitPeriods(userId);
+      if (mounted) {
+        setState(() {
+          _periods = periods;
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(habit.name),
+        title: Text(widget.habit.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
@@ -35,6 +65,12 @@ class HabitDetailsPage extends StatelessWidget {
   }
 
   Widget _buildProgressChart() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final spots = _generateSpots();
+
     return Container(
       height: 300,
       padding: const EdgeInsets.all(20),
@@ -92,9 +128,7 @@ class HabitDetailsPage extends StatelessWidget {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: List.generate(7, (index) {
-                      return FlSpot(index.toDouble(), (index * 0.5 + 2).toDouble());
-                    }),
+                    spots: spots,
                     isCurved: true,
                     color: Colors.blue,
                     barWidth: 3,
@@ -111,6 +145,23 @@ class HabitDetailsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<FlSpot> _generateSpots() {
+    if (_periods['starts']!.isEmpty) return [];
+
+    final now = DateTime.now();
+    final startDate = _periods['starts']!.first;
+    final daysSinceStart = now.difference(startDate).inDays;
+    
+    List<FlSpot> spots = [];
+    for (var i = 0; i <= daysSinceStart; i++) {
+      final date = startDate.add(Duration(days: i));
+      final completed = widget.habit.schedule['completed']?.contains(date.toString()) ?? false;
+      spots.add(FlSpot(i.toDouble(), completed ? 1.0 : 0.0));
+    }
+    
+    return spots;
   }
 
   Widget _buildDetailsSection() {
@@ -138,13 +189,13 @@ class HabitDetailsPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          _buildDetailRow('Описание', habit.description),
+          _buildDetailRow('Описание', widget.habit.description),
           const SizedBox(height: 16),
-          _buildDetailRow('Расписание', '${habit.start} - ${habit.end}'),
+          _buildDetailRow('Расписание', '${widget.habit.start} - ${widget.habit.end}'),
           const SizedBox(height: 16),
-          _buildDetailRow('Статус', habit.isEnabled ? 'Активна' : 'Неактивна'),
+          _buildDetailRow('Статус', widget.habit.isEnabled ? 'Активна' : 'Неактивна'),
           const SizedBox(height: 16),
-          _buildDetailRow('Прогресс', '${(0.7 * 100).round()}%'),
+          _buildDetailRow('Прогресс', '${(widget.habit.progress * 100).round()}%'),
         ],
       ),
     );
