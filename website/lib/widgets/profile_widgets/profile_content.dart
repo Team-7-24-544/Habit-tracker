@@ -8,10 +8,10 @@ class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
 
   @override
-  _ProfileContentState createState() => _ProfileContentState();
+  ProfileContentState createState() => ProfileContentState();
 }
 
-class _ProfileContentState extends State<ProfileContent> {
+class ProfileContentState extends State<ProfileContent> {
   late UserProfile profile = UserProfile.getDummyProfile();
   bool isEditing = false;
 
@@ -208,7 +208,7 @@ class _ProfileContentState extends State<ProfileContent> {
             // Основное содержимое
             isWideScreen
                 ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
                         flex: 2,
