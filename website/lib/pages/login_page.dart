@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:website/models/MetaInfo.dart';
-import 'package:website/models/MetaKeys.dart';
+
 import '../services/auth_service.dart';
 import '../widgets/navigation_widgets/nav_button.dart';
+import 'about_page.dart';
 
 class LoginPage extends StatefulWidget {
   String get title => 'Login page';
@@ -62,9 +62,32 @@ class LoginPageState extends State<LoginPage> {
     return null;
   }
 
+  void _navigateToAbout() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AboutPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    //TODO: remove password and login after debug!
+    _usernameController.text = "admin";
+    _passwordController.text = "123456";
+    
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            iconSize: 32,
+            padding: EdgeInsets.all(10),
+            constraints: BoxConstraints(minWidth: 48, minHeight: 48),
+            onPressed: _navigateToAbout,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
