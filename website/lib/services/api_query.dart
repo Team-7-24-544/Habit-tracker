@@ -76,6 +76,7 @@ enum QueryPaths {
   getTodayHabits("/habits/get_today_habits"),
   setMarkToHabit("/habits/set_mark"),
   getHabitPeriods("/habits/get_periods"),
+  updateHabitSchedule("/habits/update_schedule"),
   getAllHabits("/habits/get_all_habits");
 
   final String value;
