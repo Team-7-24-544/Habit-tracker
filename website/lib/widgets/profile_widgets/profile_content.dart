@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_manager.dart';
 import '../../services/api_query.dart';
 import '../../models/user_profile.dart';
+import '../../models/MetaInfo.dart';
 
 class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
@@ -11,32 +12,61 @@ class ProfileContent extends StatefulWidget {
 }
 
 class _ProfileContentState extends State<ProfileContent> {
-  late UserProfile profile;
+  late UserProfile profile = UserProfile.getDummyProfile();
   bool isEditing = false;
 
   // Контроллеры для полей профиля
-  late TextEditingController aboutController;
-  late TextEditingController goalController;
-  late TextEditingController nicknameController;
-  late TextEditingController telegramController;
-  late TextEditingController monthlyHabitsController;
-  late TextEditingController monthlyQuoteController;
+  late TextEditingController aboutController = TextEditingController();
+  late TextEditingController goalController = TextEditingController();
+  late TextEditingController nicknameController = TextEditingController();
+  late TextEditingController telegramController = TextEditingController();
+  late TextEditingController monthlyHabitsController = TextEditingController();
+  late TextEditingController monthlyQuoteController = TextEditingController();
 
   // Экземпляр для работы с API
-  final ApiManager apiManager = ApiManager();
+  final apiManager = MetaInfo.getApiManager();
 
   @override
   void initState() {
     super.initState();
-    profile = UserProfile.getDummyProfile();
 
-    // Инициализируем контроллеры с данными из профиля
-    aboutController = TextEditingController(text: profile.about);
-    goalController = TextEditingController(text: profile.goal);
-    nicknameController = TextEditingController(text: profile.nickname);
-    telegramController = TextEditingController(text: profile.telegram);
-    monthlyHabitsController = TextEditingController(text: profile.monthlyHabits);
-    monthlyQuoteController = TextEditingController(text: profile.monthlyQuote);
+    _loadAndApplyProfile();
+  }
+
+  Future<void> _loadAndApplyProfile() async {
+    final loaded = await _loadProfile();    // ждём Future<UserProfile>
+    if (!mounted) return;                   // проверяем, что виджет ещё на экране
+
+    setState(() {
+      profile = loaded;
+      aboutController.text         = profile.about;
+      goalController.text          = profile.goal;
+      nicknameController.text      = profile.nickname;
+      telegramController.text      = profile.telegram;
+      monthlyHabitsController.text = profile.monthlyHabits;
+      monthlyQuoteController.text  = profile.monthlyQuote;
+    });
+  }
+
+  Future<UserProfile> _loadProfile() async {
+    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getProfile).build();
+    ApiResponse response = await apiManager.get(query);
+
+    if (response.success && response.body.keys.contains('profile')) {
+      final data = response.body['profile'] as Map<String, dynamic>;
+      
+      return UserProfile(
+        avatarUrl:     data['avatar_url']     ?? '',
+        nickname:      data['nickname']       ?? '',
+        about:         data['about']          ?? '',
+        goal:          data['goal']           ?? '',
+        telegram:      data['telegram']       ?? '',
+        monthlyHabits: data['monthly_habits'] ?? '',
+        monthlyQuote:  data['monthly_quote']  ?? '',
+      );
+    }
+
+    return UserProfile.getDummyProfile();
   }
 
   @override
@@ -67,11 +97,8 @@ class _ProfileContentState extends State<ProfileContent> {
     profile.monthlyHabits = monthlyHabitsController.text;
     profile.monthlyQuote = monthlyQuoteController.text;
 
-    // Формируем запрос к API на обновление профиля
-    // Предполагается, что у модели UserProfile есть поле id или user_id для идентификации
     final query = ApiQueryBuilder()
-        .path(QueryPaths.updateProfile) // Убедись, что этот путь добавлен в QueryPaths
-        .addParameter("user_id", profile.user_id.toString())
+        .path(QueryPaths.updateProfile)
         .addParameter("avatar_url", profile.avatarUrl)
         .addParameter("nickname", profile.nickname)
         .addParameter("about", profile.about)
@@ -81,7 +108,6 @@ class _ProfileContentState extends State<ProfileContent> {
         .addParameter("monthly_quote", profile.monthlyQuote)
         .build();
 
-    // Отправляем POST-запрос (или PUT, если у тебя настроен именно такой метод) к API
     final response = await apiManager.post(query);
 
     if (!response.empty()) {

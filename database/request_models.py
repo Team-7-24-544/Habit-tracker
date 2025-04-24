@@ -25,7 +25,7 @@ class SetEmojiRequest(BaseModel):
 class UserUpdateRequest(BaseModel):
     user_id: int
     name: str = None
-    login: str = None,
+    login: str = None
     password: str = None
     tg_nick: str = None
 
@@ -47,3 +47,15 @@ class SettingsUpdateRequest(BaseModel):
     user_id: int
     reminders: List[int]
     weekends: List[Any]
+
+
+class ProfileUpdateRequest(BaseModel):
+    user_id: int
+    avatar_url: str = None
+    nickname: str = None
+    about: str = None
+    goal: str = None
+    telegram: str = None
+    monthly_habits: str = None
+    monthly_quote: str = None
+

@@ -9,7 +9,7 @@ from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
 from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark, get_all_habits
 from logging_config import setup_logging
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
-    SetMarkRequest, SettingsUpdateRequest, ToggleSettingsUpdateRequest
+    SetMarkRequest, SettingsUpdateRequest, ToggleSettingsUpdateRequest, ProfileUpdateRequest
 from user_profile import get_user_profile, update_user_profile
 from users import *
 
@@ -161,38 +161,32 @@ async def get_all_habits_(user_id: int, token: str = Depends(get_token), db: Ses
 
 # Profile------------------------------------------------------------------------------
 @app.get("/user/profile")
-async def get_profile(user_id: int, db: Session = Depends(get_db)):
+async def get_profile(user_id: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
     """
     Получение данных профиля для пользователя с указанным user_id.
     """
+    check_token(token, user_id)
     return await get_user_profile(user_id, db)
 
 
 @app.post("/user/profile/update")
-async def update_profile(
-        user_id: int,
-        avatar_url: str = None,
-        nickname: str = None,
-        about: str = None,
-        goal: str = None,
-        telegram: str = None,
-        monthly_habits: str = None,
-        monthly_quote: str = None,
-        db: Session = Depends(get_db)
+async def update_profile(data: ProfileUpdateRequest, token: str = Depends(get_token), db: Session = Depends(get_db),
 ):
     """
     Обновление данных профиля для пользователя с указанным user_id.
     Если какие-то поля не переданы, они не изменяются.
     """
+    check_token(token, data.user_id)
+
     return await update_user_profile(
-        user_id,
-        avatar_url,
-        nickname,
-        about,
-        goal,
-        telegram,
-        monthly_habits,
-        monthly_quote,
+        data.user_id,
+        data.avatar_url,
+        data.nickname,
+        data.about,
+        data.goal,
+        data.telegram,
+        data.monthly_habits,
+        data.monthly_quote,
         db
     )
 # ------------------------------------------------------------------------------------------
