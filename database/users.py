@@ -12,6 +12,7 @@ from config import SECRET_KEY
 from models import User, UserSettings
 
 logger = logging.getLogger(__name__)
+errors = logging.getLogger(__name__)
 
 
 def generate_token(user_id, user_name):
@@ -30,10 +31,10 @@ async def register(name: str, login: str, password: str, tg_nick: str, db: Sessi
         return JSONResponse(
             content={"id": new_user.id, "answer": "success", "token": generate_token(new_user.id, name)})
     except HTTPException as e:
-        logger.error(f"Error during registration for user '{login}': {e.detail}")
+        errors.error(f"Error during registration for user '{login}': {e.detail}")
         raise e
     except Exception as e:
-        logger.error(f"Unexpected error during registration for user '{login}': {str(e)}")
+        errors.error(f"Unexpected error during registration for user '{login}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -44,7 +45,7 @@ def register_user(name: str, login: str, password: str, tg_name: str, db: Sessio
         logger.warning(f"User with login '{login}' already exists.")
         raise HTTPException(
             status_code=400,
-            detail={"id": -1, "answer": "User with this login already exists"}
+            detail={"id": -1, "error": "User with this login already exists"}
         )
 
     new_user = User(
@@ -54,10 +55,11 @@ def register_user(name: str, login: str, password: str, tg_name: str, db: Sessio
         tg_name=tg_name,
         join_date=date.today()
     )
-
     db.add(new_user)
+    db.flush()
+    new_user_settings = UserSettings(user_id=new_user.id)
+    db.add(new_user_settings)
     db.commit()
-    db.refresh(new_user)
 
     logger.info(f"User '{login}' registered successfully with ID {new_user.id}.")
     return new_user
@@ -221,8 +223,8 @@ async def set_settings(user_id: int, reminders, weekends, db: Session):
             logger.error(f"User with ID {user_id} not found.")
             raise HTTPException(status_code=404, detail="User not found")
 
-        user.reminders = json.dumps(reminders)
-        user.weekends = json.dumps(weekends)
+        user.reminders = json.dumps(list(set(reminders)))
+        user.weekends = json.dumps(list(set(weekends)))
         db.commit()
         db.refresh(user)
 

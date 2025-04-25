@@ -34,7 +34,8 @@ def get_db():
         db.close()
 
 
-logger = logging.getLogger(__name__)
+info_logger = logging.getLogger("info_logger")
+error_logger = logging.getLogger("error_logger")
 
 
 @app.on_event("startup")

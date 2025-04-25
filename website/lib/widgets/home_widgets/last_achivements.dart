@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
-import 'package:website/models/MetaKeys.dart';
 import 'package:website/services/api_manager.dart';
 import 'package:website/services/api_query.dart';
+
 import '../../models/achievement.dart';
+import '../../services/logger.dart';
 import 'last_achievement_item.dart';
 
 class LastAchievements extends StatefulWidget {
@@ -25,12 +26,15 @@ class _AchievementsState extends State<LastAchievements> {
 
   Future<void> _loadAchievements() async {
     ApiManager apiManager = MetaInfo.getApiManager();
-    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getLastAchievements).build();
+    ApiQuery query =
+        ApiQueryBuilder().path(QueryPaths.getLastAchievements).build();
     ApiResponse response = await apiManager.get(query);
+    handleApiError(response: response, context: context);
     if (response.success && response.body.keys.contains('achievements')) {
       _achievements = [];
       for (var item in response.body['achievements']) {
-        _achievements.add(Achievement(title: item['name'], description: item['description']));
+        _achievements.add(
+            Achievement(title: item['name'], description: item['description']));
       }
       setState(() {
         for (var achievement in _achievements) {
@@ -38,8 +42,9 @@ class _AchievementsState extends State<LastAchievements> {
           _achievementWidgets.add(const SizedBox(height: 8));
         }
       });
-    } else {
-      print(response.error);
+    } else if (!response.body.keys.contains('achievements')) {
+      showErrorToUser(context, 500, "Некорректный ответ сервера");
+      logError(500, "Некорректный ответ сервера", response.body);
     }
   }
 

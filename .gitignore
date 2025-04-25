@@ -9,3 +9,5 @@ tg-bot/config.py
 database/app.log
 database/__pycache__/
 database/data/example.sqlite
+/database/data/errors.log
+/database/data/info.log

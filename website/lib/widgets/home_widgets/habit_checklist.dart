@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/MetaInfo.dart';
-import '../../models/MetaKeys.dart';
 import '../../models/habit.dart';
 import '../../services/api_manager.dart';
 import '../../services/api_query.dart';
+import '../../services/logger.dart';
 import '../../services/mark_habit_service.dart';
-import '../../services/new_habit_service.dart';
 import 'habit_item.dart';
 
 class HabitChecklist extends StatefulWidget {
@@ -32,7 +32,7 @@ class _HabitChecklistState extends State<HabitChecklist> {
 
     final apiManager = MetaInfo.getApiManager();
     ApiResponse response = await apiManager.get(query);
-
+    handleApiError(response: response, context: context);
     if (response.success) {
       final Map<String, dynamic> decoded = response.body;
       var now = DateTime.now();
@@ -40,9 +40,23 @@ class _HabitChecklistState extends State<HabitChecklist> {
         _habits = [];
 
         for (var habitId in decoded.keys) {
-          Map<String, dynamic> habit = decoded[habitId];
+          Map<String, dynamic> habit = {};
+          try {
+            habit = decoded[habitId];
+          } catch (e) {
+            showErrorToUser(context, 500, "Некорректный ответ сервера");
+            logError(500, "Некорректный ответ сервера", response.body);
+            continue;
+          }
+          if (!habit.containsKey('schedule')) continue;
           Map<String, dynamic> scheduleMap = habit['schedule'];
-          Map<String, dynamic> uncompleted = jsonDecode(scheduleMap['uncompleted']);
+          if (!(scheduleMap.containsKey('uncompleted') &&
+              scheduleMap.containsKey('completed') &&
+              habit.containsKey('name') &&
+              habit.containsKey('description'))) continue;
+
+          Map<String, dynamic> uncompleted =
+              jsonDecode(scheduleMap['uncompleted']);
           Map<String, dynamic> completed = jsonDecode(scheduleMap['completed']);
 
           if (completed.isNotEmpty) {
@@ -50,15 +64,17 @@ class _HabitChecklistState extends State<HabitChecklist> {
               var habitTimeStart = DateFormat('HH:mm').parse(time);
               var habitTimeEnd = DateFormat('HH:mm').parse(completed[time]);
 
-              var habitDateTimeStart =
-                  DateTime(now.year, now.month, now.day, habitTimeStart.hour, habitTimeStart.minute);
-              var habitDateTimeEnd = DateTime(now.year, now.month, now.day, habitTimeEnd.hour, habitTimeEnd.minute);
+              var habitDateTimeStart = DateTime(now.year, now.month, now.day,
+                  habitTimeStart.hour, habitTimeStart.minute);
+              var habitDateTimeEnd = DateTime(now.year, now.month, now.day,
+                  habitTimeEnd.hour, habitTimeEnd.minute);
 
               _habits.add(Habit(
                 id: habitId,
-                name: decoded[habitId]['name'],
-                description: decoded[habitId]['description'],
-                isEnabled: now.isAfter(habitDateTimeStart) && now.isBefore(habitDateTimeEnd),
+                name: habit['name'],
+                description: habit['description'],
+                isEnabled: now.isAfter(habitDateTimeStart) &&
+                    now.isBefore(habitDateTimeEnd),
                 start: time,
                 end: completed[time],
                 completed: true,
@@ -71,15 +87,17 @@ class _HabitChecklistState extends State<HabitChecklist> {
               var habitTimeStart = DateFormat('HH:mm').parse(time);
               var habitTimeEnd = DateFormat('HH:mm').parse(uncompleted[time]);
 
-              var habitDateTimeStart =
-                  DateTime(now.year, now.month, now.day, habitTimeStart.hour, habitTimeStart.minute);
-              var habitDateTimeEnd = DateTime(now.year, now.month, now.day, habitTimeEnd.hour, habitTimeEnd.minute);
+              var habitDateTimeStart = DateTime(now.year, now.month, now.day,
+                  habitTimeStart.hour, habitTimeStart.minute);
+              var habitDateTimeEnd = DateTime(now.year, now.month, now.day,
+                  habitTimeEnd.hour, habitTimeEnd.minute);
 
               _habits.add(Habit(
                 id: habitId,
-                name: decoded[habitId]['name'],
-                description: decoded[habitId]['description'],
-                isEnabled: now.isAfter(habitDateTimeStart) && now.isBefore(habitDateTimeEnd),
+                name: habit['name'],
+                description: habit['description'],
+                isEnabled: now.isAfter(habitDateTimeStart) &&
+                    now.isBefore(habitDateTimeEnd),
                 start: time,
                 end: uncompleted[time],
                 completed: false,

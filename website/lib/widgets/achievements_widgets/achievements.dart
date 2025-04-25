@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../models/MetaInfo.dart';
-import '../../models/MetaKeys.dart';
 import '../../models/achievement.dart';
 import '../../services/api_manager.dart';
 import '../../services/api_query.dart';
+import '../../services/logger.dart';
 import '../home_widgets/last_achievement_item.dart';
 
 class Achievements extends StatefulWidget {
@@ -25,12 +26,22 @@ class _AchievementsState extends State<Achievements> {
 
   Future<void> _loadAchievements() async {
     ApiManager apiManager = MetaInfo.getApiManager();
-    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getLastAchievements).build();
+    ApiQuery query =
+        ApiQueryBuilder().path(QueryPaths.getLastAchievements).build();
     ApiResponse response = await apiManager.get(query);
+    handleApiError(response: response, context: context);
     if (response.success && response.body.keys.contains('achievements')) {
       _achievements = [];
-      for (var item in response.body['achievements']) {
-        _achievements.add(Achievement(title: item['name'], description: item['description']));
+      try {
+        for (Map<String, dynamic> item in response.body['achievements']) {
+          if (item.containsKey('name') && item.containsKey('description')) {
+            _achievements.add(Achievement(
+                title: item['name'], description: item['description']));
+          }
+        }
+      } catch (e) {
+        showErrorToUser(context, 500, "Некорректный ответ сервера");
+        logError(500, "Некорректный ответ сервера", response.body);
       }
       setState(() {
         for (var achievement in _achievements) {
@@ -38,8 +49,9 @@ class _AchievementsState extends State<Achievements> {
           achievementWidgets.add(const SizedBox(height: 16));
         }
       });
-    } else {
-      print(response.error);
+    } else if (response.success) {
+      showErrorToUser(context, 500, "Некорректный ответ сервера");
+      logError(500, "Некорректный ответ сервера", response.body);
     }
   }
 

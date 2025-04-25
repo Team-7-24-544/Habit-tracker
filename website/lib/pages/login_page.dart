@@ -27,6 +27,7 @@ class LoginPageState extends State<LoginPage> {
       int userid = await AuthService.validateCredentials(
         _usernameController.text,
         _passwordController.text,
+        context,
       );
 
       if (userid > -1) {
@@ -74,7 +75,7 @@ class LoginPageState extends State<LoginPage> {
     //TODO: remove password and login after debug!
     _usernameController.text = "admin";
     _passwordController.text = "123456";
-    
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
