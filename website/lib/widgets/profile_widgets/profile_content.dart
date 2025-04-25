@@ -12,19 +12,18 @@ class ProfileContent extends StatefulWidget {
 }
 
 class ProfileContentState extends State<ProfileContent> {
-  late UserProfile profile = UserProfile.getDummyProfile();
+  UserProfile profile = UserProfile.getDummyProfile();
   bool isEditing = false;
 
-  // Контроллеры для полей профиля
-  late TextEditingController aboutController = TextEditingController();
-  late TextEditingController goalController = TextEditingController();
-  late TextEditingController nicknameController = TextEditingController();
-  late TextEditingController telegramController = TextEditingController();
-  late TextEditingController monthlyHabitsController = TextEditingController();
-  late TextEditingController monthlyQuoteController = TextEditingController();
+  final TextEditingController aboutController = TextEditingController();
+  final TextEditingController goalController = TextEditingController();
+  final TextEditingController nicknameController = TextEditingController();
+  final TextEditingController telegramController = TextEditingController();
+  final TextEditingController monthlyHabitsController = TextEditingController();
+  final TextEditingController monthlyQuoteController = TextEditingController();
 
-  // Экземпляр для работы с API
   final apiManager = MetaInfo.getApiManager();
+
 
   @override
   void initState() {
@@ -33,12 +32,12 @@ class ProfileContentState extends State<ProfileContent> {
     _loadAndApplyProfile();
   }
 
-  Future<void> _loadAndApplyProfile() async {
-    final loaded = await _loadProfile();    // ждём Future<UserProfile>
-    if (!mounted) return;                   // проверяем, что виджет ещё на экране
 
+  Future<void> _loadAndApplyProfile() async {
+    final loaded = await _loadProfile();
+    if (!mounted) return;
     setState(() {
-      profile = loaded;
+      final profile = loaded;
       aboutController.text         = profile.about;
       goalController.text          = profile.goal;
       nicknameController.text      = profile.nickname;
@@ -47,6 +46,7 @@ class ProfileContentState extends State<ProfileContent> {
       monthlyQuoteController.text  = profile.monthlyQuote;
     });
   }
+
 
   Future<UserProfile> _loadProfile() async {
     ApiQuery query = ApiQueryBuilder().path(QueryPaths.getProfile).build();
@@ -69,9 +69,9 @@ class ProfileContentState extends State<ProfileContent> {
     return UserProfile.getDummyProfile();
   }
 
+
   @override
   void dispose() {
-    // Освобождаем ресурсы контроллеров
     aboutController.dispose();
     goalController.dispose();
     nicknameController.dispose();
@@ -87,9 +87,8 @@ class ProfileContentState extends State<ProfileContent> {
     });
   }
 
-  // Метод сохранения профиля с вызовом API
+
   Future<void> _saveProfile() async {
-    // Обновляем локальную модель перед отправкой
     profile.about = aboutController.text;
     profile.goal = goalController.text;
     profile.nickname = nicknameController.text;
@@ -109,14 +108,13 @@ class ProfileContentState extends State<ProfileContent> {
         .build();
 
     final response = await apiManager.post(query);
+    if (!mounted) return;
 
     if (!response.empty()) {
-      // Если ответ успешный, обновляем локальное состояние
       setState(() {
         isEditing = false;
       });
     } else {
-      // Обработка ошибки, можно вывести уведомление
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка обновления профиля: ${response.error}")),
       );
