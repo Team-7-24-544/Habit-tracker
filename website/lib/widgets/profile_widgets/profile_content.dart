@@ -13,6 +13,7 @@ class ProfileContent extends StatefulWidget {
 
 class ProfileContentState extends State<ProfileContent> {
   UserProfile profile = UserProfile.getDummyProfile();
+  bool _loading = true;
   bool isEditing = false;
 
   final TextEditingController aboutController = TextEditingController();
@@ -38,6 +39,7 @@ class ProfileContentState extends State<ProfileContent> {
     if (!mounted) return;
     setState(() {
       final profile = loaded;
+      _loading = false;
       aboutController.text         = profile.about;
       goalController.text          = profile.goal;
       nicknameController.text      = profile.nickname;
@@ -173,6 +175,10 @@ class ProfileContentState extends State<ProfileContent> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 800;
+
+    if (_loading) {
+      return Center(child: CircularProgressIndicator());
+    }
 
     return SingleChildScrollView(
       child: Padding(
