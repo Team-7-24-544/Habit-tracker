@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../../services/logger.dart';
 
 class TimeSlot extends StatefulWidget {
   final Function(int) onDelete;
@@ -18,13 +21,11 @@ class TimeSlot extends StatefulWidget {
     if (state != null) {
       return state.getTimeData();
     }
-    return {
-      'startTime': '9:00',
-      'endTime': '10:00',
-    };
+    return {};
   }
 
-  static final GlobalKey<TimeSlotState> _timeSlotKey = GlobalKey<TimeSlotState>();
+  static final GlobalKey<TimeSlotState> _timeSlotKey =
+      GlobalKey<TimeSlotState>();
 }
 
 class TimeSlotState extends State<TimeSlot> {
@@ -41,6 +42,14 @@ class TimeSlotState extends State<TimeSlot> {
         if (isStartTime) {
           _startTime = picked;
         } else {
+          DateFormat format = DateFormat('HH:mm');
+          DateTime t1 = format.parse('${_startTime.hour}:${_startTime.minute}');
+          DateTime t2 = format.parse('${picked.hour}:${picked.minute}');
+          if (t1.isAfter(t2)) {
+            showErrorToUser(
+                context, -1, "Время начала не может быть позже конца");
+            return;
+          }
           _endTime = picked;
         }
       });
@@ -81,8 +90,10 @@ class TimeSlotState extends State<TimeSlot> {
 
   Map<String, String> getTimeData() {
     return {
-      'startTime': "${_startTime.hour}:${_startTime.minute.toString().padLeft(2, '0')}",
-      'endTime': "${_endTime.hour}:${_endTime.minute.toString().padLeft(2, '0')}",
+      'startTime':
+          "${_startTime.hour}:${_startTime.minute.toString().padLeft(2, '0')}",
+      'endTime':
+          "${_endTime.hour}:${_endTime.minute.toString().padLeft(2, '0')}",
     };
   }
 }

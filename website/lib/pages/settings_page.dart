@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:website/pages/template_page.dart';
 
 import '../models/MetaInfo.dart';
 import '../services/api_manager.dart';
 import '../services/api_query.dart';
+import '../services/logger.dart';
 import '../widgets/navigation_widgets/nav_button.dart';
 
 class SettingsPage extends TemplatePage {
@@ -40,22 +42,30 @@ class _ReminderSettingsPageState extends State<ReminderSettingsPage> {
         ApiQueryBuilder().path(QueryPaths.userSettingsLoad).build();
 
     ApiResponse response = await apiManager.get(query);
-    setState(() {
-      print(response.body['reminders']);
-      print(response.body['weekends']);
-      reminderTimes = List.from(response.body['reminders']);
-      daysOff = List.from(response.body['weekends']);
-    });
+    handleApiError(response: response, context: context);
+
+    if (response.success &&
+        response.body.containsKey('reminders') &&
+        response.body.containsKey('weekends')) {
+      setState(() {
+        reminderTimes = List.from(response.body['reminders']);
+        daysOff = List.from(response.body['weekends']);
+      });
+    } else if (response.success) {
+      showErrorToUser(context, 500, "Некорректный ответ сервера");
+      logError(500, "Некорректный ответ сервера", response.body);
+    }
   }
 
-  void _saveSettings() {
+  Future<void> _saveSettings() async {
     final apiManager = MetaInfo.getApiManager();
     ApiQuery query = ApiQueryBuilder()
         .path(QueryPaths.userSettingsSetSettings)
         .addParameter('reminders', reminderTimes)
         .addParameter('weekends', daysOff)
         .build();
-    apiManager.post(query);
+    var response = await apiManager.post(query);
+    handleApiError(response: response, context: context);
   }
 
   @override
@@ -189,7 +199,9 @@ class _NotificationSettingsState extends State<NotificationSettings> {
         ApiQueryBuilder().path(QueryPaths.userSettingsLoadToggles).build();
 
     ApiResponse response = await apiManager.get(query);
-    if (response.success) {
+    handleApiError(response: response, context: context);
+
+    if (response.success && response.body.containsKey('toggles')) {
       setState(() {
         final Map<String, bool> habitsJson = Map.from(response.body['toggles']);
         option1 = habitsJson['option1'] ?? false;
@@ -197,6 +209,9 @@ class _NotificationSettingsState extends State<NotificationSettings> {
         option3 = habitsJson['option3'] ?? false;
         option4 = habitsJson['option4'] ?? false;
       });
+    } else if (response.success) {
+      showErrorToUser(context, 500, "Некорректный ответ сервера");
+      logError(500, "Некорректный ответ сервера", response.body);
     }
   }
 
@@ -210,7 +225,8 @@ class _NotificationSettingsState extends State<NotificationSettings> {
         .addParameter('option3', option3)
         .addParameter('option4', option4)
         .build();
-    apiManager.post(query);
+    var response = await apiManager.post(query);
+    handleApiError(response: response, context: context);
   }
 
   @override
@@ -302,8 +318,8 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
     'Воскресенье'
   ];
   String? _selectedDay;
-  TimeOfDay? _startTime;
-  TimeOfDay? _endTime;
+  String? _startTime;
+  String? _endTime;
 
   Future<void> _selectTime(BuildContext context, bool isStart) async {
     final initialTime = TimeOfDay.now();
@@ -314,9 +330,9 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
     if (picked != null) {
       setState(() {
         if (isStart) {
-          _startTime = picked;
+          _startTime = formatTimeOfDay(picked);
         } else {
-          _endTime = picked;
+          _endTime = formatTimeOfDay(picked);
         }
       });
     }
@@ -324,12 +340,19 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
 
   void _addDayOff() {
     if (_selectedDay != null && _startTime != null && _endTime != null) {
-      final newEntry = {
-        'day': _selectedDay!,
-        'start': _startTime!.format(context),
-        'end': _endTime!.format(context),
-      };
-      widget.onUpdate([...widget.daysOff, newEntry]);
+      DateFormat format = DateFormat('HH:mm');
+      DateTime t1 = format.parse(_startTime!);
+      DateTime t2 = format.parse(_endTime!);
+      if (t1.isAfter(t2)) {
+        showErrorToUser(context, -1, "Время начала не может быть позже конца");
+      } else {
+        final newEntry = {
+          'day': _days.indexOf(_selectedDay!).toString(),
+          'start': _startTime!,
+          'end': _endTime!,
+        };
+        widget.onUpdate([...widget.daysOff, newEntry]);
+      }
     }
   }
 
@@ -369,14 +392,14 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
               children: [
                 Expanded(
                   child: ListTile(
-                    title: Text(_startTime?.format(context) ?? 'Начало'),
+                    title: Text(_startTime ?? 'Начало'),
                     trailing: Icon(Icons.access_time),
                     onTap: () => _selectTime(context, true),
                   ),
                 ),
                 Expanded(
                   child: ListTile(
-                    title: Text(_endTime?.format(context) ?? 'Конец'),
+                    title: Text(_endTime ?? 'Конец'),
                     trailing: Icon(Icons.access_time),
                     onTap: () => _selectTime(context, false),
                   ),
@@ -389,7 +412,7 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
             ),
             ...widget.daysOff.asMap().entries.map((entry) => ListTile(
                   title: Text(
-                      '${entry.value['day']}: ${entry.value['start']} - ${entry.value['end']}'),
+                      '${_days[int.parse(entry.value['day'])]}: ${entry.value['start']} - ${entry.value['end']}'),
                   trailing: IconButton(
                     icon: Icon(Icons.delete),
                     onPressed: () => _removeDayOff(entry.key),
@@ -407,4 +430,11 @@ class _DaysOffSettingsState extends State<DaysOffSettings> {
       ),
     );
   }
+}
+
+String formatTimeOfDay(TimeOfDay time) {
+  final now = DateTime.now();
+  final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+  final format = DateFormat('HH:mm');
+  return format.format(dt);
 }

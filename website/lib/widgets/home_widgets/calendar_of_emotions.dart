@@ -11,7 +11,8 @@ import 'calendar/empty_cell.dart';
 import 'calendar/header_cell.dart';
 
 class EmotionCalendarController {
-  final GlobalKey<EmotionCalendarState> calendarKey = GlobalKey<EmotionCalendarState>();
+  final GlobalKey<EmotionCalendarState> calendarKey =
+      GlobalKey<EmotionCalendarState>();
 
   void setEmoji(int index) {
     calendarKey.currentState?.setTodayEmotion(index);
@@ -42,7 +43,8 @@ class EmotionCalendarState extends State<EmotionCalendar> {
     emotions = {};
     setState(() {
       for (var day = 1; day <= daysInMonth; day++) {
-        emotions[DateTime(firstDayOfMonth.year, firstDayOfMonth.month, day)] = ' ';
+        emotions[DateTime(firstDayOfMonth.year, firstDayOfMonth.month, day)] =
+            ' ';
       }
     });
 
@@ -59,13 +61,15 @@ class EmotionCalendarState extends State<EmotionCalendar> {
       emotions[date] = emoji.emoji;
     });
     final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
-    CalendarEmotionsService.setEmoji(userId, index);
+    CalendarEmotionsService.setEmoji(userId, index, context);
   }
 
   Future<void> updateEmotions() async {
     final userId = MetaInfo.instance.get(MetaKeys.userId) ?? 0;
-    final newEmotions = await CalendarEmotionsService.loadEmotions(userId);
-    final newList = await loadHabitPeriods(MetaInfo.instance.get(MetaKeys.userId));
+    final newEmotions =
+        await CalendarEmotionsService.loadEmotions(userId, context);
+    final newList =
+        await loadHabitPeriods(MetaInfo.instance.get(MetaKeys.userId), context);
     if (mounted) {
       setState(() {
         newEmotions.forEach((key, value) {
@@ -108,7 +112,8 @@ class EmotionCalendarState extends State<EmotionCalendar> {
     const double spacing = 14.0;
     const double cellHeight = calendarCellSize;
     const double padding = 28.0;
-    final double totalHeight = headerHeight + spacing + cellHeight * (numberOfWeeks + 1) + padding;
+    final double totalHeight =
+        headerHeight + spacing + cellHeight * (numberOfWeeks + 1) + padding;
 
     return SizedBox(
       height: totalHeight,
@@ -155,7 +160,9 @@ class EmotionCalendarState extends State<EmotionCalendar> {
 
     return TableRow(
       decoration: BoxDecoration(color: Colors.grey.shade100),
-      children: weekdays.map((day) => TableCell(child: HeaderCell(day: day))).toList(),
+      children: weekdays
+          .map((day) => TableCell(child: HeaderCell(day: day)))
+          .toList(),
     );
   }
 
@@ -180,7 +187,8 @@ class EmotionCalendarState extends State<EmotionCalendar> {
           if (!endDates.containsKey(date)) {
             endDates[date] = false;
           }
-          final cell = createDayCell(day, emotions[date]!, startDates[date]!, endDates[date]!, now.day == day);
+          final cell = createDayCell(day, emotions[date]!, startDates[date]!,
+              endDates[date]!, now.day == day);
           cells.add(cell);
           day++;
         }
@@ -192,5 +200,7 @@ class EmotionCalendarState extends State<EmotionCalendar> {
 }
 
 bool equalsDays(DateTime day1, DateTime day2) {
-  return day1.year == day2.year && day1.month == day2.month && day1.day == day2.day;
+  return day1.year == day2.year &&
+      day1.month == day2.month &&
+      day1.day == day2.day;
 }

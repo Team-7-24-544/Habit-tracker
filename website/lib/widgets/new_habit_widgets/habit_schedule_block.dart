@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'time_slot.dart';
 
 class HabitScheduleBlock extends StatefulWidget {
@@ -13,22 +14,6 @@ class HabitScheduleBlock extends StatefulWidget {
 
   @override
   HabitScheduleBlockState createState() => HabitScheduleBlockState();
-
-  Map<String, dynamic> getScheduleData() {
-    final state = _habitScheduleBlockKey.currentState;
-    if (state != null) {
-      return state.getScheduleData();
-    }
-    return {
-      'days': List.filled(7, false),
-      'timeSlots': [
-        {
-          'startTime': '9:00',
-          'endTime': '10:00',
-        },
-      ],
-    };
-  }
 
   static final GlobalKey<HabitScheduleBlockState> _habitScheduleBlockKey =
       GlobalKey<HabitScheduleBlockState>();
@@ -168,10 +153,6 @@ class HabitScheduleBlockState extends State<HabitScheduleBlock> {
         if (state != null) {
           return state.getTimeData();
         }
-        return {
-          'startTime': '9:00',
-          'endTime': '10:00',
-        };
       }).toList(),
     };
   }

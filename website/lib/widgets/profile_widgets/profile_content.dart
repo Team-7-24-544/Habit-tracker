@@ -2,46 +2,78 @@ import 'package:flutter/material.dart';
 import '../../services/api_manager.dart';
 import '../../services/api_query.dart';
 import '../../models/user_profile.dart';
+import '../../models/MetaInfo.dart';
 
 class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
 
   @override
-  _ProfileContentState createState() => _ProfileContentState();
+  ProfileContentState createState() => ProfileContentState();
 }
 
-class _ProfileContentState extends State<ProfileContent> {
-  late UserProfile profile;
+class ProfileContentState extends State<ProfileContent> {
+  UserProfile profile = UserProfile.getDummyProfile();
+  bool _loading = true;
   bool isEditing = false;
 
-  // Контроллеры для полей профиля
-  late TextEditingController aboutController;
-  late TextEditingController goalController;
-  late TextEditingController nicknameController;
-  late TextEditingController telegramController;
-  late TextEditingController monthlyHabitsController;
-  late TextEditingController monthlyQuoteController;
+  final TextEditingController aboutController = TextEditingController();
+  final TextEditingController goalController = TextEditingController();
+  final TextEditingController nicknameController = TextEditingController();
+  final TextEditingController telegramController = TextEditingController();
+  final TextEditingController monthlyHabitsController = TextEditingController();
+  final TextEditingController monthlyQuoteController = TextEditingController();
 
-  // Экземпляр для работы с API
-  final ApiManager apiManager = ApiManager();
+  final apiManager = MetaInfo.getApiManager();
+
 
   @override
   void initState() {
     super.initState();
-    profile = UserProfile.getDummyProfile();
 
-    // Инициализируем контроллеры с данными из профиля
-    aboutController = TextEditingController(text: profile.about);
-    goalController = TextEditingController(text: profile.goal);
-    nicknameController = TextEditingController(text: profile.nickname);
-    telegramController = TextEditingController(text: profile.telegram);
-    monthlyHabitsController = TextEditingController(text: profile.monthlyHabits);
-    monthlyQuoteController = TextEditingController(text: profile.monthlyQuote);
+    _loadAndApplyProfile();
   }
+
+
+  Future<void> _loadAndApplyProfile() async {
+    final loaded = await _loadProfile();
+    if (!mounted) return;
+    setState(() {
+      final profile = loaded;
+      _loading = false;
+      aboutController.text         = profile.about;
+      goalController.text          = profile.goal;
+      nicknameController.text      = profile.nickname;
+      telegramController.text      = profile.telegram;
+      monthlyHabitsController.text = profile.monthlyHabits;
+      monthlyQuoteController.text  = profile.monthlyQuote;
+    });
+  }
+
+
+  Future<UserProfile> _loadProfile() async {
+    ApiQuery query = ApiQueryBuilder().path(QueryPaths.getProfile).build();
+    ApiResponse response = await apiManager.get(query);
+
+    if (response.success && response.body.keys.contains('profile')) {
+      final data = response.body['profile'] as Map<String, dynamic>;
+      
+      return UserProfile(
+        avatarUrl:     data['avatar_url']     ?? '',
+        nickname:      data['nickname']       ?? '',
+        about:         data['about']          ?? '',
+        goal:          data['goal']           ?? '',
+        telegram:      data['telegram']       ?? '',
+        monthlyHabits: data['monthly_habits'] ?? '',
+        monthlyQuote:  data['monthly_quote']  ?? '',
+      );
+    }
+
+    return UserProfile.getDummyProfile();
+  }
+
 
   @override
   void dispose() {
-    // Освобождаем ресурсы контроллеров
     aboutController.dispose();
     goalController.dispose();
     nicknameController.dispose();
@@ -57,9 +89,8 @@ class _ProfileContentState extends State<ProfileContent> {
     });
   }
 
-  // Метод сохранения профиля с вызовом API
+
   Future<void> _saveProfile() async {
-    // Обновляем локальную модель перед отправкой
     profile.about = aboutController.text;
     profile.goal = goalController.text;
     profile.nickname = nicknameController.text;
@@ -67,11 +98,8 @@ class _ProfileContentState extends State<ProfileContent> {
     profile.monthlyHabits = monthlyHabitsController.text;
     profile.monthlyQuote = monthlyQuoteController.text;
 
-    // Формируем запрос к API на обновление профиля
-    // Предполагается, что у модели UserProfile есть поле id или user_id для идентификации
     final query = ApiQueryBuilder()
-        .path(QueryPaths.updateProfile) // Убедись, что этот путь добавлен в QueryPaths
-        .addParameter("user_id", profile.user_id.toString())
+        .path(QueryPaths.updateProfile)
         .addParameter("avatar_url", profile.avatarUrl)
         .addParameter("nickname", profile.nickname)
         .addParameter("about", profile.about)
@@ -81,16 +109,14 @@ class _ProfileContentState extends State<ProfileContent> {
         .addParameter("monthly_quote", profile.monthlyQuote)
         .build();
 
-    // Отправляем POST-запрос (или PUT, если у тебя настроен именно такой метод) к API
     final response = await apiManager.post(query);
+    if (!mounted) return;
 
     if (!response.empty()) {
-      // Если ответ успешный, обновляем локальное состояние
       setState(() {
         isEditing = false;
       });
     } else {
-      // Обработка ошибки, можно вывести уведомление
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Ошибка обновления профиля: ${response.error}")),
       );
@@ -150,6 +176,10 @@ class _ProfileContentState extends State<ProfileContent> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isWideScreen = screenWidth > 800;
 
+    if (_loading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -182,7 +212,7 @@ class _ProfileContentState extends State<ProfileContent> {
             // Основное содержимое
             isWideScreen
                 ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
                         flex: 2,

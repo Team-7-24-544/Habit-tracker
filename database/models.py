@@ -156,7 +156,7 @@ class UserSettings(Base):
     __tablename__ = 'user_settings'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(Integer, nullable=False, unique=True)
     option1 = Column(Boolean, nullable=False, default=False)
     option2 = Column(Boolean, nullable=False, default=False)
     option3 = Column(Boolean, nullable=False, default=False)

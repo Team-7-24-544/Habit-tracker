@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:website/models/MetaKeys.dart';
-import 'package:website/pages/home_page.dart';
+import 'package:website/pages/login_page.dart';
 import 'package:website/services/api_manager.dart';
 import 'package:website/services/api_query.dart';
+
 import '../models/MetaInfo.dart';
+import '../services/logger.dart';
 import '../services/utils_functions.dart';
 import '../widgets/navigation_widgets/nav_button.dart';
 
@@ -19,13 +21,14 @@ class RegistrationPage extends StatefulWidget {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+        pageBuilder: (context, animation, secondaryAnimation) => LoginPage(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(
@@ -63,11 +66,13 @@ class RegistrationPageState extends State<RegistrationPage> {
 
       final apiManager = MetaInfo.getApiManager();
       ApiResponse response = await apiManager.post(query);
+      handleApiError(response: response, context: context);
       if (response.success) {
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Регистрация успешно завершена! Теперь вы можете войти в систему.'),
+              content: Text(
+                  'Регистрация успешно завершена! Теперь вы можете войти в систему.'),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 3),
             ),
@@ -129,13 +134,18 @@ class RegistrationPageState extends State<RegistrationPage> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 32),
-                        addTextFormField('Имя', _nameController, usernameValidator()),
+                        addTextFormField(
+                            'Имя', _nameController, usernameValidator()),
                         const SizedBox(height: 16),
-                        addTextFormField('Логин', _usernameController, loginValidator()),
+                        addTextFormField(
+                            'Логин', _usernameController, loginValidator()),
                         const SizedBox(height: 16),
-                        addTextFormField('Пароль', _passwordController, passwordValidator(), obscureText: true),
+                        addTextFormField(
+                            'Пароль', _passwordController, passwordValidator(),
+                            obscureText: true),
                         const SizedBox(height: 16),
-                        addTextFormField('Ник в Telegram', _telegramController, telegramValidator()),
+                        addTextFormField('Ник в Telegram', _telegramController,
+                            telegramValidator()),
                         if (_errorMessage.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           Text(
@@ -212,7 +222,8 @@ class RegistrationPageState extends State<RegistrationPage> {
     });
   }
 
-  TextFormField addTextFormField(String label, TextEditingController controller, FormFieldValidator validator,
+  TextFormField addTextFormField(String label, TextEditingController controller,
+      FormFieldValidator validator,
       {bool obscureText = false}) {
     return TextFormField(
         controller: controller,

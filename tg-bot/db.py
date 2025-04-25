@@ -1,6 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, ForeignKey
+import json
+
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, Date, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+
 from config import DATABASE_URL
 
 Base = declarative_base()
@@ -60,6 +63,23 @@ class HabitTracking(Base):
 
     def __repr__(self):
         return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, start={self.start}, end={self.end})>"
+
+
+class UserSettings(Base):
+    __tablename__ = 'user_settings'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, nullable=False, unique=True)
+    option1 = Column(Boolean, nullable=False, default=False)
+    option2 = Column(Boolean, nullable=False, default=False)
+    option3 = Column(Boolean, nullable=False, default=False)
+    option4 = Column(Boolean, nullable=False, default=False)
+    reminders = Column(Text, default=json.dumps([]))
+    weekends = Column(Text, default=json.dumps([]))
+
+    def __repr__(self):
+        return (f"<UserSettings(user_id={self.user_id}, option1={self.option1}, option2={self.option2}, "
+                f"option3={self.option3},option4={self.option4})>")
 
 
 Base.metadata.create_all(bind=engine)
