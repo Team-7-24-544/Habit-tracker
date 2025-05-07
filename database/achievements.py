@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from achievement_checks import *
+from bot_message import add_message
 from models import Achievement, UserAchievement, Habit
 
 logger = logging.getLogger(__name__)
@@ -73,11 +74,13 @@ def update_all_achieves(user_id, habit_id, db):
             add_achievement(achievement_id, user_id, db)
 
 
-def add_achievement(achievement_id, user_id, db):
-    # db = Session()
-    # today = datetime.today().strftime('%Y-%m-%d')
-    # user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id, date_achieved=today)
-    # db.add(user_achievement)
-    # db.commit()
-    # db.refresh(user_achievement)
-    pass
+def add_achievement(achievement_id: int, user_id: int, db: Session):
+    if db.query(UserAchievement).where(
+            and_(UserAchievement.achievement_id == achievement_id, UserAchievement.user_id == user_id)).first():
+        return
+    today = datetime.today().strftime('%Y-%m-%d')
+    user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id, date_achieved=today)
+    db.add(user_achievement)
+    db.commit()
+    achievement = db.query(Achievement).filter(Achievement.id == achievement_id).first()
+    add_message(user_id, "Получено новое достижение! " + str(achievement.name), db)

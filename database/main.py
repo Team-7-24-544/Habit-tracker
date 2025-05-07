@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from achievements import get_last_10_achievements
+from bot_message import redis
 from config import check_token
 from config import get_token
 from database import SessionLocal, init_db
@@ -10,7 +11,7 @@ from habits import add_habit, get_templates, get_template_by_id, get_habits, set
 from logging_config import setup_logging
 from models import Habit
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
-    SetMarkRequest, SettingsUpdateRequest, ToggleSettingsUpdateRequest, ProfileUpdateRequest
+    SetMarkRequest, SettingsUpdateRequest, ProfileUpdateRequest
 from user_profile import get_user_profile, update_user_profile
 from users import *
 
@@ -63,26 +64,27 @@ async def update_user_endpoint(data: UserUpdateRequest, token: str = Depends(get
 
 
 @app.post("/user/settings/set_toggles")
-async def update_user_settings(data: ToggleSettingsUpdateRequest, token: str = Depends(get_token), dp=Depends(get_db)):
+async def update_user_settings(data: ToggleSettingsUpdateRequest, token: str = Depends(get_token),
+                               dp: Session = Depends(get_db)):
     check_token(token, data.user_id)
     return await set_toggles_settings(data.user_id, data, dp)
 
 
 @app.get("/user/settings/load_toggles")
-async def load_toggles_settings_(user_id: int, token: str = Depends(get_token), dp=Depends(get_db)):
+async def load_toggles_settings_(user_id: int, token: str = Depends(get_token), dp: Session = Depends(get_db)):
     check_token(token, user_id)
     return await load_toggles_settings(user_id, dp)
 
 
 @app.post("/user/settings/set_settings")
 async def set_settings_(data: SettingsUpdateRequest, token: str = Depends(get_token),
-                        dp=Depends(get_db)):
+                        dp: Session = Depends(get_db)):
     check_token(token, data.user_id)
     return await set_settings(data.user_id, data.reminders, data.weekends, dp)
 
 
 @app.get("/user/settings/load")
-async def load_settings_(user_id: int, token: str = Depends(get_token), dp=Depends(get_db)):
+async def load_settings_(user_id: int, token: str = Depends(get_token), dp: Session = Depends(get_db)):
     check_token(token, user_id)
     return await load_settings(user_id, dp)
 
@@ -216,4 +218,12 @@ async def update_profile(data: ProfileUpdateRequest, token: str = Depends(get_to
         data.monthly_quote,
         db
     )
+
+
 # ------------------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    import uvicorn
+
+    print(redis)
+    uvicorn.run(app, host="127.0.0.1", port=5000, ssl_keyfile='data/key.pem', ssl_certfile='data/cert.pem')

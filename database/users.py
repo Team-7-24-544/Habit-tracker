@@ -10,12 +10,13 @@ from sqlalchemy.orm import Session
 
 from config import SECRET_KEY
 from models import User, UserSettings
+from request_models import ToggleSettingsUpdateRequest
 
-logger = logging.getLogger(__name__)
-errors = logging.getLogger(__name__)
+logger = logging.getLogger("info_logger")
+errors = logging.getLogger("error_logger")
 
 
-def generate_token(user_id, user_name):
+def generate_token(user_id: int, user_name: str) -> str:
     token = jwt.encode({
         "username": f"{user_id} {user_name}",
         "exp": datetime.now(UTC) + timedelta(hours=1)
@@ -23,7 +24,7 @@ def generate_token(user_id, user_name):
     return token
 
 
-async def register(name: str, login: str, password: str, tg_nick: str, db: Session):
+async def register(name: str, login: str, password: str, tg_nick: str, db: Session) -> JSONResponse:
     try:
         logger.info(f"Received registration request for user with login: {login}")
         new_user = register_user(name, login, password, tg_nick, db)
@@ -38,7 +39,7 @@ async def register(name: str, login: str, password: str, tg_nick: str, db: Sessi
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def register_user(name: str, login: str, password: str, tg_name: str, db: Session):
+def register_user(name: str, login: str, password: str, tg_name: str, db: Session) -> User:
     stmt = select(User).where(User.login == login)
     existing_user = db.execute(stmt).scalars().first()
     if existing_user:
@@ -65,7 +66,7 @@ def register_user(name: str, login: str, password: str, tg_name: str, db: Sessio
     return new_user
 
 
-async def authenticate_user(login: str, password: str, db: Session):
+async def authenticate_user(login: str, password: str, db: Session) -> JSONResponse:
     try:
         logger.info(f"Authorization attempt for user with login: {login}")
 
@@ -86,7 +87,7 @@ async def authenticate_user(login: str, password: str, db: Session):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def update_user(user_id: int, name: str, login: str, password: str, tg_nick: str, db: Session):
+async def update_user(user_id: int, name: str, login: str, password: str, tg_nick: str, db: Session) -> JSONResponse:
     try:
         logger.info(f"Updating user with ID: {user_id}")
 
@@ -128,7 +129,7 @@ async def update_user(user_id: int, name: str, login: str, password: str, tg_nic
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def load_toggles_settings(user_id, db):
+async def load_toggles_settings(user_id: int, db: Session) -> JSONResponse:
     try:
         logger.info(f"Load toggles of user with ID: {user_id}")
 
@@ -158,7 +159,7 @@ async def load_toggles_settings(user_id, db):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def set_toggles_settings(user_id, toggles, db):
+async def set_toggles_settings(user_id: int, toggles: ToggleSettingsUpdateRequest, db: Session) -> JSONResponse:
     try:
         logger.info(f"Set toggles of user with ID: {user_id}")
 
@@ -187,7 +188,7 @@ async def set_toggles_settings(user_id, toggles, db):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def load_settings(user_id: int, db: Session):
+async def load_settings(user_id: int, db: Session) -> JSONResponse:
     try:
         logger.info(f"Loading reminders for user ID: {user_id}")
 
@@ -212,7 +213,7 @@ async def load_settings(user_id: int, db: Session):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def set_settings(user_id: int, reminders, weekends, db: Session):
+async def set_settings(user_id: int, reminders: list, weekends: list, db: Session) -> JSONResponse:
     try:
         logger.info(f"Updating reminders for user ID: {user_id}")
 
@@ -220,7 +221,7 @@ async def set_settings(user_id: int, reminders, weekends, db: Session):
         user = db.execute(stmt).first()[0]
 
         if not user:
-            logger.error(f"User with ID {user_id} not found.")
+            errors.error(f"User with ID {user_id} not found.")
             raise HTTPException(status_code=404, detail="User not found")
 
         user.reminders = json.dumps(list(set(reminders)))
@@ -234,8 +235,8 @@ async def set_settings(user_id: int, reminders, weekends, db: Session):
         })
 
     except HTTPException as e:
-        logger.error(f"Error updating reminders: {e.detail}")
+        errors.error(f"Error updating reminders: {e.detail}")
         raise e
     except Exception as e:
-        logger.error(f"Unexpected error updating reminders: {str(e)}")
+        errors.error(f"Unexpected error updating reminders: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error")

@@ -16,7 +16,7 @@ from models import HabitTemplate
 logger = logging.getLogger(__name__)
 
 
-async def add_habit(user_id: int, name: str, description: str, time_table: str, db: Session):
+async def add_habit(user_id: int, name: str, description: str, time_table: str, db: Session) -> JSONResponse:
     logger.info(f"Received request to add new habit '{name}' for user {user_id}")
     try:
         new_habit_id = create_habit(name, description, time_table, db)
@@ -31,26 +31,26 @@ async def add_habit(user_id: int, name: str, description: str, time_table: str, 
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def connect_user_habit(user_id: int, habit_id: int, db: Session):
+def connect_user_habit(user_id: int, habit_id: int, db: Session) -> None:
     new_habit_tracking = HabitTracking(user_id=user_id, habit_id=habit_id, start=date.today().strftime("%d-%m-%Y"),
-                                       monthly_schedule=json.dumps("{}"))
+                                       monthly_schedule=json.dumps(dict()))
     try:
         db.add(new_habit_tracking)
         db.commit()
         db.refresh(new_habit_tracking)
     except IntegrityError as e:
         logger.error(f"Error creating habit '{habit_id}': {str(e)}")
-        return HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         logger.error(f"Unexpected error creating habit '{habit_id}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def create_habit(name: str, description: str, time_table: str, db: Session):
+def create_habit(name: str, description: str, time_table: str, db: Session) -> int:
     days = json.loads(time_table)
     for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
         if day not in days:
-            days[day] = json.loads('{}')
+            days[day] = '{}'
     new_habit = Habit(
         name=name,
         description=description,
@@ -72,7 +72,7 @@ def create_habit(name: str, description: str, time_table: str, db: Session):
     return new_habit.id
 
 
-async def get_templates(db: Session):
+async def get_templates(db: Session) -> JSONResponse:
     logger.info("Received request to get templates")
     try:
         stmt = select(HabitTemplate)
@@ -98,7 +98,7 @@ async def get_templates(db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def get_template_by_id(habit_id: int, db: Session):
+async def get_template_by_id(habit_id: int, db: Session) -> JSONResponse:
     logger.info(f"Received request to get template of {habit_id}")
     try:
         stmt = select(HabitTemplate).where(HabitTemplate.id == habit_id)
@@ -121,12 +121,12 @@ async def get_template_by_id(habit_id: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def get_current_day():
+def get_current_day() -> str:
     today = datetime.now().strftime("%A").lower()
     return getattr(Habit, today)
 
 
-async def get_habits(user_id: int, db: Session):
+async def get_habits(user_id: int, db: Session) -> JSONResponse:
     logger.info(f"Received request to get habits of user {user_id}")
     try:
         today = datetime.now().strftime("%A").lower()
@@ -138,7 +138,7 @@ async def get_habits(user_id: int, db: Session):
         res = dict()
         for habit in result:
             habit_schedule = getattr(habit, today)
-            habit_tracking = db.query(HabitTracking).filter(
+            habit_tracking = db.query(HabitTracking).where(
                 HabitTracking.user_id == user_id,
                 HabitTracking.habit_id == habit.id
             ).first()
@@ -148,7 +148,7 @@ async def get_habits(user_id: int, db: Session):
                 uncompleted = dict()
                 completed = dict()
                 completed_today = dict()
-                today_date = datetime.now().strftime("%d-%m-%Y")
+                today_date = datetime.today().strftime("%d-%m-%Y")
                 monthly_schedule = json.loads(habit_tracking.monthly_schedule)
                 if today_date in monthly_schedule:
                     completed_today = monthly_schedule[today_date]
@@ -172,7 +172,7 @@ async def get_habits(user_id: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def check_prev_mark(user_id: int, habit_id: int, db: Session):
+def check_prev_mark(user_id: int, habit_id: int, db: Session) -> bool:
     habit = db.query(Habit).where(Habit.id == habit_id).first()
 
     completions = db.query(HabitTracking).where(
@@ -182,10 +182,9 @@ def check_prev_mark(user_id: int, habit_id: int, db: Session):
         )
     ).first()
 
+    completions = json.loads(completions.monthly_schedule)
     if not completions:
         return False
-
-    completions = json.loads(str(completions.monthly_schedule))
     last_time = None
     days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
     tuples = [(day, start, stop) for day in days for start, stop in json.loads(getattr(habit, day)).items()]
@@ -223,7 +222,8 @@ async def set_mark(user_id: int, habit_id: int, db: Session):
         daily_schedule = json.loads(getattr(habit_schedule, datetime.now().strftime("%A").lower()))
         current_period_start = None
         for start_time, end_time in daily_schedule.items():
-            if start_time <= current_time <= end_time:
+            if datetime.strptime(start_time, "%H:%M") <= datetime.strptime(current_time, "%H:%M") <= datetime.strptime(
+                    end_time, "%H:%M"):
                 current_period_start = start_time
                 break
 
@@ -257,7 +257,7 @@ async def set_mark(user_id: int, habit_id: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def get_all_habits(user_id: int, db: Session):
+async def get_all_habits(user_id: int, db: Session) -> JSONResponse:
     logger.info(f"Received request to get all habits of user {user_id}")
     try:
         result = db.query(Habit).join(HabitTracking, HabitTracking.habit_id == Habit.id).filter(

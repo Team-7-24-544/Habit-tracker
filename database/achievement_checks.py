@@ -13,7 +13,7 @@ def streak_check(user_id, habit_id, db):
             return 30
         return current_streak + 30
 
-    streak = 7
+    streak = 1
     habit_tracking = db.query(HabitTracking).where(
         and_(HabitTracking.user_id == user_id, HabitTracking.habit_id == habit_id)).first()
     if habit_tracking is None:

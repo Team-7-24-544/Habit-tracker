@@ -1,6 +1,8 @@
+import asyncio
+
 from telegram.ext import Application
 
-from bot import setup_handlers
+from bot import setup_handlers, worker
 from config import BOT_TOKEN, TIME_PERIOD
 from scheduler import check_reminders
 
@@ -13,6 +15,10 @@ def run_bot():
         callback=check_reminders,
         interval=TIME_PERIOD * 1.0,
         first=10.0,
+    )
+    job_queue.run_once(
+        lambda ctx: asyncio.create_task(worker(ctx.application)),
+        when=1
     )
     application.run_polling()
 
