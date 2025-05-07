@@ -1,15 +1,17 @@
 import json
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
+from operator import and_
 
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from models import HabitTemplate
+from achievements import update_achieves
 from models import Habit, HabitTracking
-from fastapi.responses import JSONResponse
+from models import HabitTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +172,39 @@ async def get_habits(user_id: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def check_prev_mark(user_id: int, habit_id: int, db: Session):
+    habit = db.query(Habit).where(Habit.id == habit_id).first()
+
+    completions = db.query(HabitTracking).where(
+        and_(
+            HabitTracking.user_id == user_id,
+            HabitTracking.habit_id == habit_id
+        )
+    ).first()
+
+    if not completions:
+        return False
+
+    completions = json.loads(str(completions.monthly_schedule))
+    last_time = None
+    days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    tuples = [(day, start, stop) for day in days for start, stop in json.loads(getattr(habit, day)).items()]
+    for i in range(len(tuples)):
+        if datetime.today().strftime("%A") == tuples[i][0] and datetime.now().strftime("%H:%M") < tuples[i][1]:
+            if not last_time:
+                last_time = tuples[-1]
+            break
+        last_time = tuples[i]
+    if len(tuples) > 1:
+        prev_day = datetime.today() - timedelta(
+            days=days.index(last_time[0]) - days.index(datetime.today().strftime("%A").lower()))
+    else:
+        prev_day = datetime.today() - timedelta(days=7)
+    if prev_day not in completions.keys():
+        return False
+    return last_time not in completions[prev_day]
+
+
 async def set_mark(user_id: int, habit_id: int, db: Session):
     logger.info(f"Received request to set habit mark for user {user_id}")
     try:
@@ -196,17 +231,20 @@ async def set_mark(user_id: int, habit_id: int, db: Session):
             logger.warning(f"Current time {current_time} is not within any period for habit {habit_id}")
             raise HTTPException(status_code=400, detail="Current time is not within any scheduled period")
 
-        completed_days = json.loads(habit_tracking.monthly_schedule)
-        if current_period_start not in completed_days:
+        completed_days = json.loads(str(habit_tracking.monthly_schedule))
+        if not check_prev_mark(user_id, habit_id, db):
+            habit_tracking.streak = 0
+        if today not in completed_days or current_period_start not in completed_days[today]:
             if today in completed_days:
                 completed_days[today].append(current_period_start)
             else:
                 completed_days[today] = [current_period_start]
 
             habit_tracking.monthly_schedule = json.dumps(completed_days)
+            habit_tracking.streak += 1
             db.commit()
             db.refresh(habit_tracking)
-
+        update_achieves(user_id, habit_id, db)
         logger.info(f"Habit {habit_id} mark set successfully for user {user_id}")
         return JSONResponse(content={"answer": "success"})
 

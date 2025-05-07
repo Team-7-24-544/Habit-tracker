@@ -8,6 +8,7 @@ from database import SessionLocal, init_db
 from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
 from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark, get_all_habits
 from logging_config import setup_logging
+from models import Habit
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
     SetMarkRequest, SettingsUpdateRequest, ToggleSettingsUpdateRequest, ProfileUpdateRequest
 from user_profile import get_user_profile, update_user_profile
@@ -156,28 +157,31 @@ async def get_all_habits_(user_id: int, token: str = Depends(get_token), db: Ses
     check_token(token, user_id)
     return await get_all_habits(user_id, db)
 
+
 @app.post("/habits/update_schedule")
-async def update_habit_schedule(user_id: int, habit_id: str, time_table: str, token: str = Depends(get_token), db: Session = Depends(get_db)):
+async def update_habit_schedule(user_id: int, habit_id: str, time_table: str, token: str = Depends(get_token),
+                                db: Session = Depends(get_db)):
     check_token(token, user_id)
     try:
         habit = db.query(Habit).filter(Habit.id == habit_id).first()
         if not habit:
             raise HTTPException(status_code=404, detail="Habit not found")
-            
+
         schedule = json.loads(time_table)
-        
+
         for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
             if day in schedule:
                 setattr(habit, day, json.dumps(schedule[day]))
             else:
                 setattr(habit, day, '{}')
-        
+
         db.commit()
         return JSONResponse(content={"answer": "success"})
-        
+
     except Exception as e:
         logger.error(f"Error updating habit schedule: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # ------------------------------------------------------------------------------------------
 
@@ -194,7 +198,7 @@ async def get_profile(user_id: int, token: str = Depends(get_token), db: Session
 
 @app.post("/user/profile/update")
 async def update_profile(data: ProfileUpdateRequest, token: str = Depends(get_token), db: Session = Depends(get_db),
-):
+                         ):
     """
     Обновление данных профиля для пользователя с указанным user_id.
     Если какие-то поля не переданы, они не изменяются.

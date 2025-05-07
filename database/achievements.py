@@ -1,12 +1,13 @@
 import logging
 
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy import select, desc
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
 
-from models import Achievement, UserAchievement
+from achievement_checks import *
+from models import Achievement, UserAchievement, Habit
 
 logger = logging.getLogger(__name__)
 
@@ -33,3 +34,50 @@ async def get_last_10_achievements(user_id: int, db: Session):
         db.rollback()
         logger.error(f"Unexpected error fetching achievements for user '{user_id}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+checks = {
+    "all": [
+        streak_check,
+    ],
+    "not_habit": [
+        unique_habits,
+    ],
+    "habit": {
+        "Veeeeryyy looooooooooooooong naaaameeee": [
+            check1,
+        ],
+    }
+}
+
+
+def update_achieves(user_id, habit_id, db):
+    achievements = checks
+    habit = db.query(Habit).where(Habit.id == habit_id).first()
+    if habit.name in achievements['habit'].keys():
+        for check in achievements['habit'][habit.name]:
+            achievement_id = check(user_id, habit_id, db)
+            if achievement_id:
+                add_achievement(achievement_id, user_id, db)
+    for check in achievements['all']:
+        achievement_id = check(user_id, habit_id, db)
+        if achievement_id:
+            add_achievement(achievement_id, user_id, db)
+
+
+def update_all_achieves(user_id, habit_id, db):
+    achievements = checks
+    for check in achievements['not_habit']:
+        achievement_id = check(user_id, habit_id, db)
+        if achievement_id:
+            add_achievement(achievement_id, user_id, db)
+
+
+def add_achievement(achievement_id, user_id, db):
+    # db = Session()
+    # today = datetime.today().strftime('%Y-%m-%d')
+    # user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id, date_achieved=today)
+    # db.add(user_achievement)
+    # db.commit()
+    # db.refresh(user_achievement)
+    pass
