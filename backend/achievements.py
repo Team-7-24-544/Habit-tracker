@@ -2,7 +2,6 @@ from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, desc
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 from achievement_checks import *
 from bot_message import add_message
@@ -39,9 +38,11 @@ async def get_last_10_achievements(user_id: int, db: Session):
 checks = {
     "all": [
         streak_check,
+        total_check,
     ],
     "not_habit": [
         unique_habits,
+        together,
     ],
     "habit": {
         "Veeeeryyy looooooooooooooong naaaameeee": [

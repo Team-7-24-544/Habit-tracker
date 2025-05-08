@@ -18,7 +18,7 @@ class _HabitItemState extends State<HabitItem> {
   double alpha = 1.0;
   bool pressed = false;
 
-  void onPressed() {
+  Future<void> onPressed() async {
     var now = DateTime.now();
     var habitTimeStart = DateFormat('HH:mm').parse(widget.habit.start);
     var habitTimeEnd = DateFormat('HH:mm').parse(widget.habit.end);
@@ -29,8 +29,7 @@ class _HabitItemState extends State<HabitItem> {
         now.year, now.month, now.day, habitTimeEnd.hour, habitTimeEnd.minute);
 
     if (now.isAfter(habitDateTimeStart) && !pressed) {
-      widget.onToggle(widget.habit.id);
-      pressed = true;
+      if (await widget.onToggle(widget.habit.id)) pressed = true;
     }
     if (now.isBefore(habitDateTimeEnd)) {
       setState(() {

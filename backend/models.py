@@ -17,7 +17,7 @@ class User(Base):
     tg_name = Column(String, nullable=False)
     tg_checked = Column(Boolean, default=False, nullable=False)
     chat_id = Column(Integer, default=-1, nullable=False)
-    join_date = Column(Date, nullable=False)
+    join_date = Column(String, nullable=False)
 
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, login={self.login}, tg_name={self.tg_name}, join_date={self.join_date})>"

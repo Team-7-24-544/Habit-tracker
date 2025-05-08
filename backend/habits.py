@@ -50,7 +50,7 @@ def create_habit(name: str, description: str, time_table: str, db: Session) -> i
     days = json.loads(time_table)
     for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']:
         if day not in days:
-            days[day] = '{}'
+            days[day] = dict()
     new_habit = Habit(
         name=name,
         description=description,
@@ -229,8 +229,7 @@ async def set_mark(user_id: int, habit_id: int, db: Session) -> JSONResponse:
         daily_schedule = json.loads(getattr(habit, datetime.now().strftime("%A").lower()))
         current_period_start = None
         for start_time, end_time in daily_schedule.items():
-            if datetime.strptime(start_time, "%H:%M") <= datetime.strptime(current_time, "%H:%M") <= datetime.strptime(
-                    end_time, "%H:%M"):
+            if datetime.strptime(start_time, "%H:%M") <= datetime.strptime(current_time, "%H:%M"):
                 current_period_start = start_time
                 break
 

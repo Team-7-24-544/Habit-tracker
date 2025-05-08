@@ -114,9 +114,11 @@ class _HabitChecklistState extends State<HabitChecklist> {
     final habitIndex = _habits.indexWhere((habit) => habit.id == habitId);
     if (habitIndex != -1) {
       var result = await markHabitAsCompleted(habitId);
-      setState(() {
-        _habits[habitIndex] = _habits[habitIndex].copyWith(completed: true);
-      });
+      if (result) {
+        setState(() {
+          _habits[habitIndex] = _habits[habitIndex].copyWith(completed: true);
+        });
+      }
       return result;
     }
     return false;
