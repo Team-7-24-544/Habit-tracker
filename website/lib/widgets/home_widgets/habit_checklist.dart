@@ -110,14 +110,16 @@ class _HabitChecklistState extends State<HabitChecklist> {
     }
   }
 
-  Future<void> _toggleHabit(String habitId) async {
+  Future<bool> _toggleHabit(String habitId) async {
     final habitIndex = _habits.indexWhere((habit) => habit.id == habitId);
     if (habitIndex != -1) {
-      await markHabitAsCompleted(habitId);
+      var result = await markHabitAsCompleted(habitId);
       setState(() {
         _habits[habitIndex] = _habits[habitIndex].copyWith(completed: true);
       });
+      return result;
     }
+    return false;
   }
 
   @override

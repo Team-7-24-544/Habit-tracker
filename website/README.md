@@ -1,30 +1,35 @@
-# Website
+# **Habit tracker**
 
-Название: **Habit tracker**
+# Реализация
 
-# Backend
+Написано на Dart c поддержкой Flutter
 
-Все файлы находятся в lib/
+Основные файлы находятся в lib/
 
 - main.dart
-- models - объекты без визуализации
+- models - структуры данных
 - pages - страницы сайта
-- services - вспомогательные скрипты/функции
+- services - вспомогательные скрипты/функции (API и тд)
 - widgets - кастомные виджеты
 
-# User Interface
+Взаимодействие с базой данных происходит через Https посредством ApiManager, собирающего, отправляющего и
+обрабатывающего API-запросы. Некоторые данные, как ApiManager хранятся в singleton-объекте MetaInfo.
+
+Большинство страниц имеет шаблонные детали, определяемые TemplatePage.
+
+Сайт еще в разработке - не везде реализован весь функционал
+
+# Интерфейс
 
 Все, что не настроено в backend напрямую находиться в web/. Также там (web/icons/) располагаются все картинки,
 используемые в сайте.
 
 - icons/navigations - картинки для панели навигации
 
-# Manifest
+# Запуск
 
-- pubspecs.yaml - настройка flutter'а
-
-# Run
-
-```
-flutter run -d chrome --web-port=8001 --web-hostname=localhost &
+```shell
+flutter pub get
+# при необходимости можно заменить Chrome на другой поддерживаемый браузер
+flutter run -d chrome --web-port=8001 --web-hostname=localhost 
 ```

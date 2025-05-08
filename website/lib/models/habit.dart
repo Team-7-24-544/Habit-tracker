@@ -2,19 +2,15 @@ class Habit {
   final String id, name, description;
   bool completed, isEnabled;
   String start, end;
-  double progress;
-  Map<String, List<String>> schedule;
 
   Habit({
     required this.id,
     required this.name,
     required this.description,
-    required this.start,
-    required this.end,
+    this.start = '',
+    this.end = '',
     this.completed = false,
     this.isEnabled = false,
-    this.progress = 0.0,
-    this.schedule = const {},
   });
 
   Habit copyWith({
@@ -25,7 +21,6 @@ class Habit {
     String? end,
     bool? completed,
     bool? isEnabled,
-    double? progress,
     Map<String, List<String>>? schedule,
   }) {
     return Habit(
@@ -36,8 +31,40 @@ class Habit {
       end: end ?? this.end,
       completed: completed ?? this.completed,
       isEnabled: isEnabled ?? this.isEnabled,
-      progress: progress ?? this.progress,
-      schedule: schedule ?? this.schedule,
     );
   }
+}
+
+class SmallHabit {
+  final String id, name, description;
+  bool pause;
+
+  SmallHabit({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.pause = false,
+  });
+}
+
+class LargeHabit {
+  final String id, name, description;
+  int streak, missed, toggled;
+  bool pause;
+  String start, end;
+  Map<String, Map<String, String>> schedule;
+  List<String> achievements = [];
+
+  LargeHabit({
+    required this.id,
+    this.name = '',
+    this.description = '',
+    this.start = '',
+    this.pause = false,
+    this.end = '',
+    this.missed = 0,
+    this.schedule = const {},
+    this.toggled = 0,
+    this.streak = 0,
+  });
 }

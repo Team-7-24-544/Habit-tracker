@@ -62,7 +62,7 @@ class HabitTracking(Base):
     start = Column(String, nullable=False)
     end = Column(String, nullable=True, default=None)
     missed_count = Column(Integer, default=0, nullable=False)
-    monthly_schedule = Column(String, nullable=False)
+    monthly_schedule = Column(String, default="{}", nullable=False)
     streak = Column(Integer, default=0, nullable=False)
     value = Column(Integer, default=0, nullable=False)
 

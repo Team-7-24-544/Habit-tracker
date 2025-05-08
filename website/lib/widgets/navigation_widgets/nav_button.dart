@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
 
-NavButton createNavButton(NavigationOptions type, NavigationOptions selected, Function goTo) {
+NavButton createNavButton(
+    NavigationOptions type, NavigationOptions selected, Function goTo) {
   String icon = 'web/icons/navigations/', label = '';
   switch (type) {
     case NavigationOptions.home:
@@ -26,10 +27,19 @@ NavButton createNavButton(NavigationOptions type, NavigationOptions selected, Fu
       label = 'Settings';
       break;
     default:
-      return NavButton(icon: 'web/icons/no picture.png', label: 'Error 404', type: type, goTo: goTo);
+      return NavButton(
+          icon: 'web/icons/no picture.png',
+          label: 'Error 404',
+          type: type,
+          goTo: goTo);
   }
   icon += '${label.toLowerCase()}.png';
-  return NavButton(icon: icon, label: label, isSelected: type == selected, type: type, goTo: goTo);
+  return NavButton(
+      icon: icon,
+      label: label,
+      isSelected: type == selected,
+      type: type,
+      goTo: goTo);
 }
 
 class NavButton extends StatelessWidget {
@@ -95,7 +105,8 @@ class NavButton extends StatelessWidget {
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(
@@ -118,4 +129,5 @@ enum NavigationOptions {
   settings,
   login,
   registration,
+  none,
 }

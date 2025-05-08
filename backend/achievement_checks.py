@@ -1,8 +1,12 @@
+import logging
 from datetime import datetime
 
 from sqlalchemy import and_, func
 
 from models import HabitTracking, Achievement, Habit
+
+logger = logging.getLogger("info_logger")
+errors = logging.getLogger("error_logger")
 
 
 def streak_check(user_id, habit_id, db):

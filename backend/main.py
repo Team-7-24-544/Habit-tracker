@@ -2,12 +2,10 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from achievements import get_last_10_achievements
-from bot_message import redis
-from config import check_token
-from config import get_token
+from config import check_token, get_token
 from database import SessionLocal, init_db
 from emoji_calendar import get_emotions, set_emoji_for_day, get_habit_periods
-from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark, get_all_habits
+from habits import add_habit, get_templates, get_template_by_id, get_habits, set_mark, get_all_habits, load_habit
 from logging_config import setup_logging
 from models import Habit
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
@@ -160,6 +158,12 @@ async def get_all_habits_(user_id: int, token: str = Depends(get_token), db: Ses
     return await get_all_habits(user_id, db)
 
 
+@app.get("/habits/load_habit")
+async def load_habit_(user_id: int, habit_id: int, token: str = Depends(get_token), db: Session = Depends(get_db)):
+    check_token(token, user_id)
+    return await load_habit(user_id, habit_id, db)
+
+
 @app.post("/habits/update_schedule")
 async def update_habit_schedule(user_id: int, habit_id: str, time_table: str, token: str = Depends(get_token),
                                 db: Session = Depends(get_db)):
@@ -225,5 +229,4 @@ async def update_profile(data: ProfileUpdateRequest, token: str = Depends(get_to
 if __name__ == "__main__":
     import uvicorn
 
-    print(redis)
     uvicorn.run(app, host="127.0.0.1", port=5000, ssl_keyfile='data/key.pem', ssl_certfile='data/cert.pem')

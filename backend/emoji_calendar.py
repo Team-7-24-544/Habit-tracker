@@ -1,16 +1,17 @@
-from datetime import datetime
 import logging
 from datetime import date
+from datetime import datetime
 
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from fastapi.responses import JSONResponse
 
 from models import MoodTracking, HabitTracking
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("info_logger")
+errors = logging.getLogger("error_logger")
 
 
 async def get_emotions(user_id: int, db: Session):
@@ -23,10 +24,10 @@ async def get_emotions(user_id: int, db: Session):
             days[emotion.mood_date] = emotion.mood_value
         return JSONResponse(content={"answer": "success", "days": days})
     except IntegrityError as e:
-        logger.error(f"Error fetching emotions for user '{user_id}': {e.detail}")
+        errors.error(f"Error fetching emotions for user '{user_id}': {e.detail}")
         raise HTTPException(status_code=400, detail={"id": -1, "answer": "Error fetching emotions"})
     except Exception as e:
-        logger.error(f"Unexpected error fetching emotions for user '{user_id}': {str(e)}")
+        errors.error(f"Unexpected error fetching emotions for user '{user_id}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -46,21 +47,21 @@ async def set_emoji_for_day(user_id: int, emoji: int, db: Session):
             db.commit()
             db.refresh(new_entry)
 
-        logger.info(f"Successfully set emoji '{emoji}' for user {user_id} on {day}")
+        errors.info(f"Successfully set emoji '{emoji}' for user {user_id} on {day}")
         return JSONResponse(content={"answer": "success", "body": {"days": {day: emoji}}})
     except HTTPException as e:
         db.rollback()
-        logger.error(f"Error setting emoji for user {id} on {day}: {e.detail}")
+        errors.error(f"Error setting emoji for user {id} on {day}: {e.detail}")
         raise e
 
     except IntegrityError as e:
         db.rollback()
-        logger.error(f"Error while setting emoji: {str(e)}")
+        errors.error(f"Error while setting emoji: {str(e)}")
         raise HTTPException(status_code=400, detail={"id": -1, "answer": "Error setting emoji"})
 
     except Exception as e:
         db.rollback()
-        logger.error(f"Unexpected error setting emoji for user {user_id} on {day}: {str(e)}")
+        errors.error(f"Unexpected error setting emoji for user {user_id} on {day}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -92,5 +93,5 @@ async def get_habit_periods(user_id: int, db: Session):
 
         return JSONResponse(content={"answer": "success", "habit_periods": {"starts": starts, "ends": ends}})
     except Exception as e:
-        logger.error(f"Error fetching habit periods for user_id {user_id}: {str(e)}")
+        errors.error(f"Error fetching habit periods for user_id {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
