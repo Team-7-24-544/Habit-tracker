@@ -5,6 +5,7 @@ import '../widgets/groups_widgets/group_header.dart';
 import '../widgets/groups_widgets/achievement_leaderboard.dart';
 import '../widgets/groups_widgets/recent_achievements.dart';
 import '../widgets/groups_widgets/upcoming_habits.dart';
+import '../widgets/groups_widgets/group_chat.dart';
 
 class GroupsPage extends TemplatePage {
   @override
@@ -72,32 +73,57 @@ class GroupsPage extends TemplatePage {
       ),
     ];
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              GroupHeader(
-                groupName: 'Команда Здоровья',
-                members: members,
+    // Ограничиваем высоту, чтобы внутри ScrollView не было бесконечной
+    final availableHeight = MediaQuery.of(context).size.height - kToolbarHeight;
+
+    return SizedBox(
+      height: availableHeight,
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Левая колонка: скроллимый контент
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          GroupHeader(
+                            groupName: 'Команда Здоровья',
+                            members: members,
+                          ),
+                          const SizedBox(height: 40),
+                          RecentAchievements(achievements: recentAchievements),
+                          const SizedBox(height: 40),
+                          UpcomingHabits(habits: upcomingHabits),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              RecentAchievements(achievements: recentAchievements),
-              const SizedBox(height: 24),
-              UpcomingHabits(habits: upcomingHabits),
-            ],
-          ),
+            ),
+            const SizedBox(width: 40),
+            // Правая колонка: лидерборд и чат
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  AchievementLeaderboard(userAchievements: achievements),
+                  const SizedBox(height: 40),
+                  Expanded(child: GroupChat()),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 24),
-        Expanded(
-          flex: 1,
-          child: AchievementLeaderboard(
-            userAchievements: achievements,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
+

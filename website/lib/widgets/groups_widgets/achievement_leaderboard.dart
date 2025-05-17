@@ -10,6 +10,7 @@ class AchievementLeaderboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Правильно сортируем список «на месте» и возвращаем его же
     final sortedUsers = userAchievements.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
@@ -28,6 +29,7 @@ class AchievementLeaderboard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
+            // Проходим по уже отсортированному списку
             ...sortedUsers.asMap().entries.map((entry) {
               final index = entry.key;
               final user = entry.value;
