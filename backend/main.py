@@ -1,4 +1,8 @@
-from fastapi import FastAPI, Depends
+"""
+Главный файл с обработкой всех API-запросов
+"""
+
+from fastapi import FastAPI, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 from achievements import get_last_10_achievements
@@ -10,7 +14,7 @@ from logging_config import setup_logging
 from models import Habit
 from request_models import RegisterUserRequest, HabitCreateRequest, SetEmojiRequest, UserUpdateRequest, \
     SetMarkRequest, SettingsUpdateRequest, ProfileUpdateRequest
-from user_profile import get_user_profile, update_user_profile
+from user_profile import get_user_profile, update_user_profile, upload_image, get_image
 from users import *
 
 setup_logging()
@@ -222,6 +226,16 @@ async def update_profile(data: ProfileUpdateRequest, token: str = Depends(get_to
         data.monthly_quote,
         db
     )
+
+
+@app.post("/upload_image")
+async def _upload_image(user_id: int, file: UploadFile = File(...)):
+    return await upload_image(user_id, file)
+
+
+@app.get("/get_image")
+async def _get_image(user_id: int):
+    return await get_image(user_id)
 
 
 # ------------------------------------------------------------------------------------------

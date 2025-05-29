@@ -1,7 +1,11 @@
+"""
+Файл с реализацией проверок получения новых достижений пользователем
+"""
+
 import logging
 from datetime import datetime
 
-from sqlalchemy import and_, func
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from models import HabitTracking, Achievement, Habit, User
@@ -44,6 +48,8 @@ def streak_check(user_id: int, habit_id: int, db: Session):
 
 
 def total_check(user_id: int, habit_id: int, db: Session):
+    """общее кол-во выполнений"""
+
     def next_stage(current):
         if current < 10:
             return current + 5
@@ -78,11 +84,13 @@ def total_check(user_id: int, habit_id: int, db: Session):
         return achievement.id
 
 
-def check1(user_id, habit_id, db):
+def some_custom_check(user_id, habit_id, db):
+    """Проверка получения достижения связанного с habit_id"""
     pass
 
 
 def unique_habits(user_id: int, habit_id: int, db: Session):
+    """общее кол-во уникальных привычек выполнений"""
     tracking_all = db.query(HabitTracking).where(HabitTracking.user_id == user_id).all()
     cnt = 0
     for tracking in tracking_all:
@@ -145,35 +153,3 @@ def together(user_id: int, habit_id: int, db: Session):
         db.refresh(achievement)
 
     return achievement.id
-
-
-def running_100km_month_check(user_id, habit_id, db):
-    today = datetime.now()
-    total_distance = db.query(func.sum(HabitTracking.value)).where(
-        and_(
-            HabitTracking.user_id == user_id,
-            HabitTracking.habit_id == habit_id,
-        )
-    ).scalar() or 0
-
-    if total_distance >= 100:
-        achievement = db.query(Achievement).where(
-            and_(
-                Achievement.habit_id == habit_id,
-                Achievement.check_function == 'running_100km_month_check'
-            )
-        ).first()
-
-        if not achievement:
-            achievement = Achievement(
-                name="Стокилометровка (100 км в месяц)",
-                description=f"Пробежал {total_distance:.1f} км за месяц",
-                habit_id=habit_id,
-                check_function='running_100km_month_check'
-            )
-            db.add(achievement)
-            db.commit()
-            db.refresh(achievement)
-
-        return achievement.id
-    return None

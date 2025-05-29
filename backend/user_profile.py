@@ -1,11 +1,14 @@
 import logging
+import shutil
+from pathlib import Path
 
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from starlette.responses import FileResponse
 
-from models import UserProfile
+from models import UserProfile, User
 
 logger = logging.getLogger("info_logger")
 errors = logging.getLogger("error_logger")
@@ -20,8 +23,13 @@ async def get_user_profile(user_id: int, db: Session):
         # Получаем профиль по внешнему ключу user_id
         profile = db.query(UserProfile).filter(UserProfile.user_id == user_id).first()
         if not profile:
-            errors.error("Profile not found")
-            raise HTTPException(status_code=404, detail="Profile not found")
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                errors.error(f"User {user_id} not found")
+                raise HTTPException(status_code=404, detail="User not found")
+            profile = UserProfile(user_id=user_id, nickname=user.name, telegram=user.tg_name, avatar_url="none")
+            db.add(profile)
+            db.commit()
 
         response = {
             "answer": "success",
@@ -95,3 +103,25 @@ async def update_user_profile(
         db.rollback()
         errors.error(f"Unexpected error updating profile for user {user_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+async def upload_image(user_id: int, file: UploadFile = File(...)):
+    DATA_DIR = Path(__file__).resolve().parent.parent / "database" / "photo"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    file_path = DATA_DIR / f"user_{user_id}.jpg"
+
+    with file_path.open("wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    return {"message": f"Изображение сохранено как {file_path.name}"}
+
+
+async def get_image(user_id: int):
+    DATA_DIR = Path(__file__).resolve().parent.parent / "database" / "photo"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    file_path = DATA_DIR / f"user_{user_id}.jpg"
+
+    if not file_path.exists():
+        file_path = DATA_DIR / "none.jpeg"
+
+    return FileResponse(path=file_path, media_type="image/jpeg", filename=file_path.name)

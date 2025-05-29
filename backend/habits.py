@@ -1,3 +1,7 @@
+"""
+Все механизмы работы с привычками (добавление, обновление и тд)
+"""
+
 import json
 import logging
 from datetime import date, datetime, timedelta

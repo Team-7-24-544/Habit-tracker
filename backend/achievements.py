@@ -1,3 +1,7 @@
+"""
+Глобальная логика проверки достижений
+"""
+
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, desc
@@ -35,40 +39,46 @@ async def get_last_10_achievements(user_id: int, db: Session):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+UNIVERSAL_CHECK = "all"
+SPECIAL_CHECK = "not_habit"
+CUSTOM_CHECK = "custom"
+
 checks = {
-    "all": [
+    UNIVERSAL_CHECK: [
         streak_check,
         total_check,
     ],
-    "not_habit": [
+    CUSTOM_CHECK: {
+        "Some habit": [
+            some_custom_check,
+            ...
+        ],
+    },
+    SPECIAL_CHECK: [
         unique_habits,
         together,
     ],
-    "habit": {
-        "Veeeeryyy looooooooooooooong naaaameeee": [
-            check1,
-        ],
-    }
 }
 
 
 def update_achieves(user_id, habit_id, db):
     achievements = checks
     habit = db.query(Habit).where(Habit.id == habit_id).first()
-    if habit.name in achievements['habit'].keys():
-        for check in achievements['habit'][habit.name]:
+    if habit.name in achievements[SPECIAL_CHECK].keys():
+        for check in achievements[SPECIAL_CHECK][habit.name]:
             achievement_id = check(user_id, habit_id, db)
             if achievement_id:
                 add_achievement(achievement_id, user_id, db)
-    for check in achievements['all']:
-        achievement_id = check(user_id, habit_id, db)
-        if achievement_id:
-            add_achievement(achievement_id, user_id, db)
+    else:
+        for check in achievements[UNIVERSAL_CHECK]:
+            achievement_id = check(user_id, habit_id, db)
+            if achievement_id:
+                add_achievement(achievement_id, user_id, db)
 
 
 def update_all_achieves(user_id, habit_id, db):
     achievements = checks
-    for check in achievements['not_habit']:
+    for check in achievements[SPECIAL_CHECK]:
         achievement_id = check(user_id, habit_id, db)
         if achievement_id:
             add_achievement(achievement_id, user_id, db)

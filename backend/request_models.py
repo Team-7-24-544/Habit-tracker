@@ -1,3 +1,7 @@
+"""
+Модели для обработки POST-запросов
+"""
+
 from pydantic import BaseModel
 
 

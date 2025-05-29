@@ -1,3 +1,7 @@
+"""
+Механизм работы с виджетом "календарь-эмоций"
+"""
+
 import logging
 from datetime import date
 from datetime import datetime

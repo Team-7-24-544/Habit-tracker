@@ -1,22 +1,42 @@
-CREATE TABLE IF NOT EXISTS users
-(
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT    NOT NULL,
-    login      TEXT    NOT NULL UNIQUE,
-    password   TEXT    NOT NULL,
-    tg_name    TEXT    NOT NULL,
-    tg_checked BOOLEAN NOT NULL DEFAULT FALSE,
-    join_date  DATE    NOT NULL
-);
---INSERT INTO users (name, login, password, tg_name, tg_checked)
---VALUES ('Иван Иванов', 'ivanov', 'password123', '@ivanov', TRUE, '2024-09-01'),
---       ('Мария Петрова', 'petrova', 'secure password', '@maria_petrov', FALSE, '1970-01-01');
+/* Пример создания архитектуры базы данных*/
 
-CREATE TABLE IF NOT EXISTS habit
+create table all_achievements
 (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    description TEXT NOT NULL,
+    id             INTEGER
+        primary key autoincrement,
+    name           TEXT not null,
+    description    TEXT not null,
+    habit_id       integer,
+    check_function String
+);
+
+create table group_memberships
+(
+    id        INTEGER
+        primary key autoincrement,
+    group_id  INTEGER               not null
+        references groups,
+    user_id   INTEGER               not null
+        references users,
+    joined_at DATE                  not null,
+    is_admin  boolean default false not null,
+    unique (group_id, user_id)
+);
+
+create table groups
+(
+    id         INTEGER
+        primary key autoincrement,
+    name       TEXT not null,
+    created_at DATE not null
+);
+
+create table habit
+(
+    id          INTEGER
+        primary key autoincrement,
+    name        TEXT not null,
+    description TEXT not null,
     monday      TEXT,
     tuesday     TEXT,
     wednesday   TEXT,
@@ -26,11 +46,12 @@ CREATE TABLE IF NOT EXISTS habit
     sunday      TEXT
 );
 
-CREATE TABLE IF NOT EXISTS habit_templates
+create table habit_templates
 (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    description TEXT NOT NULL,
+    id          INTEGER
+        primary key autoincrement,
+    name        TEXT not null,
+    description TEXT not null,
     monday      TEXT,
     tuesday     TEXT,
     wednesday   TEXT,
@@ -40,87 +61,86 @@ CREATE TABLE IF NOT EXISTS habit_templates
     sunday      TEXT
 );
 
-CREATE TABLE IF NOT EXISTS habit_tracking
+create table habit_tracking
 (
-    id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id          INTEGER NOT NULL,
-    habit_id         INTEGER NOT NULL,
-    date             DATE    NOT NULL,
-    is_done          BOOLEAN NOT NULL DEFAULT FALSE,
-    missed_count     INTEGER NOT NULL DEFAULT 0,
-    monthly_schedule TEXT    NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (habit_id) REFERENCES habit (id),
-    UNIQUE (user_id, habit_id, date)
+    id               INTEGER
+        primary key autoincrement,
+    user_id          INTEGER              not null
+        references users,
+    habit_id         INTEGER              not null
+        references habit,
+    start            STRING               not null,
+    missed_count     INTEGER default 0    not null,
+    monthly_schedule TEXT    default '{}' not null,
+    end              STRING,
+    streak           integer,
+    value            integer default 0,
+    unique (user_id, habit_id)
 );
---INSERT INTO habit_tracking (user_id, habit_id, date, is_done, missed_count, monthly_schedule) VALUES
---(1, 1, '2024-12-01', TRUE, 0, '{"2024-12-01": true, "2024-12-02": false, "2024-12-03": true}'),
---(2, 2, '2024-12-01', FALSE, 1, '{"2024-12-01": false, "2024-12-02": true, "2024-12-03": false}');
 
-CREATE TABLE IF NOT EXISTS mood_tracking
+create table mood_tracking
 (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER NOT NULL,
-    mood_date  TEXT    NOT NULL,
-    mood_value INTEGER NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    UNIQUE (user_id, mood_date)
+    id         INTEGER
+        primary key autoincrement,
+    user_id    INTEGER not null
+        references users,
+    mood_date  DATE    not null,
+    mood_value INTEGER not null,
+    unique (user_id, mood_date)
 );
---INSERT INTO mood_tracking (user_id, mood_date, mood_value) VALUES
---(1, '2024-12-01', 7),
---(1, '2024-12-02', 5),
---(2, '2024-12-01', 8);
 
-CREATE TABLE IF NOT EXISTS all_achievements
+create table user_achievements
 (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    name        TEXT NOT NULL,
-    description TEXT NOT NULL,
-    condition   TEXT NOT NULL
+    id             INTEGER
+        primary key autoincrement,
+    user_id        INTEGER not null
+        references users,
+    achievement_id INTEGER not null
+        references all_achievements,
+    date_achieved  TEXT    not null,
+    unique (user_id, achievement_id)
 );
---INSERT INTO all_achievements (name, description, condition) VALUES
---('Первая привычка', 'Получено за добавление первой привычки.', 'Добавить хотя бы одну привычку.'),
---('7 дней подряд', 'Получено за выполнение привычки 7 дней подряд.', 'Выполнить привычку в течение 7 дней подряд.');
 
-CREATE TABLE IF NOT EXISTS user_achievements
+create table user_profiles
 (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id        INTEGER NOT NULL,
-    achievement_id INTEGER NOT NULL,
-    date_achieved  DATE    NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (achievement_id) REFERENCES all_achievements (id),
-    UNIQUE (user_id, achievement_id)
+    id             INTEGER not null
+        primary key,
+    user_id        INTEGER not null
+        unique
+        references users,
+    avatar_url     VARCHAR not null,
+    nickname       VARCHAR not null,
+    about          VARCHAR,
+    goal           VARCHAR,
+    telegram       VARCHAR,
+    monthly_habits VARCHAR,
+    monthly_quote  VARCHAR
 );
---INSERT INTO user_achievements (user_id, achievement_id, date_achieved) VALUES
---(1, 1, '2024-12-01'),
---(2, 2, '2024-12-07');
 
-CREATE TABLE IF NOT EXISTS groups
+create table user_settings
 (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    name       TEXT NOT NULL,
-    created_at DATE NOT NULL
+    user_id   integer,
+    option1   boolean default false,
+    option2   boolean default false,
+    option3   boolean default false,
+    option4   boolean default false,
+    id        integer not null
+        constraint id
+            primary key autoincrement,
+    weekends  TEXT,
+    reminders TEXT
 );
---INSERT INTO groups (name, created_at) VALUES
---('ЗОЖ', '2024-12-01', 1),
---('Челленджи 2024', '2024-12-03');
 
-CREATE TABLE IF NOT EXISTS group_memberships
+create table users
 (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    group_id  INTEGER NOT NULL,
-    user_id   INTEGER NOT NULL,
-    joined_at DATE    NOT NULL,
-    is_admin  BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (group_id) REFERENCES groups (id),
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    UNIQUE (group_id, user_id)
+    id         INTEGER
+        primary key autoincrement,
+    name       TEXT                  not null,
+    login      TEXT                  not null
+        unique,
+    password   TEXT                  not null,
+    tg_name    TEXT                  not null,
+    tg_checked BOOLEAN default FALSE not null,
+    join_date  Text                  not null,
+    chat_id    integer default -1    not null
 );
---INSERT INTO group_memberships (group_id, user_id, joined_at, is_admin) VALUES
---(1, 1, '2024-12-01', true),
---(1, 2, '2024-12-02', false);
-
------------------------------------------------------------------------------------------------
-INSERT INTO users (name, login, password, tg_name, join_date)
-VALUES ('admin', '123', '$2a$10$uQhS9u/APVALAWArkfTqzOVFMtB8qUwTgfZKuKBDjAT9ZnttcCtzK', 'admin', '2024-12-14');
