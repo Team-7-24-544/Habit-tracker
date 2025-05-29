@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import '../../models/habit.dart';
 
 class HabitItem extends StatefulWidget {
   final Habit habit;
   final Function(String) onToggle;
 
-  const HabitItem({Key? key, required this.habit, required this.onToggle}) : super(key: key);
+  const HabitItem({Key? key, required this.habit, required this.onToggle})
+      : super(key: key);
 
   @override
   _HabitItemState createState() => _HabitItemState();
@@ -16,18 +18,20 @@ class _HabitItemState extends State<HabitItem> {
   double alpha = 1.0;
   bool pressed = false;
 
-  void onPressed() {
+  Future<void> onPressed() async {
     var now = DateTime.now();
     var habitTimeStart = DateFormat('HH:mm').parse(widget.habit.start);
     var habitTimeEnd = DateFormat('HH:mm').parse(widget.habit.end);
 
-    var habitDateTimeStart = DateTime(now.year, now.month, now.day, habitTimeStart.hour, habitTimeStart.minute);
-    var habitDateTimeEnd = DateTime(now.year, now.month, now.day, habitTimeEnd.hour, habitTimeEnd.minute);
+    var habitDateTimeStart = DateTime(now.year, now.month, now.day,
+        habitTimeStart.hour, habitTimeStart.minute);
+    var habitDateTimeEnd = DateTime(
+        now.year, now.month, now.day, habitTimeEnd.hour, habitTimeEnd.minute);
 
-    if (now.isAfter(habitDateTimeStart) && now.isBefore(habitDateTimeEnd)) {
-      widget.onToggle(widget.habit.id);
-      pressed = true;
-    } else {
+    if (now.isAfter(habitDateTimeStart) && !pressed) {
+      if (await widget.onToggle(widget.habit.id)) pressed = true;
+    }
+    if (now.isBefore(habitDateTimeEnd)) {
       setState(() {
         alpha = 0.4;
         widget.habit.isEnabled = false;
@@ -45,7 +49,9 @@ class _HabitItemState extends State<HabitItem> {
         child: ListTile(
           leading: IconButton(
             icon: Icon(
-              widget.habit.completed ? Icons.check_circle : Icons.circle_outlined,
+              widget.habit.completed
+                  ? Icons.check_circle
+                  : Icons.circle_outlined,
               color: widget.habit.completed ? Colors.green : Colors.grey,
             ),
             onPressed: onPressed,
@@ -53,7 +59,8 @@ class _HabitItemState extends State<HabitItem> {
           title: Text(
             widget.habit.name,
             style: TextStyle(
-              decoration: widget.habit.completed ? TextDecoration.lineThrough : null,
+              decoration:
+                  widget.habit.completed ? TextDecoration.lineThrough : null,
               color: widget.habit.completed ? Colors.grey : Colors.grey[800],
             ),
           ),

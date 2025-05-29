@@ -1,5 +1,8 @@
+import asyncio
 import logging
+from datetime import datetime
 
+from redis import Redis
 from telegram import Update, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import (
     ContextTypes,
@@ -7,10 +10,11 @@ from telegram.ext import (
     ConversationHandler,
     CallbackQueryHandler,
     MessageHandler,
-    filters
+    filters, Application
 )
 
-from db import SessionLocal, User
+from db import SessionLocal, User, UserSettings
+from scheduler import is_weekend_today
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -19,6 +23,23 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 LOGIN_INPUT = 1
+
+redis = Redis(host="localhost", port=6379, decode_responses=True)
+
+
+async def worker(app: Application):
+    """Фоновая задача, проверяет очередь."""
+    db = SessionLocal()
+    while True:
+        task = redis.blpop(["message_queue"], timeout=10 * 60)
+        if task:
+            chat_id, text = task[1].split(":", 1)
+            chat_id = int(chat_id)
+            user = db.query(User).filter_by(chat_id=chat_id).first()
+            user_settings = db.query(UserSettings).filter_by(user_id=user.id).first()
+            if user_settings and not is_weekend_today(user_settings.weekends, datetime.now()):
+                await app.bot.send_message(chat_id=chat_id, text=text)
+        await asyncio.sleep(1)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -144,7 +165,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
-def setup_handlers(application):
+def setup_handlers(application: Application):
     """Настройка обработчиков команд"""
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],

@@ -1,6 +1,7 @@
 echo "Запуск main.dart..."
 
-# shellcheck disable=SC2164
-flutter run -d chrome --web-port=8001 --web-hostname=localhost &
+flutter pub get
+# при необходимости можно заменить Chrome на другой поддерживаемый браузер
+flutter run -d chrome --web-port=8001 --web-hostname=localhost
 
 wait

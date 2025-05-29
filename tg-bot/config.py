@@ -1,3 +1,2 @@
-BOT_TOKEN = "TOKEN"
-DATABASE_URL = "sqlite:///../database/data/example.sqlite"
+DATABASE_URL = "sqlite:///../database/example.sqlite"
 TIME_PERIOD = 120

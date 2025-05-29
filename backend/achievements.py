@@ -1,15 +1,14 @@
-import logging
-
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, desc
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 from achievement_checks import *
+from bot_message import add_message
 from models import Achievement, UserAchievement, Habit
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("info_logger")
+errors = logging.getLogger("error_logger")
 
 
 async def get_last_10_achievements(user_id: int, db: Session):
@@ -28,20 +27,22 @@ async def get_last_10_achievements(user_id: int, db: Session):
         return JSONResponse(content={"answer": "success", "achievements": achievements},
                             media_type="application/json; charset=utf-8")
     except IntegrityError as e:
-        logger.error(f"Error fetching achievements for user '{user_id}': {e.detail}")
+        errors.error(f"Error fetching achievements for user '{user_id}': {e.detail}")
         raise HTTPException(status_code=400, detail={"answer": "Error fetching achievements"})
     except Exception as e:
         db.rollback()
-        logger.error(f"Unexpected error fetching achievements for user '{user_id}': {str(e)}")
+        errors.error(f"Unexpected error fetching achievements for user '{user_id}': {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 checks = {
     "all": [
         streak_check,
+        total_check,
     ],
     "not_habit": [
         unique_habits,
+        together,
     ],
     "habit": {
         "Veeeeryyy looooooooooooooong naaaameeee": [
@@ -73,11 +74,16 @@ def update_all_achieves(user_id, habit_id, db):
             add_achievement(achievement_id, user_id, db)
 
 
-def add_achievement(achievement_id, user_id, db):
-    # db = Session()
-    # today = datetime.today().strftime('%Y-%m-%d')
-    # user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id, date_achieved=today)
-    # db.add(user_achievement)
-    # db.commit()
-    # db.refresh(user_achievement)
-    pass
+def add_achievement(achievement_id: int, user_id: int, db: Session):
+    try:
+        if db.query(UserAchievement).where(
+                and_(UserAchievement.achievement_id == achievement_id, UserAchievement.user_id == user_id)).first():
+            return
+        today = datetime.today().strftime('%Y-%m-%d')
+        user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement_id, date_achieved=today)
+        db.add(user_achievement)
+        db.commit()
+        achievement = db.query(Achievement).filter(Achievement.id == achievement_id).first()
+        add_message(user_id, "Получено новое достижение! " + str(achievement.name), db)
+    except Exception as e:
+        errors.error(f"Error adding achievement: {str(e)}")

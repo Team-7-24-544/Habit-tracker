@@ -1,8 +1,13 @@
+import logging
 import secrets
+
 import jwt
 from fastapi import HTTPException, Header
 
 SECRET_KEY = secrets.token_urlsafe(32)
+
+logger = logging.getLogger("info_logger")
+errors = logging.getLogger("error_logger")
 
 
 def check_token(token, user_id):
