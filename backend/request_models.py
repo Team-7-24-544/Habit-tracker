@@ -1,4 +1,6 @@
-from typing import List, Any
+"""
+Модели для обработки POST-запросов
+"""
 
 from pydantic import BaseModel
 
@@ -45,8 +47,8 @@ class ToggleSettingsUpdateRequest(BaseModel):
 
 class SettingsUpdateRequest(BaseModel):
     user_id: int
-    reminders: List[int]
-    weekends: List[Any]
+    reminders: list
+    weekends: list
 
 
 class ProfileUpdateRequest(BaseModel):
@@ -58,4 +60,3 @@ class ProfileUpdateRequest(BaseModel):
     telegram: str = None
     monthly_habits: str = None
     monthly_quote: str = None
-

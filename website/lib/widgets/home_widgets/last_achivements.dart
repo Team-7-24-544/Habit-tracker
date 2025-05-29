@@ -59,7 +59,7 @@ class _AchievementsState extends State<LastAchievements> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const FittedBox(
+          FittedBox(
             child: Row(
               children: [
                 Text(
@@ -69,8 +69,8 @@ class _AchievementsState extends State<LastAchievements> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(width: 8),
-                Text('🏆', style: TextStyle(fontSize: 24)),
+                const SizedBox(width: 8),
+                const Text('🏆', style: TextStyle(fontSize: 24)),
               ],
             ),
           ),

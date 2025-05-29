@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:website/models/MetaKeys.dart';
+
+import '../../models/MetaInfo.dart';
+import '../../models/user_profile.dart';
 import '../../services/api_manager.dart';
 import '../../services/api_query.dart';
-import '../../models/user_profile.dart';
-import '../../models/MetaInfo.dart';
 
 class ProfileContent extends StatefulWidget {
   const ProfileContent({super.key});
@@ -25,7 +27,6 @@ class ProfileContentState extends State<ProfileContent> {
 
   final apiManager = MetaInfo.getApiManager();
 
-
   @override
   void initState() {
     super.initState();
@@ -33,22 +34,20 @@ class ProfileContentState extends State<ProfileContent> {
     _loadAndApplyProfile();
   }
 
-
   Future<void> _loadAndApplyProfile() async {
     final loaded = await _loadProfile();
     if (!mounted) return;
     setState(() {
       final profile = loaded;
       _loading = false;
-      aboutController.text         = profile.about;
-      goalController.text          = profile.goal;
-      nicknameController.text      = profile.nickname;
-      telegramController.text      = profile.telegram;
+      aboutController.text = profile.about;
+      goalController.text = profile.goal;
+      nicknameController.text = profile.nickname;
+      telegramController.text = profile.telegram;
       monthlyHabitsController.text = profile.monthlyHabits;
-      monthlyQuoteController.text  = profile.monthlyQuote;
+      monthlyQuoteController.text = profile.monthlyQuote;
     });
   }
-
 
   Future<UserProfile> _loadProfile() async {
     ApiQuery query = ApiQueryBuilder().path(QueryPaths.getProfile).build();
@@ -56,21 +55,20 @@ class ProfileContentState extends State<ProfileContent> {
 
     if (response.success && response.body.keys.contains('profile')) {
       final data = response.body['profile'] as Map<String, dynamic>;
-      
+
       return UserProfile(
-        avatarUrl:     data['avatar_url']     ?? '',
-        nickname:      data['nickname']       ?? '',
-        about:         data['about']          ?? '',
-        goal:          data['goal']           ?? '',
-        telegram:      data['telegram']       ?? '',
+        avatarUrl: data['avatar_url'] ?? '',
+        nickname: data['nickname'] ?? '',
+        about: data['about'] ?? '',
+        goal: data['goal'] ?? '',
+        telegram: data['telegram'] ?? '',
         monthlyHabits: data['monthly_habits'] ?? '',
-        monthlyQuote:  data['monthly_quote']  ?? '',
+        monthlyQuote: data['monthly_quote'] ?? '',
       );
     }
 
     return UserProfile.getDummyProfile();
   }
-
 
   @override
   void dispose() {
@@ -88,7 +86,6 @@ class ProfileContentState extends State<ProfileContent> {
       isEditing = !isEditing;
     });
   }
-
 
   Future<void> _saveProfile() async {
     profile.about = aboutController.text;
@@ -131,7 +128,9 @@ class ProfileContentState extends State<ProfileContent> {
   }
 
   // Функция для построения секций профиля с контроллером
-  Widget _buildProfileSection(String label, TextEditingController baseController, {int maxLines = 1}) {
+  Widget _buildProfileSection(
+      String label, TextEditingController baseController,
+      {int maxLines = 1}) {
     return Card(
       elevation: 4,
       margin: EdgeInsets.zero,
@@ -157,7 +156,8 @@ class ProfileContentState extends State<ProfileContent> {
                       maxLines: maxLines,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        contentPadding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       ),
                     )
                   : Text(
@@ -197,7 +197,8 @@ class ProfileContentState extends State<ProfileContent> {
                 ElevatedButton(
                   onPressed: isEditing ? _saveProfile : _toggleEdit,
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
                     backgroundColor: isEditing ? Colors.green : Colors.blue,
                   ),
                   child: Text(
@@ -218,18 +219,26 @@ class ProfileContentState extends State<ProfileContent> {
                         flex: 2,
                         child: Column(
                           children: [
-                            _buildProfileSection('О себе:', aboutController, maxLines: 5),
+                            _buildProfileSection('О себе:', aboutController,
+                                maxLines: 5),
                             const SizedBox(height: 24),
-                            _buildProfileSection('Цель/мотивация:', goalController, maxLines: 5),
+                            _buildProfileSection(
+                                'Цель/мотивация:', goalController,
+                                maxLines: 5),
                             const SizedBox(height: 24),
                             Row(
                               children: [
                                 Expanded(
-                                  child: _buildProfileSection('Привычки на месяц:', monthlyHabitsController, maxLines: 5),
+                                  child: _buildProfileSection(
+                                      'Привычки на месяц:',
+                                      monthlyHabitsController,
+                                      maxLines: 5),
                                 ),
                                 const SizedBox(width: 24),
                                 Expanded(
-                                  child: _buildProfileSection('Цитата месяца:', monthlyQuoteController, maxLines: 5),
+                                  child: _buildProfileSection(
+                                      'Цитата месяца:', monthlyQuoteController,
+                                      maxLines: 5),
                                 ),
                               ],
                             ),
@@ -244,17 +253,22 @@ class ProfileContentState extends State<ProfileContent> {
                           children: [
                             CircleAvatar(
                               radius: 75,
-                              backgroundImage: NetworkImage(profile.avatarUrl),
+                              backgroundImage: NetworkImage(
+                                  "${MetaInfo.getApiManager().mainUrl}/get_image?user_id=${MetaInfo.instance.get(MetaKeys.userId)}"),
                             ),
                             if (isEditing)
                               IconButton(
                                 icon: const Icon(Icons.camera_alt),
                                 onPressed: _uploadPhoto,
                               ),
-                            isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
-                            _buildProfileSection('Никнейм:', nicknameController),
+                            isEditing
+                                ? const SizedBox(height: 10)
+                                : const SizedBox(height: 50),
+                            _buildProfileSection(
+                                'Никнейм:', nicknameController),
                             const SizedBox(height: 24),
-                            _buildProfileSection('Telegram:', telegramController),
+                            _buildProfileSection(
+                                'Telegram:', telegramController),
                           ],
                         ),
                       ),
@@ -274,18 +288,26 @@ class ProfileContentState extends State<ProfileContent> {
                             icon: const Icon(Icons.camera_alt),
                             onPressed: _uploadPhoto,
                           ),
-                        isEditing ? const SizedBox(height: 10) : const SizedBox(height: 50),
+                        isEditing
+                            ? const SizedBox(height: 10)
+                            : const SizedBox(height: 50),
                         _buildProfileSection('Никнейм:', nicknameController),
                         const SizedBox(height: 24),
                         _buildProfileSection('Telegram:', telegramController),
                         const SizedBox(height: 24),
-                        _buildProfileSection('О себе:', aboutController, maxLines: 5),
+                        _buildProfileSection('О себе:', aboutController,
+                            maxLines: 5),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Цель/мотивация:', goalController, maxLines: 5),
+                        _buildProfileSection('Цель/мотивация:', goalController,
+                            maxLines: 5),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Привычки на месяц:', monthlyHabitsController, maxLines: 8),
+                        _buildProfileSection(
+                            'Привычки на месяц:', monthlyHabitsController,
+                            maxLines: 8),
                         const SizedBox(height: 24),
-                        _buildProfileSection('Цитата месяца:', monthlyQuoteController, maxLines: 8),
+                        _buildProfileSection(
+                            'Цитата месяца:', monthlyQuoteController,
+                            maxLines: 8),
                         const SizedBox(height: 24),
                       ],
                     ),

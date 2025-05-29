@@ -17,7 +17,7 @@ class User(Base):
     tg_name = Column(String, nullable=False)
     tg_checked = Column(Boolean, default=False, nullable=False)
     chat_id = Column(Integer, default=-1, nullable=False)
-    join_date = Column(Date, nullable=False)
+    join_date = Column(String, nullable=False)
 
     def __repr__(self):
         return f"<User(id={self.id}, name={self.name}, login={self.login}, tg_name={self.tg_name}, join_date={self.join_date})>"
@@ -62,7 +62,9 @@ class HabitTracking(Base):
     start = Column(String, nullable=False)
     end = Column(String, nullable=True, default=None)
     missed_count = Column(Integer, default=0, nullable=False)
-    monthly_schedule = Column(String, nullable=False)
+    monthly_schedule = Column(String, default="{}", nullable=False)
+    streak = Column(Integer, default=0, nullable=False)
+    value = Column(Integer, default=0, nullable=False)
 
     def __repr__(self):
         return f"<HabitTracking(user_id={self.user_id}, habit_id={self.habit_id}, start={self.start}, end={self.end})>"
@@ -74,7 +76,8 @@ class Achievement(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
-    condition = Column(String, nullable=False)
+    habit_id = Column(Integer, nullable=False)
+    check_function = Column(String, nullable=False)
 
     def __repr__(self):
         return f"<Achievement(name={self.name}, description={self.description})>"
@@ -86,7 +89,7 @@ class UserAchievement(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, nullable=False)
     achievement_id = Column(Integer, nullable=False)
-    date_achieved = Column(Date, nullable=False)
+    date_achieved = Column(String, nullable=False)
 
     def __repr__(self):
         return f"<UserAchievement(user_id={self.user_id}, achievement_id={self.achievement_id}, date_achieved={self.date_achieved})>"

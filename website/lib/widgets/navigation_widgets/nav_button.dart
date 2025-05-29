@@ -1,35 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:website/pages/template_page.dart';
 
-NavButton createNavButton(NavigationOptions type, NavigationOptions selected, Function goTo) {
+NavButton createNavButton(
+    NavigationOptions type, NavigationOptions selected, Function goTo) {
   String icon = 'web/icons/navigations/', label = '';
   switch (type) {
     case NavigationOptions.home:
-      label = 'Home';
+      label = 'ГЛАВНАЯ';
+      icon += 'home';
       break;
     case NavigationOptions.habits:
-      label = 'Habits';
+      label = 'МОИ ПРИВЫЧКИ';
+      icon += 'habits';
       break;
     case NavigationOptions.newHabit:
-      label = 'New habit';
+      label = 'НОВАЯ ПРИВЫЧКА';
+      icon += 'new habit';
       break;
     case NavigationOptions.groups:
-      label = 'Groups';
+      label = 'ГРУППЫ';
+      icon += 'groups';
       break;
     case NavigationOptions.achievements:
-      label = 'Achievements';
+      label = 'ДОСТИЖЕНИЯ';
+      icon += 'achievements';
       break;
     case NavigationOptions.profile:
-      label = 'Profile';
+      label = 'ПРОФИЛЬ';
+      icon += 'profile';
       break;
     case NavigationOptions.settings:
-      label = 'Settings';
+      label = 'НАСТРОЙКИ';
+      icon += 'settings';
       break;
     default:
-      return NavButton(icon: 'web/icons/no picture.png', label: 'Error 404', type: type, goTo: goTo);
+      return NavButton(
+          icon: 'web/icons/no picture.png',
+          label: 'Error 404',
+          type: type,
+          goTo: goTo);
   }
-  icon += '${label.toLowerCase()}.png';
-  return NavButton(icon: icon, label: label, isSelected: type == selected, type: type, goTo: goTo);
+  icon += '.png';
+  return NavButton(
+      icon: icon,
+      label: label,
+      isSelected: type == selected,
+      type: type,
+      goTo: goTo);
 }
 
 class NavButton extends StatelessWidget {
@@ -79,6 +96,7 @@ class NavButton extends StatelessWidget {
               color: Colors.white,
               fontSize: 12,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -95,7 +113,8 @@ class NavButton extends StatelessWidget {
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(
@@ -118,4 +137,5 @@ enum NavigationOptions {
   settings,
   login,
   registration,
+  none,
 }

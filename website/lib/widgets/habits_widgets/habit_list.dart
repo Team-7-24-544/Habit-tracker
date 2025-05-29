@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:website/models/MetaInfo.dart';
 import 'package:website/models/MetaKeys.dart';
 import 'package:website/models/habit.dart';
-import 'package:website/services/habits_service.dart';
 import 'package:website/pages/habit_details_page.dart';
+import 'package:website/services/habits_service.dart';
+
 import 'habit_card.dart';
 
 class HabitList extends StatefulWidget {
@@ -14,7 +15,7 @@ class HabitList extends StatefulWidget {
 }
 
 class _HabitListState extends State<HabitList> {
-  List<Habit> _habits = [];
+  List<SmallHabit> _habits = [];
   bool _isLoading = true;
 
   @override
@@ -36,24 +37,14 @@ class _HabitListState extends State<HabitList> {
     }
   }
 
-  Future<void> _toggleHabitStatus(String habitId, bool completed) async {
-    final userId = MetaInfo.instance.get(MetaKeys.userId);
-    if (userId != null) {
-      await HabitsService.toggleHabitStatus(userId, habitId, completed);
-      setState(() {
-        final habitIndex = _habits.indexWhere((h) => h.id == habitId);
-        if (habitIndex != -1) {
-          _habits[habitIndex] = _habits[habitIndex].copyWith(completed: completed);
-        }
-      });
-    }
-  }
-
-  void _openHabitDetails(BuildContext context, Habit habit) {
+  Future<void> _openHabitDetails(
+      BuildContext context, SmallHabit smallHabit) async {
+    var habit = await HabitsService.loadHabit(smallHabit.id);
+    if (habit.id == '-1') return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => HabitDetailsPage(habit: habit),
+        builder: (context) => HabitDetailPage(habit: habit),
       ),
     );
   }
@@ -95,7 +86,6 @@ class _HabitListState extends State<HabitList> {
       lst.add(HabitCard(
         habit: habit,
         onTap: () => _openHabitDetails(context, habit),
-        onStatusChanged: (completed) => _toggleHabitStatus(habit.id, completed),
       ));
     }
     return Column(

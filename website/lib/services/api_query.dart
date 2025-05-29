@@ -74,6 +74,7 @@ enum QueryPaths {
   getProfile("/user/profile"),
   updateProfile("/user/profile/update"),
   getTodayHabits("/habits/get_today_habits"),
+  loadHabit("/habits/load_habit"),
   setMarkToHabit("/habits/set_mark"),
   getHabitPeriods("/habits/get_periods"),
   updateHabitSchedule("/habits/update_schedule"),
