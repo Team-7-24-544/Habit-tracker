@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'nav_button.dart';
 
 class NavigateBar extends Container {
@@ -10,7 +11,7 @@ class NavigateBar extends Container {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 80,
+      width: 90,
       color: Colors.blue.shade900,
       constraints: BoxConstraints(
         minHeight: MediaQuery.of(context).size.height,

@@ -6,25 +6,32 @@ NavButton createNavButton(
   String icon = 'web/icons/navigations/', label = '';
   switch (type) {
     case NavigationOptions.home:
-      label = 'Home';
+      label = 'ГЛАВНАЯ';
+      icon += 'home';
       break;
     case NavigationOptions.habits:
-      label = 'Habits';
+      label = 'МОИ ПРИВЫЧКИ';
+      icon += 'habits';
       break;
     case NavigationOptions.newHabit:
-      label = 'New habit';
+      label = 'НОВАЯ ПРИВЫЧКА';
+      icon += 'new habit';
       break;
     case NavigationOptions.groups:
-      label = 'Groups';
+      label = 'ГРУППЫ';
+      icon += 'groups';
       break;
     case NavigationOptions.achievements:
-      label = 'Achievements';
+      label = 'ДОСТИЖЕНИЯ';
+      icon += 'achievements';
       break;
     case NavigationOptions.profile:
-      label = 'Profile';
+      label = 'ПРОФИЛЬ';
+      icon += 'profile';
       break;
     case NavigationOptions.settings:
-      label = 'Settings';
+      label = 'НАСТРОЙКИ';
+      icon += 'settings';
       break;
     default:
       return NavButton(
@@ -33,7 +40,7 @@ NavButton createNavButton(
           type: type,
           goTo: goTo);
   }
-  icon += '${label.toLowerCase()}.png';
+  icon += '.png';
   return NavButton(
       icon: icon,
       label: label,
@@ -89,6 +96,7 @@ class NavButton extends StatelessWidget {
               color: Colors.white,
               fontSize: 12,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

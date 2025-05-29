@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from models import UserProfile  # Импортируйте свою модель профиля
+from models import UserProfile
 
 logger = logging.getLogger("info_logger")
 errors = logging.getLogger("error_logger")
