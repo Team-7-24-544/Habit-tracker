@@ -80,7 +80,7 @@ class EmotionCalendarState extends State<EmotionCalendar> {
     final updatedStartDates = Map<DateTime, bool>.from(startDates);
     final updatedEndDates = Map<DateTime, bool>.from(endDates);
 
-    final dateFormatter = DateFormat('dd-MM-yyyy');
+    final dateFormatter = DateFormat('yyyy-MM-dd');
 
     for (var start in newList.item1.map((e) => dateFormatter.parse(e))) {
       if (updatedStartDates.keys.contains(start)) {

@@ -64,8 +64,8 @@ checks = {
 def update_achieves(user_id, habit_id, db):
     achievements = checks
     habit = db.query(Habit).where(Habit.id == habit_id).first()
-    if habit.name in achievements[SPECIAL_CHECK].keys():
-        for check in achievements[SPECIAL_CHECK][habit.name]:
+    if habit.name in achievements[CUSTOM_CHECK].keys():
+        for check in achievements[CUSTOM_CHECK][habit.name]:
             achievement_id = check(user_id, habit_id, db)
             if achievement_id:
                 add_achievement(achievement_id, user_id, db)
