@@ -9,3 +9,4 @@
 /backend/data/cert.pem
 /backend/data/app.log
 /tg-bot/bot_token.py
+venv
